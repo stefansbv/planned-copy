@@ -5,15 +5,42 @@ Yet Another Configuration Manager Application
 
 Version: 0.500 alpha
 
-This is personal solution for the task of managing configuration
-files, scripts and other things that need to be moved around.
+This is my personal solution for the task of managing configuration
+files, scripts and other files that need to be moved around.
 
 The idea behind the application is simple, but the implementation is
 complicated... :)
 
 I keep my configuration files, like many others do, in a Git
 repository.  The task is to install this files to the places where
-they belong as automated as possible.  My solution is to use a
+they belong to, as automated as possible.
+
+A minimal Git repository in `/home/user/configs`:
+
+```
+.
+├── emacs
+│   ├── custom.el
+│   ├── init.el
+│   └── resource.yml
+├── kde
+│   ├── Shell.profile
+│   └── resource.yml
+├── linux
+│   ├── ackrc
+│   ├── bash_alias
+│   ├── bash_profile
+│   ├── bash_prompt
+│   ├── bashrc
+│   └── resource.yml
+└── system
+    ├── rc.firebird
+    ├── rc.postgresql
+    └── resource.yml
+
+```
+
+My solution is to use a
 configuration file `resource.yml` in each project directory with the
 following information:
 
@@ -30,14 +57,43 @@ resources:
     source:
       name: ackrc
       path: linux
+
 ```
 
-The `yacm install linux` command will copy the `linux/ackrc` file to
-`/home/user/.ackrc` and will set the permissions to `0644`.
+The `yacm install linux` command will copy and rename the
+`linux/ackrc` file to `/home/user/.ackrc` and will set the permissions
+to `0644`.
 
-This configuration file is automatically generated/updated by the `yacm
-resu linux` command, but the destination path is initially undefined
-and have to be edited manually for every record.
+The `resource.yml` configuration file is automatically
+generated/updated by the `yacm resu linux` command, but the
+destination path is initially undefined and have to be edited manually
+for every record.
+
+
+Usage
+-----
+
+The initial configuration of `yacm`:
+
+```
+% yacm config set --url user@host:/path/to/git-repos/configs.git
+% yacm config set --path /home/user/configs
+
+```
+
+Clone the repository to localhost:
+
+```
+% yacm repo clone
+
+```
+
+Add update the `resource.yml` file in the `linux` directory:
+
+```
+% yacm resu linux
+
+```
 
 
 License And Copyright
