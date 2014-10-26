@@ -1,0 +1,9 @@
+#!/usr/bin/env perl
+# PODNAME: cfg
+# ABSTRACT: A Configuration Management Application.
+
+use App::ConfigManager;
+
+my $cmd = App::ConfigManager->new_with_command;
+
+$cmd->execute;
