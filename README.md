@@ -15,7 +15,7 @@ I keep my configuration files, like many others do, in a Git
 repository.  The task is to install this files to the places where
 they belong to, as automated as possible.
 
-A minimal Git repository in `/home/user/configs`:
+A minimal Git repository in `/home/user/configs` looks like this:
 
 ```
 .
@@ -37,7 +37,6 @@ A minimal Git repository in `/home/user/configs`:
     ├── rc.firebird
     ├── rc.postgresql
     └── resource.yml
-
 ```
 
 My solution is to use a
@@ -57,7 +56,6 @@ resources:
     source:
       name: ackrc
       path: linux
-
 ```
 
 The `yacm install linux` command will copy and rename the
@@ -70,31 +68,36 @@ destination path is initially undefined and have to be edited manually
 for every record.
 
 
-Usage
------
+Quick Usage
+-----------
 
 The initial configuration of `yacm`:
 
 ```
 % yacm config set --url user@host:/path/to/git-repos/configs.git
 % yacm config set --path /home/user/configs
-
 ```
 
 Clone the repository to localhost:
 
 ```
 % yacm repo clone
-
 ```
 
-Add update the `resource.yml` file in the `linux` directory:
+Add/update the `resource.yml` file in the `linux` directory:
 
 ```
 % yacm resu linux
-
 ```
 
+Edit the `linux/resource.yml` file and set the destination path for
+all the items.
+
+Finally install the files with:
+
+```
+% yacm install linux
+```
 
 License And Copyright
 ---------------------
