@@ -3,7 +3,7 @@ Yet Another Configuration Manager Application
 Ștefan Suciu
 2014-10-26
 
-Version: 0.500
+Version: 0.500 alpha
 
 This is personal solution for the task of managing configuration
 files, scripts and other things that need to be moved around.
@@ -33,8 +33,12 @@ resources:
 ```
 
 The `yacm install linux` command will copy the `linux/ackrc` file to
-`/home/user/.ackrc` and will set the permissions to `0644`.  Simple,
-but complicated...
+`/home/user/.ackrc` and will set the permissions to `0644`.
+
+This configuration file is automatically generated/updated by the `yacm
+resu linux` command, but the destination path is initially undefined
+and have to be edited manually for every record.
+
 
 License And Copyright
 ---------------------
