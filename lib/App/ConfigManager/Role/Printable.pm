@@ -19,74 +19,73 @@ has 'term_size' => (
     },
 );
 
+sub points {
+    my ($self, $msg_l, $msg_r) = @_;
+    my $gap    = 2 + 1;
+    my $points = '.' x (
+        $self->term_size - length($msg_l) - length($msg_r) - $gap
+    );
+    return $points;
+}
+
 sub printer {
-    my ( $self, $rec ) = @_;
-    my $gap = 2 + 1;
+    my ($self, $color, $msg_l, $msg_r) = @_;
+    my $points = $self->points($msg_l, $msg_r);
     my $space  = q{ };
-    my $points = '.' x
-        (         $self->term_size
-                - $rec->src->name_len
-                - $rec->dst->path_len
-                - $gap );
-    my $errorlevel = $self->get_error_level;
-  SWITCH: {
-        $errorlevel eq 'error' && do {
-            print color 'bright_red';
-            last SWITCH;
-        };
-        $errorlevel eq 'warn' && do {
-            print color 'bright_yellow';
-            last SWITCH;
-        };
-        $errorlevel eq 'info' && do {
-            print color 'green';
-            last SWITCH;
-        };
-    }
+    print color $color;
     print $space
-        , $rec->src->_name
+        , $msg_l
         , $space
         , $points
         , $space
-        , $rec->dst->short_path
+        , $msg_r
         ;
     print color 'reset';
     print "\n";
     return;
 }
 
-sub array_printer {
-    my ( $self, $errorlevel, @array ) = @_;
-    my $gap = 2 + 1;
-    my $space  = q{ };
+sub item_printer {
+    my ( $self, $rec ) = @_;
+    my $errorlevel = $self->get_error_level;
+    my $color
+        = $errorlevel eq 'error' ? 'bright_red'
+        : $errorlevel eq 'warn'  ? 'bright_yellow'
+        : $errorlevel eq 'info'  ? 'green'
+        :                          'reset';
+    $self->printer($color, $rec->src->_name, $rec->dst->short_path);
+    return;
+}
 
-  SWITCH: {
-        $errorlevel eq 'removed' && do {
-            print color 'bright_red';
-            last SWITCH;
-        };
-        $errorlevel eq 'added' && do {
-            print color 'bright_yellow';
-            last SWITCH;
-        };
-        $errorlevel eq 'kept' && do {
-            print color 'green';
-            last SWITCH;
-        };
-    }
+sub list_printer {
+    my ( $self, $errorlevel, @array ) = @_;
+    my $color
+        = $errorlevel eq 'removed' ? 'bright_red'
+        : $errorlevel eq 'added'   ? 'bright_yellow'
+        : $errorlevel eq 'kept'    ? 'green'
+        :                          'reset';
     foreach my $item (@array) {
-        my $points = '.' x (
-            $self->term_size - length($item) - length($errorlevel) - $gap
-        );
-        print $space ,
-              $item,
-              $space,
-              $points,
-              $space,
-              $errorlevel;
-        print "\n";
+        $self->printer($color, $item, $errorlevel);
     }
-    print color 'reset';
+    return;
+}
+
+sub project_list_printer {
+    my ( $self, @items ) = @_;
+    foreach my $item (@items) {
+        my $path = $item->{path};
+        my $resu = $item->{resource};
+        my ($color, $mesg);
+        if ($resu == 1) {
+            $color = 'green';
+            $mesg  = 'resource';
+        }
+        else {
+            $color = 'bright_yellow';
+            $mesg  = 'no resource';
+        }
+        $self->printer($color, $path, $mesg);
+    }
     return;
 }
 

@@ -200,9 +200,9 @@ sub execute {
         $self->write_resource( \@res_data );
     }
 
-    $self->array_printer( 'removed', @del );
-    $self->array_printer( 'kept',    @upd );
-    $self->array_printer( 'added',   @add );
+    $self->list_printer( 'removed', @del );
+    $self->list_printer( 'kept',    @upd );
+    $self->list_printer( 'added',   @add );
 
     $self->print_summary;
     $self->note

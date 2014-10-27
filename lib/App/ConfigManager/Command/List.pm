@@ -11,15 +11,16 @@ use namespace::autoclean;
 
 extends qw(App::ConfigManager);
 
-with qw(App::ConfigManager::Role::Utils);
+with qw(App::ConfigManager::Role::Utils
+        App::ConfigManager::Role::Printable);
 
 sub execute {
     my ( $self ) = @_;
 
-    say "Projects:";
-    foreach my $file ( @{ $self->get_projects } ) {
-        say " > ", $file->basename;
-    }
+    say "Job: list projects:\n";
+    $self->project_list_printer( @{ $self->get_projects } );
+
+    $self->print_summary;
 
     return;
 }
@@ -31,14 +32,33 @@ sub get_projects {
 
     my $rule = Path::Iterator::Rule->new;
     $rule->skip_vcs;
-    $rule->file->name( 'resource.yml' );
+    # $rule->file->name( 'resource.yml' );
+    $rule->min_depth(1);
+    $rule->max_depth(1);
 
     my $next = $rule->iter( $self->config->repo_path );
     my @dirs;
-    while ( defined( my $file = $next->() ) ) {
-        push @dirs, path($file)->parent;
+    while ( defined( my $item = $next->() ) ) {
+        # push @dirs, path($file)->parent;
+        my $path = path($item);
+        if ( $path->is_dir ) {
+            my $has_resu = path( $path, 'resource.yml')->is_file ? 1 : 0;
+            $self->inc_count_inst if $has_resu;
+            $self->inc_count_proc;
+            push @dirs, { path => $path->basename, resource => $has_resu };
+        }
     }
     return \@dirs;
+}
+
+sub print_summary {
+    my $self = shift;
+    say '';
+    say 'Summary:';
+    say ' - directories: ', $self->count_proc;
+    say ' - projects   : ', $self->count_inst;
+    say '';
+    return;
 }
 
 __PACKAGE__->meta->make_immutable;

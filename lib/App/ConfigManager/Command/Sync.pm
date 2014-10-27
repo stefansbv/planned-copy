@@ -46,7 +46,7 @@ sub execute {
             if ( my $e = Exception::Base->catch($_) ) {
                 $self->set_error_level('error');
                 if ( $e->isa('Exception::IO') ) {
-                    $self->printer($rec);
+                    $self->item_printer($rec);
                     say "  [EE] ", $e->message, ' ', $e->pathname
                         if $self->verbose;
                     $self->inc_count_skip;
@@ -58,14 +58,14 @@ sub execute {
         if ($cont) {
             try {
                 $self->synchronize($rec);
-                $self->printer($rec);
+                $self->item_printer($rec);
                 $self->inc_count_inst;
             }
             catch {
                 if ( my $e = Exception::Base->catch($_) ) {
                     $self->set_error_level('error');
                     if ( $e->isa('Exception::IO') ) {
-                        $self->printer($rec);
+                        $self->item_printer($rec);
                         say "  [EE] ", $e->message, ' ', $e->pathname
                             if $self->verbose;
                         $self->inc_count_skip;

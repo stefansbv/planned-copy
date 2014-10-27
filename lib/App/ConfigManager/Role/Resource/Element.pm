@@ -45,16 +45,6 @@ sub short_path {
     return $path;
 }
 
-sub name_len {
-    my $self = shift;
-    return length $self->_name;
-}
-
-sub path_len {
-    my $self = shift;
-    return length $self->short_path;
-}
-
 around BUILDARGS => sub {
     my $orig = shift;
     my $self = shift;
