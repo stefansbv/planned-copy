@@ -83,7 +83,7 @@ sub check {
     my $src_path = $rec->src->_abs_path;
     my $dst_path = $rec->dst->_abs_path;
     $self->is_selfsame( $src_path, $dst_path )
-        ? $self->set_error_level('none')
+        ? $self->set_error_level('info')
         : $self->set_error_level('warn');
     return;
 }
