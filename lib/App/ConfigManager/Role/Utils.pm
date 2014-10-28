@@ -31,7 +31,7 @@ sub is_selfsame {
 
 sub copy_file {
     my ($self, $src, $dst) = @_;
-    try { $src->copy($dst) }
+    try   { $src->copy($dst) }
     catch {
         Exception::IO::SystemCmd->throw(
             usermsg => 'The copy command failed.',
@@ -43,7 +43,8 @@ sub copy_file {
 
 sub set_perm {
     my ($self, $file, $perm) = @_;
-    try { $file->chmod($perm) }
+    die "The 'set_perm' method works only with files.\n" unless $file->is_file;
+    try   { $file->chmod($perm) }
     catch {
         Exception::IO::SystemCmd->throw(
             usermsg => 'The perm command failed.',

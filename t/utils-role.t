@@ -24,18 +24,21 @@ lives_ok{ $instance = $class->new(
 )}                           'Test creation of an instance';
 
 # Copy
-throws_ok { $instance->copy_file( path('file1'), path('file2') ) }
+ok my $src1 = path('t/repo/other/nonexistent.file'), 'source file path';
+ok my $dst1 = path('t/etc/'), 'destination dir';
+throws_ok { $instance->copy_file( $src1, $dst1 ) }
     qr/No such file or directory/, 'no such file or directory caught okay';
-ok my $src = path('t/repo/other/config.pro'), 'source file path';
-ok my $dst = path('t/etc/'), 'destination dir';
-is $src->is_file, 1, 'src is file';
-is $dst->is_dir, 1, 'dst is dir';
-lives_ok { $instance->copy_file($src, $dst) } 'file copy';
+
+ok my $src2 = path('t/repo/other/config.pro'), 'source file path';
+ok my $dst2 = path('t/etc/config.pro'), 'destination file path';
+is $src2->is_file, 1, 'src is a file';
+lives_ok { $instance->copy_file($src2, $dst2) } 'file copy';
+is $dst2->is_file, 1, 'dst is a file';
 
 # Set perm
-throws_ok { $instance->set_perm( path('file2'), 0644 ) }
-    qr/No such file or directory/, 'no such file or directory caught okay';
-lives_ok { $instance->set_perm( path('t/etc'), 0644 ) } 'file set perm';
+throws_ok { $instance->set_perm( $dst1, 0644 ) }
+    qr/works only with files/, 'works only with files';
+lives_ok { $instance->set_perm( $dst2, 0644 ) } 'file set perm';
 
 done_testing();
 
