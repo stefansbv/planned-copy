@@ -15,7 +15,7 @@ extends 'Config::GitLike';
 
 use App::ConfigManager::Exceptions;
 
-has '+confname' => ( default => 'acmrc' );
+has '+confname' => ( default => 'yacmrc' );
 has '+encoding' => ( default => 'UTF-8' );
 
 sub dir_file { undef }
