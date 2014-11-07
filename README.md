@@ -5,16 +5,15 @@ yacm
 
 Version: 0.521 alpha
 
-Yet Another Configuration Manager - application.  An automated file
-copying system used to copy configuration files around, on your Linux
-box.
+Yet Another Configuration Manager - application.  A smarter file
+copying system for your Linux box.
 
 
 Description
 -----------
 
 This is my solution for the task of managing configuration files,
-scripts and other files that need to be moved around.
+scripts and other files that need to be copied around.
 
 The idea behind the application is simple, but the implementation is
 complicated... :)
