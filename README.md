@@ -1,9 +1,14 @@
-Yet Another Configuration Manager Application
-=============================================
+yacm
+====
 Ștefan Suciu
 2014-10-26
 
-Version: 0.500 alpha
+Version: 0.521 alpha
+
+Yet Another Configuration Manager - application.
+
+An automated file copying system used to copy configuration files
+around on your Linux box.
 
 This is my personal solution for the task of managing configuration
 files, scripts and other files that need to be moved around.
