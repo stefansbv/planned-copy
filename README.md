@@ -5,13 +5,16 @@ yacm
 
 Version: 0.521 alpha
 
-Yet Another Configuration Manager - application.
+Yet Another Configuration Manager - application.  An automated file
+copying system used to copy configuration files around, on your Linux
+box.
 
-An automated file copying system used to copy configuration files
-around on your Linux box.
 
-This is my personal solution for the task of managing configuration
-files, scripts and other files that need to be moved around.
+Description
+-----------
+
+This is my solution for the task of managing configuration files,
+scripts and other files that need to be moved around.
 
 The idea behind the application is simple, but the implementation is
 complicated... :)
@@ -71,6 +74,22 @@ The `resource.yml` configuration file is automatically
 generated/updated by the `yacm resu linux` command, but the
 destination path is initially undefined and have to be edited manually
 for every record.
+
+
+Features
+--------
+
+The features and also the commands of the application are:
+
+The main commands:
+* install - Install the configuration files (copy files and set permissions);
+* sync - Synchronize the configuration files (copy back to the repo);
+* check - Compare the repository files with the installed versions;
+
+Additional commands:
+* config - Configure the application;
+* repo - Manage the repository (clone only for now);
+* resu - Manage the resource config files (create/update);
 
 
 Quick Usage
