@@ -1,6 +1,6 @@
 package App::ConfigManager;
 
-# ABSTRACT: Yet Another Configuration Manager Application
+# ABSTRACT: Yet Another Configuration Manager - application
 
 use utf8;
 use Moose;
