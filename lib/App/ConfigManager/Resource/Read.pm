@@ -11,6 +11,8 @@ use namespace::autoclean;
 use YAML::Tiny 1.57;                         # errstr deprecated
 use Try::Tiny;
 
+use App::ConfigManager::Exceptions;
+
 has 'resource_file' => (
     is     => 'ro',
     isa    => Path,
