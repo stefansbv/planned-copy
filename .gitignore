@@ -13,7 +13,6 @@ inc/
 \#*#
 errors.txt
 TAGS
-*.conf
 cover_db/
 t/output
 .build
