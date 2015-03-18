@@ -53,7 +53,6 @@ sub execute {
             }
             return undef;       # required
         };
-
         if ($cont) {
             try {
                 $self->install_file($rec);
@@ -83,11 +82,10 @@ sub execute {
 sub install_file {
     my ( $self, $res ) = @_;
 
-    my $src_path = $res->src->_abs_path;
-    my $dst_path = $res->dst->_abs_path;
-
     return if $self->dryrun;
 
+    my $src_path = $res->src->_abs_path;
+    my $dst_path = $res->dst->_abs_path;
     my $parent_dir = $res->dst->_parent_dir;
     unless ( $parent_dir->is_dir ) {
         unless ( $parent_dir->mkpath ) {

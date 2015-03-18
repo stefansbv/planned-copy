@@ -24,8 +24,38 @@ sub is_selfsame {
             pathname => $dst,
         );
     }
-    my $digest_src = $src->digest('MD5');
-    my $digest_dst = $dst->digest('MD5');
+    my $digest_src;
+    try {
+        $digest_src = $src->digest('MD5');
+    }
+    catch {
+        my $err = $_;
+        if ( $err =~ m{permission}i ) {
+            Exception::IO::PermissionDenied->throw(
+                message  => 'Permision denied for source path:',
+                pathname => $src,
+            );            
+        }
+        else {
+           die "Unknown error: $err";
+        }
+    };
+    my $digest_dst;
+    try {
+        $digest_dst = $dst->digest('MD5');
+    }
+    catch {
+        my $err = $_;
+        if ( $err =~ m{permission}i ) {
+            Exception::IO::PermissionDenied->throw(
+                message  => 'Permision denied for destination path:',
+                pathname => $src,
+            );            
+        }
+        else {
+           die "Unknown error: $err";
+        }
+    };
     return ( $digest_src eq $digest_dst ) ? 1 : 0;
 }
 

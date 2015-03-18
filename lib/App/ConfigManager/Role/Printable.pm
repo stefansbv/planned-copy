@@ -21,7 +21,7 @@ has 'term_size' => (
 
 sub points {
     my ($self, $msg_l, $msg_r) = @_;
-    my $gap    = 2 + 1;
+    my $gap    = 2 + 2;
     my $points = '.' x (
         $self->term_size - length($msg_l) - length($msg_r) - $gap
     );

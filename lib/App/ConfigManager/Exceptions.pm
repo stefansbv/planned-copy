@@ -49,6 +49,11 @@ use Exception::Base (
         has               => [qw( pathname )],
         string_attributes => [qw( message pathname )],
     },
+    'Exception::IO::PermissionDenied' => {
+        isa               => 'Exception::IO',
+        has               => [qw( pathname )],
+        string_attributes => [qw( message pathname )],
+    },
 );
 
 1;
