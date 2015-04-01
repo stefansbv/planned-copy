@@ -1,9 +1,9 @@
 yacm
 ====
 Ștefan Suciu
-2014-10-26
+2015-03-19
 
-Version: 0.521 alpha
+Version: 0.522 alpha
 
 Yet Another Configuration Manager - application.  A smarter file
 copying system for your Linux box.
@@ -125,7 +125,7 @@ Finally install the files with:
 License And Copyright
 ---------------------
 
-Copyright (C) 2014 Ștefan Suciu
+Copyright (C) 2015 Ștefan Suciu
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
