@@ -16,6 +16,13 @@ has '_perm' => (
     init_arg => 'perm',
 );
 
+has '_verb' => (
+    is       => 'ro',
+    isa      => 'Str',
+    required => 0,
+    init_arg => 'verb',
+);
+
 has '_abs_path' => (
     is       => 'ro',
     isa      => 'Path::Tiny',

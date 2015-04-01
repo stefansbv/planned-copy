@@ -63,6 +63,7 @@ sub execute {
     return;
 }
 
+# git clone ssh://[Git users]@[IP address or hostname]/[Git repository path]
 sub clone_repo {
     my ( $self, $uri, $path) = @_;
 
@@ -71,10 +72,11 @@ sub clone_repo {
         return;
     }
 
-    my $git = Git::Class::Cmd->new( die_on_error => 1 );
+    my $git = Git::Class::Cmd->new( die_on_error => 1, verbose => $self->verbose );
     print "Cloning the repo into '$path'...\r";
     try   { $git->clone( $uri, $path ) }
     catch {
+        say "";
         Exception::IO::Git->throw(
             usermsg => 'The git clone command failed.',
             logmsg  => $_,

@@ -6,12 +6,20 @@ use 5.010001;
 use utf8;
 
 use Moose;
+use Moose::Util::TypeConstraints;
 use namespace::autoclean;
 use Path::Tiny;
 
 extends qw(App::ConfigManager);
 
 with qw(App::ConfigManager::Role::Resource::Element);
+
+has '_type' => (
+    is       => 'ro',
+    isa      => enum( [qw(archive file)] ),
+    required => 0,
+    init_arg => 'type',
+);
 
 has '_abs_path' => (
     is      => 'ro',
