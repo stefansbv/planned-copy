@@ -43,6 +43,12 @@ has '_parent_dir' => (
     },
 );
 
+sub verb_is {
+    my ($self, $verb_action) = @_;
+    return 1 if $self->_verb eq $verb_action;
+    return;
+}
+
 __PACKAGE__->meta->make_immutable;
 
 1;

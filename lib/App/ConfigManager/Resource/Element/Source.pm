@@ -19,6 +19,7 @@ has '_type' => (
     isa      => enum( [qw(archive file)] ),
     required => 0,
     init_arg => 'type',
+    default  => sub {'file'},
 );
 
 has '_abs_path' => (
@@ -51,6 +52,12 @@ has '_parent_dir' => (
         return;
     },
 );
+
+sub type_is {
+    my ($self, $type_name) = @_;
+    return 1 if $self->_type eq $type_name;
+    return;
+}
 
 __PACKAGE__->meta->make_immutable;
 

@@ -6,6 +6,7 @@ use 5.010001;
 use utf8;
 use Path::Tiny;
 use Try::Tiny;
+use Archive::Any;
 use MooseX::App::Command;
 use namespace::autoclean;
 
@@ -97,9 +98,23 @@ sub install_file {
     }
 
     # Copy and set perm
-    $self->copy_file($src_path, $dst_path);
+    $self->copy_file( $src_path, $dst_path);
+    if ( $res->src->type_is('archive') and $res->dst->verb_is('unpack') ) {
+        say "  [II] Unpacking $dst_path";
+        $self->extract_archive($dst_path);
+    }
     $self->set_perm($dst_path, $res->dst->_perm);
 
+    return;
+}
+
+sub extract_archive {
+    my ( $self, $archive_file ) = @_;
+    my $archive = Archive::Any->new($archive_file);
+    my $dir = $archive_file->parent->stringify;
+    if ( chdir $dir ) {
+        $archive->extract;
+    }
     return;
 }
 
