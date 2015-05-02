@@ -44,13 +44,12 @@ sub execute {
         my $cont = try { $self->validate_element($rec) }
         catch {
             if ( my $e = Exception::Base->catch($_) ) {
-                $self->set_error_level('error');
-                if ( $e->isa('Exception::IO') ) {
-                    $self->item_printer($rec);
-                    say "  [EE] ", $e->message, ' ', $e->pathname
-                        if $self->verbose;
-                    $self->inc_count_skip;
-                }
+                $e->isa('Exception::IO::PathNotFound')
+                    ? $self->set_error_level('reset')
+                    : $self->set_error_level('error');
+                $self->item_printer($rec);
+                say "  [EE] ", $e->message, ' ', $e->pathname if $self->verbose;
+                $self->inc_count_skip;
             }
             return undef;       # required
         };

@@ -63,7 +63,7 @@ sub list_printer {
         = $errorlevel eq 'removed' ? 'bright_red'
         : $errorlevel eq 'added'   ? 'bright_yellow'
         : $errorlevel eq 'kept'    ? 'green'
-        :                          'reset';
+        :                            'reset';
     foreach my $item (@array) {
         $self->printer($color, $item, $errorlevel);
     }
