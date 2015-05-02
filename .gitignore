@@ -17,3 +17,9 @@ cover_db/
 t/output
 .build
 .al
+
+# Test files
+t/etc/.config
+t/etc/bin/
+t/etc/config.pro
+t/etc/config3
