@@ -6,7 +6,7 @@ use 5.010001;
 use utf8;
 use Path::Tiny;
 use Try::Tiny;
-use Archive::Any;
+use Archive::Any::Lite;
 use MooseX::App::Command;
 use namespace::autoclean;
 
@@ -99,21 +99,28 @@ sub install_file {
 
     # Copy and set perm
     $self->copy_file( $src_path, $dst_path);
-    if ( $res->src->type_is('archive') and $res->dst->verb_is('unpack') ) {
-        say "  [II] Unpacking $dst_path";
-        $self->extract_archive($dst_path);
-    }
     $self->set_perm($dst_path, $res->dst->_perm);
 
-    return;
+    # Unpack archives
+    if ( $res->src->type_is('archive') and $res->dst->verb_is('unpack') ) {
+        $self->extract_archive($dst_path);
+    }
+
+    return 1;
 }
 
 sub extract_archive {
-    my ( $self, $archive_file ) = @_;
-    my $archive = Archive::Any->new($archive_file);
-    my $dir = $archive_file->parent->stringify;
-    if ( chdir $dir ) {
-        $archive->extract;
+    my ( $self, $archive_path ) = @_;
+    my $archive      = Archive::Any::Lite->new($archive_path);
+    my $into_dir     = $archive_path->parent->stringify;
+    my $archive_file = $archive_path->basename;
+    my $extracted    = try { $archive->extract($into_dir); }
+    catch {
+        say "  [EE] Unpacking '$archive_file' failed: $_";
+        return undef;       # required
+    };
+    if ($extracted) {
+        say "  [II] Unpacked '$archive_file'" if $self->verbose;
     }
     return;
 }
