@@ -1,4 +1,3 @@
-# -*- cperl -*-
 #
 # Test the Utils role
 #

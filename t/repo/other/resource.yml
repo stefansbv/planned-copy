@@ -3,40 +3,40 @@ resources:
   -
     destination:
       name: .config
-      path: 'dst/bin'
+      path: t/etc
       perm: 0644
     source:
       name: config1
-      path: test/src/
+      path: other/
   -
     destination:
       name: config2
-      path: 'test/dst/bin'
+      path: t/etc/bin
       perm: 0755
     source:
       name: config2.sh
-      path: test/src/
+      path: other/
   -
     destination:
       name: config.pro
+      path: t/etc
+      perm: 0644
+    source:
+      name: config.pro
+      path: other/
+  -
+    destination:
+      name: config3
+      path: t/etc
+      perm: 0644
+    source:
+      name: config3
+      path: other/
+  -
+    destination:
+      name: file_not_exists
       path: ~
       perm: 0644
     source:
-      name: config.pro
-      path: test/src/
-  -
-    destination:
-      name: config3
-      path: ~/
-      perm: 0644
-    source:
-      name: config3
-      path: test/src/
-  -
-    destination:
       name: file_not_exists
-      path: test/dst
-      perm: 0644
-    source:
-      name: file_not_exists
-      path: test/src/
+      path: other/

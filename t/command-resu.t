@@ -1,4 +1,3 @@
-#!/usr/bin/env perl
 #
 # Test the resource command
 #

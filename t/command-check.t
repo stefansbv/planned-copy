@@ -1,6 +1,5 @@
-#!/usr/bin/env perl
 #
-# Test the resource command
+# Test the check command
 #
 use Test::More tests => 9;
 
@@ -60,8 +59,8 @@ like capture_stdout { $check->execute }, qr/Job: 5 files to check:/,
 is capture_stdout { $check->print_summary }, '
 Summary:
  - processed: 5
- - checked  : 0
- - skipped  : 5
+ - checked  : 3
+ - skipped  : 2
 
 ', 'print_summary should work';
 

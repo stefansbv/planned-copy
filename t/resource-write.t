@@ -1,10 +1,7 @@
-# -*- cperl -*-
 #
 # Write the test data
 #
 use Test::Most tests => 4;
-# use Path::Tiny;
-# use File::HomeDir;
 
 use App::ConfigManager::Resource::Write;
 
@@ -46,4 +43,4 @@ my $data = {
 
 lives_ok { $rw->create_yaml($data) } 'write resource file';
 
-# end
+done_testing;
