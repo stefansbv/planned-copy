@@ -84,6 +84,8 @@ sub synchronize {
 
     return if $self->dryrun;
 
+    $self->set_error_level('info');
+
     # Copy and set perm
     $self->copy_file($src_path, $dst_path);
     $self->set_perm($dst_path, 0644);
