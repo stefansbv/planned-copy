@@ -59,7 +59,13 @@ sub item_printer {
 
 sub exception_printer {
     my ($self, $e) = @_;
-    print "  [EE] ", $e->message, ' ', $e->pathname if $self->verbose;
+    if ($self->verbose) {
+        print color 'bright_red';
+        print "  [EE] ";
+        print color 'reset';
+        print $e->message, ' ', $e->pathname;
+        print "\n";
+    }
     return;
 }
 

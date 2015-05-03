@@ -15,7 +15,7 @@ sub is_selfsame {
     if ( $dst =~ m{undef}i ) {
         Exception::IO::PathNotDefined->throw(
             message  => 'The destination path is not defined.',
-            pathname => $dst,
+            pathname => '',
         );
     }
     if ( !$dst->is_file ) {
@@ -100,7 +100,7 @@ sub validate_element {
     if ( $res->dst->_path =~ m/^{\s?undef\s?}/ ) {
         Exception::IO::PathNotFound->throw(
             message  => 'The destination path is not defined.',
-            pathname => $res->dst->_path,
+            pathname => '',
         );
     }
 
