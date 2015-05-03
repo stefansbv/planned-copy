@@ -57,6 +57,12 @@ sub item_printer {
     return;
 }
 
+sub exception_printer {
+    my ($self, $e) = @_;
+    print "  [EE] ", $e->message, ' ', $e->pathname if $self->verbose;
+    return;
+}
+
 sub list_printer {
     my ( $self, $errorlevel, @array ) = @_;
     my $color

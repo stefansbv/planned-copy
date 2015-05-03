@@ -41,33 +41,21 @@ sub execute {
         my $rec  = $iter->next;
         my $cont = try { $self->validate_element($rec) }
         catch {
-            if ( my $e = Exception::Base->catch($_) ) {
-                $self->set_error_level('error');
-                if ( $e->isa('Exception::IO') ) {
-                    $self->item_printer($rec);
-                    say "  [EE] ", $e->message, ' ', $e->pathname
-                        if $self->verbose;
-                    $self->inc_count_skip;
-                }
-            }
+            my $e = $self->handle_exception($_);
+            $self->item_printer($rec);
+            $self->exception_printer($e) if $e;
+            $self->inc_count_skip;
             return undef;       # required
         };
         if ($cont) {
             try {
                 $self->check($rec);
                 $self->item_printer($rec);
-                $self->inc_count_inst;
             }
             catch {
-                if ( my $e = Exception::Base->catch($_) ) {
-                    $self->set_error_level('error');
-                    if ( $e->isa('Exception::IO') ) {
-                        $self->item_printer($rec);
-                        say "  [EE] ", $e->message, ' ', $e->pathname
-                            if $self->verbose;
-                        $self->inc_count_skip;
-                    }
-                }
+                my $e = $self->handle_exception($_);
+                $self->exception_printer($e) if $e;
+                $self->inc_count_skip;
             };
         }
         $self->inc_count_proc;
@@ -85,6 +73,7 @@ sub check {
     $self->is_selfsame( $src_path, $dst_path )
         ? $self->set_error_level('info')
         : $self->set_error_level('warn');
+    $self->inc_count_inst;
     return;
 }
 

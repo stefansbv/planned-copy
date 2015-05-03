@@ -34,7 +34,7 @@ sub is_selfsame {
             Exception::IO::PermissionDenied->throw(
                 message  => 'Permision denied for source path:',
                 pathname => $src,
-            );            
+            );
         }
         else {
            die "Unknown error: $err";
@@ -50,7 +50,7 @@ sub is_selfsame {
             Exception::IO::PermissionDenied->throw(
                 message  => 'Permision denied for destination path:',
                 pathname => $src,
-            );            
+            );
         }
         else {
            die "Unknown error: $err";
@@ -105,6 +105,19 @@ sub validate_element {
     }
 
     return 1;
+}
+
+sub handle_exception {
+    my ($self, $ex) = @_;
+
+    if ( my $e = Exception::Base->catch($ex) ) {
+        $e->isa('Exception::IO::PathNotFound')
+            ? $self->set_error_level('reset')
+            : $self->set_error_level('error');
+        return $e;
+    }
+
+    return;
 }
 
 sub no_resource_message {

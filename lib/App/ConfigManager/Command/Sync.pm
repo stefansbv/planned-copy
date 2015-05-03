@@ -43,34 +43,21 @@ sub execute {
         my $rec  = $iter->next;
         my $cont = try { $self->validate_element($rec) }
         catch {
-            if ( my $e = Exception::Base->catch($_) ) {
-                $self->set_error_level('error');
-                if ( $e->isa('Exception::IO') ) {
-                    $self->item_printer($rec);
-                    say "  [EE] ", $e->message, ' ', $e->pathname
-                        if $self->verbose;
-                    $self->inc_count_skip;
-                }
-            }
+            my $e = $self->handle_exception($_);
+            $self->item_printer($rec);
+            $self->exception_printer($e) if $e;
+            $self->inc_count_skip;
             return undef;       # required
         };
-
         if ($cont) {
             try {
                 $self->synchronize($rec);
                 $self->item_printer($rec);
-                $self->inc_count_inst;
             }
             catch {
-                if ( my $e = Exception::Base->catch($_) ) {
-                    $self->set_error_level('error');
-                    if ( $e->isa('Exception::IO') ) {
-                        $self->item_printer($rec);
-                        say "  [EE] ", $e->message, ' ', $e->pathname
-                            if $self->verbose;
-                        $self->inc_count_skip;
-                    }
-                }
+                my $e = $self->handle_exception($_);
+                $self->exception_printer($e) if $e;
+                $self->inc_count_skip;
             };
         }
         $self->inc_count_proc;
@@ -100,6 +87,7 @@ sub synchronize {
     # Copy and set perm
     $self->copy_file($src_path, $dst_path);
     $self->set_perm($dst_path, 0644);
+    $self->inc_count_inst;
 
     return;
 }
