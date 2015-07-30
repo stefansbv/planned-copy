@@ -4,7 +4,7 @@
 use Test::Most;
 use Path::Tiny;
 
-use App::ConfigManager::Resource::Element::Destination;
+use App::PlannedCopy::Resource::Element::Destination;
 
 subtest 'minimum valid config' => sub {
     my $args = {
@@ -15,10 +15,10 @@ subtest 'minimum valid config' => sub {
         },
     };
 
-    ok my $dst = App::ConfigManager::Resource::Element::Destination->new(
+    ok my $dst = App::PlannedCopy::Resource::Element::Destination->new(
         $args->{destination} ), 'constructor';
 
-    isa_ok $dst, 'App::ConfigManager::Resource::Element::Destination';
+    isa_ok $dst, 'App::PlannedCopy::Resource::Element::Destination';
 
     is $dst->_name, path('lircd.conf'), 'destination name';
     is $dst->_path, path('/etc/lirc'),  'destination path';
@@ -39,10 +39,10 @@ subtest 'maximum valid config' => sub {
         },
     };
 
-    ok my $dst = App::ConfigManager::Resource::Element::Destination->new(
+    ok my $dst = App::PlannedCopy::Resource::Element::Destination->new(
         $args->{destination} ), 'constructor';
 
-    isa_ok $dst, 'App::ConfigManager::Resource::Element::Destination';
+    isa_ok $dst, 'App::PlannedCopy::Resource::Element::Destination';
 
     is $dst->_name, path('lircd.conf'), 'destination name';
     is $dst->_path, path('/etc/lirc'),  'destination path';

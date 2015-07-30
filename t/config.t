@@ -8,14 +8,14 @@ use Test::Exception;
 use Path::Tiny;
 use File::HomeDir;
 
-use App::ConfigManager::Config;
+use App::PlannedCopy::Config;
 
 # Test with no config files
 
 local $ENV{APP_CM_SYS_CONFIG} = path( qw(t nonexistent.conf) );
 local $ENV{APP_CM_USR_CONFIG} = path( qw(t nonexistent.conf) );
 
-ok my $conf = App::ConfigManager::Config->new, 'constructor';
+ok my $conf = App::PlannedCopy::Config->new, 'constructor';
 
 throws_ok { $conf->repo_path }
     'Exception::Config::Error', 'config error thrown';
@@ -29,11 +29,11 @@ throws_ok { $conf->repo_url }
     qr/No remote.url is set/,
     'no remote.url set in config caught okay';
 
-# throws_ok { App::ConfigManager::Config->new }
+# throws_ok { App::PlannedCopy::Config->new }
 #     qr/No configuration files loaded/,
 #     'no config files loaded caught okay';
 
-# throws_ok { my $conf = App::ConfigManager::Config->new }
+# throws_ok { my $conf = App::PlannedCopy::Config->new }
 #     'Exception::Config::NoConfig', 'no config error thrown';
 
 # Test with the test config files
@@ -41,7 +41,7 @@ throws_ok { $conf->repo_url }
 local $ENV{APP_CM_SYS_CONFIG} = path( qw(t system.conf) );
 local $ENV{APP_CM_USR_CONFIG} = path( qw(t user.conf) );
 
-ok $conf = App::ConfigManager::Config->new, 'other constructor';
+ok $conf = App::PlannedCopy::Config->new, 'other constructor';
 
 ok $conf->load, 'load test config files';
 is scalar @{$conf->config_files}, 2, '2 config files loaded';

@@ -1,4 +1,4 @@
-package App::ConfigManager::Types;
+package App::PlannedCopy::Types;
 
 # ABSTRACT: Config Manager types
 

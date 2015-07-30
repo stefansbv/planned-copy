@@ -1,4 +1,4 @@
-package App::ConfigManager::Command::List;
+package App::PlannedCopy::Command::List;
 
 # ABSTRACT: Print a list of the projects in the repository
 
@@ -9,10 +9,10 @@ use Path::Iterator::Rule;
 use MooseX::App::Command;
 use namespace::autoclean;
 
-extends qw(App::ConfigManager);
+extends qw(App::PlannedCopy);
 
-with qw(App::ConfigManager::Role::Utils
-        App::ConfigManager::Role::Printable);
+with qw(App::PlannedCopy::Role::Utils
+        App::PlannedCopy::Role::Printable);
 
 sub execute {
     my ( $self ) = @_;

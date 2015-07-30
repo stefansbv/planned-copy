@@ -1,4 +1,4 @@
-package App::ConfigManager::Role::Printable;
+package App::PlannedCopy::Role::Printable;
 
 # ABSTRACT: Role for printing messages
 

@@ -1,4 +1,4 @@
-package App::ConfigManager::Command::Check;
+package App::PlannedCopy::Command::Check;
 
 # ABSTRACT: Compare the repository files with the installed versions
 
@@ -8,12 +8,12 @@ use Try::Tiny;
 use MooseX::App::Command;
 use namespace::autoclean;
 
-extends qw(App::ConfigManager);
+extends qw(App::PlannedCopy);
 
-with qw(App::ConfigManager::Role::Printable
-        App::ConfigManager::Role::Utils);
+with qw(App::PlannedCopy::Role::Printable
+        App::PlannedCopy::Role::Utils);
 
-use App::ConfigManager::Resource;
+use App::PlannedCopy::Resource;
 
 command_long_description q[Compare the repository files with the installed versions for the selected <project>.];
 
@@ -28,7 +28,7 @@ sub execute {
     my ( $self ) = @_;
 
     my $file = $self->config->resource_file( $self->project );
-    my $res  = App::ConfigManager::Resource->new( resource_file => $file);
+    my $res  = App::PlannedCopy::Resource->new( resource_file => $file);
     my $iter = $res->resource_iter;
 
     say 'Job: ', $res->count, ' file', ( $res->count != 1 ? 's' : '' ),

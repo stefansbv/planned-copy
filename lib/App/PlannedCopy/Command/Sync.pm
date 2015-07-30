@@ -1,4 +1,4 @@
-package App::ConfigManager::Command::Sync;
+package App::PlannedCopy::Command::Sync;
 
 # ABSTRACT: Synchronize the configuration files
 
@@ -9,12 +9,12 @@ use Try::Tiny;
 use MooseX::App::Command;
 use namespace::autoclean;
 
-extends qw(App::ConfigManager);
+extends qw(App::PlannedCopy);
 
-with qw(App::ConfigManager::Role::Printable
-        App::ConfigManager::Role::Utils);
+with qw(App::PlannedCopy::Role::Printable
+        App::PlannedCopy::Role::Utils);
 
-use App::ConfigManager::Resource;
+use App::PlannedCopy::Resource;
 
 command_long_description q[Synchronize the configuration files.  Switch destination with source and copy the files back to the repository.];
 
@@ -29,7 +29,7 @@ sub execute {
     my ( $self ) = @_;
 
     my $file = $self->config->resource_file( $self->project );
-    my $res  = App::ConfigManager::Resource->new( resource_file => $file);
+    my $res  = App::PlannedCopy::Resource->new( resource_file => $file);
     my $iter = $res->resource_iter;
 
     say 'Job: ', $res->count, ' file', ( $res->count != 1 ? 's' : '' ),

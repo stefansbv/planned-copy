@@ -1,4 +1,4 @@
-package App::ConfigManager::Resource::Read;
+package App::PlannedCopy::Resource::Read;
 
 # ABSTRACT: Read a 'resource.yml' file
 
@@ -11,7 +11,7 @@ use namespace::autoclean;
 use YAML::Tiny 1.57;                         # errstr deprecated
 use Try::Tiny;
 
-use App::ConfigManager::Exceptions;
+use App::PlannedCopy::Exceptions;
 
 has 'resource_file' => (
     is     => 'ro',

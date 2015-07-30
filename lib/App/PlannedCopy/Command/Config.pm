@@ -1,4 +1,4 @@
-package App::ConfigManager::Command::Config;
+package App::PlannedCopy::Command::Config;
 
 # ABSTRACT: Configure the application
 
@@ -10,9 +10,9 @@ use MooseX::App::Command;
 use Moose::Util::TypeConstraints;
 use namespace::autoclean;
 
-extends qw(App::ConfigManager);
+extends qw(App::PlannedCopy);
 
-use App::ConfigManager::Exceptions;
+use App::PlannedCopy::Exceptions;
 
 command_long_description q[Install the application configuration file.];
 

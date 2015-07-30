@@ -5,19 +5,19 @@ use Test::More tests => 9;
 
 use Capture::Tiny 0.12 qw(:all);
 use Path::Tiny;
-use App::ConfigManager::Config;
-use App::ConfigManager::Command::Resu;
+use App::PlannedCopy::Config;
+use App::PlannedCopy::Command::Resu;
 
 local $ENV{APP_CM_USR_CONFIG} = path( qw(t user.conf) );
 
-ok my $conf = App::ConfigManager::Config->new, 'config constructor';
+ok my $conf = App::PlannedCopy::Config->new, 'config constructor';
 
 ok $conf->load, 'load test config files';
 
 is $conf->resource_file('odbc'), 't/repo/odbc/resource.yml',
     'resource file path';
 
-ok my $resu = App::ConfigManager::Command::Resu->new(
+ok my $resu = App::PlannedCopy::Command::Resu->new(
     project => 'odbc',
     config  => $conf,
     ), 'resource command constructor';

@@ -1,4 +1,4 @@
-package App::ConfigManager::Exceptions;
+package App::PlannedCopy::Exceptions;
 
 # ABSTRACT: Config Manager Exceptions
 

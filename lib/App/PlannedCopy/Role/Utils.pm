@@ -1,4 +1,4 @@
-package App::ConfigManager::Role::Utils;
+package App::PlannedCopy::Role::Utils;
 
 # ABSTRACT: Role for utility functions
 
@@ -8,7 +8,7 @@ use Moose::Role;
 use Path::Tiny;
 use Try::Tiny;
 
-use App::ConfigManager::Exceptions;
+use App::PlannedCopy::Exceptions;
 
 sub is_selfsame {
     my ( $self, $src, $dst ) = @_;

@@ -1,4 +1,4 @@
-package App::ConfigManager::Role::Resource::Element;
+package App::PlannedCopy::Role::Resource::Element;
 
 # ABSTRACT: Role for the resource element
 
@@ -11,7 +11,7 @@ use File::HomeDir;
 use namespace::autoclean;
 use Carp;
 
-with qw(App::ConfigManager::Role::Base);
+with qw(App::PlannedCopy::Role::Base);
 
 has '_name' => (
     is       => 'ro',
@@ -70,7 +70,7 @@ no Moose::Role;
 
 =head1 NAME
 
-App::ConfigManager::Role::Resource::Element - A helper role.
+App::PlannedCopy::Role::Resource::Element - A helper role.
 
 =head1 DESCRIPTION
 

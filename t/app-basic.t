@@ -4,22 +4,22 @@
 use Test::Most tests => 11+1;
 use Test::NoWarnings;
 
-use App::ConfigManager;
+use App::PlannedCopy;
 
 # Command: check
 
 subtest 'Command "check" with full options' => sub {
     MooseX::App::ParsedArgv->new( argv => [qw(check test --dryrun --verbose)] );
-    my $chk_01 = App::ConfigManager->new_with_command();
-    isa_ok( $chk_01, 'App::ConfigManager::Command::Check' );
+    my $chk_01 = App::PlannedCopy->new_with_command();
+    isa_ok( $chk_01, 'App::PlannedCopy::Command::Check' );
     is( $chk_01->dryrun, 1, 'Option "dryrun" is set' );
     is( $chk_01->verbose, 1, 'Option "verbose" is set' );
 };
 
 subtest 'Command "check" without options' => sub {
     MooseX::App::ParsedArgv->new(argv => [qw(check test)]);
-    my $chk_02 = App::ConfigManager->new_with_command();
-    isa_ok($chk_02, 'App::ConfigManager::Command::Check');
+    my $chk_02 = App::PlannedCopy->new_with_command();
+    isa_ok($chk_02, 'App::PlannedCopy::Command::Check');
     is($chk_02->project, 'test', 'Param is set');
 };
 
@@ -27,8 +27,8 @@ subtest 'Command "check" without options' => sub {
 
 subtest 'Command "config" with full options' => sub {
     MooseX::App::ParsedArgv->new( argv => [qw(config set --dryrun --verbose --url user@host:/git-repos/configs.git --path repo/path)] );
-    my $cfg_01 = App::ConfigManager->new_with_command();
-    isa_ok( $cfg_01, 'App::ConfigManager::Command::Config' );
+    my $cfg_01 = App::PlannedCopy->new_with_command();
+    isa_ok( $cfg_01, 'App::PlannedCopy::Command::Config' );
     is( $cfg_01->dryrun, 1, 'Option "dryrun" is set' );
     is( $cfg_01->verbose, 1, 'Option "verbose" is set' );
     is( $cfg_01->remote_url, 'user@host:/git-repos/configs.git', 'Option "remote_url" is set' );
@@ -37,8 +37,8 @@ subtest 'Command "config" with full options' => sub {
 
 subtest 'Command "config" without options' => sub {
     MooseX::App::ParsedArgv->new( argv => [qw(config set)] );
-    my $cfg_02 = App::ConfigManager->new_with_command();
-    isa_ok( $cfg_02, 'App::ConfigManager::Command::Config' );
+    my $cfg_02 = App::PlannedCopy->new_with_command();
+    isa_ok( $cfg_02, 'App::PlannedCopy::Command::Config' );
     is( $cfg_02->dryrun, undef, 'Option "dryrun" is not set' );
     is( $cfg_02->verbose, undef, 'Option "verbose" is not set' );
     is( $cfg_02->remote_url, undef, 'Option "remote_url" is not set' );
@@ -49,16 +49,16 @@ subtest 'Command "config" without options' => sub {
 
 subtest 'Command "install" with full options' => sub {
     MooseX::App::ParsedArgv->new( argv => [qw(install test --dryrun --verbose)] );
-    my $ins_01 = App::ConfigManager->new_with_command();
-    isa_ok( $ins_01, 'App::ConfigManager::Command::Install' );
+    my $ins_01 = App::PlannedCopy->new_with_command();
+    isa_ok( $ins_01, 'App::PlannedCopy::Command::Install' );
     is( $ins_01->dryrun, 1, 'Option "dryrun" is set' );
     is( $ins_01->verbose, 1, 'Option "verbose" is set' );
 };
 
 subtest 'Command "install" without options' => sub {
     MooseX::App::ParsedArgv->new( argv => [qw(install test)] );
-    my $ins_01 = App::ConfigManager->new_with_command();
-    isa_ok( $ins_01, 'App::ConfigManager::Command::Install' );
+    my $ins_01 = App::PlannedCopy->new_with_command();
+    isa_ok( $ins_01, 'App::PlannedCopy::Command::Install' );
     is( $ins_01->dryrun, undef, 'Option "dryrun" is not set' );
     is( $ins_01->verbose, undef, 'Option "verbose" is not set' );
 };
@@ -67,16 +67,16 @@ subtest 'Command "install" without options' => sub {
 
 subtest 'Command "list" with parameter' => sub {
     MooseX::App::ParsedArgv->new(argv => [qw(list)]);
-    my $res_01 = App::ConfigManager->new_with_command();
-    isa_ok($res_01, 'App::ConfigManager::Command::List');
+    my $res_01 = App::PlannedCopy->new_with_command();
+    isa_ok($res_01, 'App::PlannedCopy::Command::List');
 };
 
 # Command: repo
 
 subtest 'Command "repo" with parameter' => sub {
     MooseX::App::ParsedArgv->new(argv => [qw(repo clone)]);
-    my $res_01 = App::ConfigManager->new_with_command();
-    isa_ok($res_01, 'App::ConfigManager::Command::Repo');
+    my $res_01 = App::PlannedCopy->new_with_command();
+    isa_ok($res_01, 'App::PlannedCopy::Command::Repo');
     is($res_01->action, 'clone', 'Action is set');
 };
 
@@ -84,8 +84,8 @@ subtest 'Command "repo" with parameter' => sub {
 
 subtest 'Command "resource" with parameter' => sub {
     MooseX::App::ParsedArgv->new(argv => [qw(resu test)]);
-    my $res_01 = App::ConfigManager->new_with_command();
-    isa_ok($res_01, 'App::ConfigManager::Command::Resu');
+    my $res_01 = App::PlannedCopy->new_with_command();
+    isa_ok($res_01, 'App::PlannedCopy::Command::Resu');
     is($res_01->project, 'test', 'Param is set');
 };
 
@@ -93,16 +93,16 @@ subtest 'Command "resource" with parameter' => sub {
 
 subtest 'Command "sync" with full options' => sub {
     MooseX::App::ParsedArgv->new( argv => [qw(sync test --dryrun --verbose)] );
-    my $ins_01 = App::ConfigManager->new_with_command();
-    isa_ok( $ins_01, 'App::ConfigManager::Command::Sync' );
+    my $ins_01 = App::PlannedCopy->new_with_command();
+    isa_ok( $ins_01, 'App::PlannedCopy::Command::Sync' );
     is( $ins_01->dryrun, 1, 'Option "dryrun" is set' );
     is( $ins_01->verbose, 1, 'Option "verbose" is set' );
 };
 
 subtest 'Command "sync" without options' => sub {
     MooseX::App::ParsedArgv->new( argv => [qw(sync test)] );
-    my $ins_01 = App::ConfigManager->new_with_command();
-    isa_ok( $ins_01, 'App::ConfigManager::Command::Sync' );
+    my $ins_01 = App::PlannedCopy->new_with_command();
+    isa_ok( $ins_01, 'App::PlannedCopy::Command::Sync' );
     is( $ins_01->dryrun, undef, 'Option "dryrun" is not set' );
     is( $ins_01->verbose, undef, 'Option "verbose" is not set' );
 };

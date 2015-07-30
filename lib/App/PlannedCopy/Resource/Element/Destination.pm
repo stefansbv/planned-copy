@@ -1,12 +1,12 @@
-package App::ConfigManager::Resource::Element::Destination;
+package App::PlannedCopy::Resource::Element::Destination;
 
 # ABSTRACT: The destination resource element object
 
 use Moose;
-use App::ConfigManager::Types;
+use App::PlannedCopy::Types;
 use namespace::autoclean;
 
-with qw{App::ConfigManager::Role::Resource::Element};
+with qw{App::PlannedCopy::Role::Resource::Element};
 
 has '_perm' => (
     is       => 'ro',

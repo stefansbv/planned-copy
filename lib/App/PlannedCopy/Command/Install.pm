@@ -1,4 +1,4 @@
-package App::ConfigManager::Command::Install;
+package App::PlannedCopy::Command::Install;
 
 # ABSTRACT: Install the configuration files
 
@@ -10,12 +10,12 @@ use Archive::Any::Lite;
 use MooseX::App::Command;
 use namespace::autoclean;
 
-extends qw(App::ConfigManager);
+extends qw(App::PlannedCopy);
 
-with qw(App::ConfigManager::Role::Printable
-        App::ConfigManager::Role::Utils);
+with qw(App::PlannedCopy::Role::Printable
+        App::PlannedCopy::Role::Utils);
 
-use App::ConfigManager::Resource;
+use App::PlannedCopy::Resource;
 
 command_long_description q[Install the configuration files of the selected <project>.];
 
@@ -30,7 +30,7 @@ sub execute {
     my ( $self ) = @_;
 
     my $file = $self->config->resource_file( $self->project );
-    my $res  = App::ConfigManager::Resource->new( resource_file => $file);
+    my $res  = App::PlannedCopy::Resource->new( resource_file => $file);
     my $iter = $res->resource_iter;
 
     say 'Job: ', $res->count, ' file', ( $res->count != 1 ? 's' : '' ),

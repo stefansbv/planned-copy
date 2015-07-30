@@ -1,4 +1,4 @@
-package App::ConfigManager::Config;
+package App::PlannedCopy::Config;
 
 # ABSTRACT: The configuration module
 
@@ -13,9 +13,9 @@ use URI;
 
 extends 'Config::GitLike';
 
-use App::ConfigManager::Exceptions;
+use App::PlannedCopy::Exceptions;
 
-has '+confname' => ( default => 'yacmrc' );
+has '+confname' => ( default => 'plannedcopyrc' );
 has '+encoding' => ( default => 'UTF-8' );
 
 sub dir_file { undef }

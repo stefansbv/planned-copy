@@ -1,4 +1,4 @@
-package App::ConfigManager::Role::Base;
+package App::PlannedCopy::Role::Base;
 
 # ABSTRACT: Base role for the application
 

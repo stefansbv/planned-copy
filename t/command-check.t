@@ -5,12 +5,12 @@ use Test::More tests => 9;
 
 use Capture::Tiny 0.12 qw(:all);
 use Path::Tiny;
-use App::ConfigManager::Config;
-use App::ConfigManager::Command::Check;
+use App::PlannedCopy::Config;
+use App::PlannedCopy::Command::Check;
 
 local $ENV{APP_CM_USR_CONFIG} = path( qw(t user.conf) );
 
-ok my $conf = App::ConfigManager::Config->new, 'config constructor';
+ok my $conf = App::PlannedCopy::Config->new, 'config constructor';
 
 ok $conf->load, 'load test config files';
 
@@ -19,7 +19,7 @@ is $conf->resource_file('odbc'), 't/repo/odbc/resource.yml',
 
 #-- No resource file
 
-ok my $check = App::ConfigManager::Command::Check->new(
+ok my $check = App::PlannedCopy::Command::Check->new(
     project => 'odbc',
     config  => $conf,
     ), 'resource command constructor';
@@ -48,7 +48,7 @@ Summary:
 
 #-- With a resource file
 
-ok $check = App::ConfigManager::Command::Check->new(
+ok $check = App::PlannedCopy::Command::Check->new(
     project => 'other',
     config  => $conf,
     ), 'other resource command constructor';

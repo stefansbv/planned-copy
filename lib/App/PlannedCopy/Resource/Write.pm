@@ -1,4 +1,4 @@
-package App::ConfigManager::Resource::Write;
+package App::PlannedCopy::Resource::Write;
 
 # ABSTRACT: Write a 'resource.yml' file
 
@@ -11,7 +11,7 @@ use namespace::autoclean;
 use Try::Tiny;
 use YAML::Tiny 1.57;                         # errstr deprecated
 
-use App::ConfigManager::Exceptions;
+use App::PlannedCopy::Exceptions;
 
 has 'resource_file' => (
     is     => 'ro',

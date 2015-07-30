@@ -2,8 +2,8 @@
 # PODNAME: cfg
 # ABSTRACT: A Configuration Management Application.
 
-use App::ConfigManager;
+use App::PlannedCopy;
 
-my $cmd = App::ConfigManager->new_with_command;
+my $cmd = App::PlannedCopy->new_with_command;
 
 $cmd->execute;

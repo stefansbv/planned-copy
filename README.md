@@ -1,12 +1,11 @@
-yacm
-====
+Planned Copy
+============
 Ștefan Suciu
 2015-03-19
 
 Version: 0.522 alpha
 
-Yet Another Configuration Manager - application.  A smarter file
-copying system for your Linux box.
+Planned Copy - a smarter copy application for your Linux box.
 
 
 Description
@@ -65,12 +64,12 @@ resources:
       path: linux
 ```
 
-The `yacm install linux` command will copy and rename the
+The `plcp install linux` command will copy and rename the
 `linux/ackrc` file to `/home/user/.ackrc` and will set the permissions
 to `0644`.
 
 The `resource.yml` configuration file is automatically
-generated/updated by the `yacm resu linux` command, but the
+generated/updated by the `plcp resu linux` command, but the
 destination path is initially undefined and have to be edited manually
 for every record.
 
@@ -94,23 +93,23 @@ Additional commands:
 Quick Usage
 -----------
 
-The initial configuration of `yacm`:
+The initial configuration of `plcp`:
 
 ```
-% yacm config set --url user@host:/path/to/git-repos/configs.git
-% yacm config set --path /home/user/configs
+% plcp config set --url user@host:/path/to/git-repos/configs.git
+% plcp config set --path /home/user/configs
 ```
 
 Clone the repository to localhost:
 
 ```
-% yacm repo clone
+% plcp repo clone
 ```
 
 Add/update the `resource.yml` file in the `linux` directory:
 
 ```
-% yacm resu linux
+% plcp resu linux
 ```
 
 Edit the `linux/resource.yml` file and set the destination path for
@@ -119,7 +118,7 @@ all the items.
 Finally install the files with:
 
 ```
-% yacm install linux
+% plcp install linux
 ```
 
 License And Copyright

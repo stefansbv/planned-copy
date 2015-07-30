@@ -4,7 +4,7 @@
 #
 use Test::More tests => 4;
 
-use App::ConfigManager::Resource::Element;
+use App::PlannedCopy::Resource::Element;
 
 my $args = {
     destination => {
@@ -18,10 +18,10 @@ my $args = {
     },
 };
 
-ok my $elem = App::ConfigManager::Resource::Element->new($args),
+ok my $elem = App::PlannedCopy::Resource::Element->new($args),
     'constructor';
-isa_ok $elem, 'App::ConfigManager::Resource::Element';
-isa_ok $elem->src, 'App::ConfigManager::Resource::Element::Source';
-isa_ok $elem->dst, 'App::ConfigManager::Resource::Element::Destination';
+isa_ok $elem, 'App::PlannedCopy::Resource::Element';
+isa_ok $elem->src, 'App::PlannedCopy::Resource::Element::Source';
+isa_ok $elem->dst, 'App::PlannedCopy::Resource::Element::Destination';
 
 # end

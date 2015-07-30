@@ -3,13 +3,13 @@
 #
 use Test::Most tests => 4;
 
-use App::ConfigManager::Resource::Write;
+use App::PlannedCopy::Resource::Write;
 
 my $file = 't/new-resource.yml';
 
 unlink $file;                                # cleanup
 
-ok my $rw = App::ConfigManager::Resource::Write->new(
+ok my $rw = App::PlannedCopy::Resource::Write->new(
     resource_file => $file
 ), 'write a test resource file';
 

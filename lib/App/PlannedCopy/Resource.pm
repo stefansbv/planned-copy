@@ -1,4 +1,4 @@
-package App::ConfigManager::Resource;
+package App::PlannedCopy::Resource;
 
 # ABSTRACT: Read a resource.yml config file
 
@@ -12,8 +12,8 @@ use namespace::autoclean;
 use YAML::Tiny;
 use Try::Tiny;
 
-use App::ConfigManager::Resource::Read;
-use App::ConfigManager::Resource::Element;
+use App::PlannedCopy::Resource::Read;
+use App::PlannedCopy::Resource::Element;
 
 has count => (
     traits  => ['Counter'],
@@ -44,7 +44,7 @@ has 'resource_file' => (
 
 sub _build_resource {
     my $self = shift;
-    my $reader = App::ConfigManager::Resource::Read->new(
+    my $reader = App::PlannedCopy::Resource::Read->new(
         resource_file => $self->resource_file );
     my $contents = try { $reader->contents }
     catch {
@@ -63,7 +63,7 @@ sub _build_resource {
     $contents = [] unless ref $contents; # recover
     my @records;
     foreach my $res ( @{ $contents } ) {
-        push @records, App::ConfigManager::Resource::Element->new($res);
+        push @records, App::PlannedCopy::Resource::Element->new($res);
         $self->inc_counter;
     }
     return \@records;

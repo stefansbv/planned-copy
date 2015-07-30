@@ -1,4 +1,4 @@
-package App::ConfigManager::Command::Repo;
+package App::PlannedCopy::Command::Repo;
 
 # ABSTRACT: Manage the repository
 
@@ -11,11 +11,11 @@ use MooseX::App::Command;
 use Moose::Util::TypeConstraints;
 use namespace::autoclean;
 
-extends qw(App::ConfigManager);
+extends qw(App::PlannedCopy);
 
-with qw(App::ConfigManager::Role::Printable);
+with qw(App::PlannedCopy::Role::Printable);
 
-use App::ConfigManager::Exceptions;
+use App::PlannedCopy::Exceptions;
 
 command_long_description q[Manage the 'configs.git' repository.];
 

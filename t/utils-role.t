@@ -8,14 +8,14 @@ use Test::Moose;
 use Path::Tiny;
 use MooseX::ClassCompositor;
 
-use App::ConfigManager::Role::Utils;
+use App::PlannedCopy::Role::Utils;
 
 my @attributes = ( qw() );
 my @methods    = ( qw(is_selfsame copy_file set_perm) );
 
 my $instance;
 my $class = MooseX::ClassCompositor->new( { class_basename => 'Test', } )
-    ->class_for( 'App::ConfigManager::Role::Utils', );
+    ->class_for( 'App::PlannedCopy::Role::Utils', );
 map has_attribute_ok( $class, $_ ), @attributes;
 map can_ok( $class, $_ ), @methods;
 lives_ok{ $instance = $class->new(

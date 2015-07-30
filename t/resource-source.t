@@ -6,7 +6,7 @@ use Test::Most;
 use Path::Tiny;
 use File::HomeDir;
 
-use App::ConfigManager::Resource::Element::Source;
+use App::PlannedCopy::Resource::Element::Source;
 
 # Test with the test config files
 
@@ -22,11 +22,11 @@ subtest 'minimum valid config' => sub {
     };
 
     ok my $src
-        = App::ConfigManager::Resource::Element::Source->new(
+        = App::PlannedCopy::Resource::Element::Source->new(
         $args->{source} ),
         'constructor';
 
-    isa_ok $src, 'App::ConfigManager::Resource::Element::Source';
+    isa_ok $src, 'App::PlannedCopy::Resource::Element::Source';
 
     is $src->_name, path('lircd.conf'), 'source name';
     is $src->_path, path('lirc'),       'source path';
@@ -45,11 +45,11 @@ subtest 'maximum valid config' => sub {
     };
 
     ok my $src
-        = App::ConfigManager::Resource::Element::Source->new(
+        = App::PlannedCopy::Resource::Element::Source->new(
         $args->{source} ),
         'constructor';
 
-    isa_ok $src, 'App::ConfigManager::Resource::Element::Source';
+    isa_ok $src, 'App::PlannedCopy::Resource::Element::Source';
 
     is $src->_name, path('lircd.conf'), 'source name';
     is $src->_path, path('lirc'),       'source path';

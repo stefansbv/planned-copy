@@ -1,4 +1,4 @@
-package App::ConfigManager::Command::Resu;
+package App::PlannedCopy::Command::Resu;
 
 # ABSTRACT: Create/update a resource file
 
@@ -13,13 +13,13 @@ use MooseX::App::Command;
 use Moose::Util::TypeConstraints;
 use namespace::autoclean;
 
-extends qw(App::ConfigManager);
+extends qw(App::PlannedCopy);
 
-with qw(App::ConfigManager::Role::Utils
-        App::ConfigManager::Role::Printable);
+with qw(App::PlannedCopy::Role::Utils
+        App::PlannedCopy::Role::Printable);
 
-use App::ConfigManager::Resource::Read;
-use App::ConfigManager::Resource::Write;
+use App::PlannedCopy::Resource::Read;
+use App::PlannedCopy::Resource::Write;
 
 command_long_description q[Create/update a resource file for the <project>.];
 
@@ -128,7 +128,7 @@ has '_added' => (
 
 sub _build_old_resource {
     my $self = shift;
-    my $reader = App::ConfigManager::Resource::Read->new(
+    my $reader = App::PlannedCopy::Resource::Read->new(
         resource_file => $self->resource_file );
     my %items;
     foreach my $res ( @{ $reader->contents } ) {
@@ -233,7 +233,7 @@ sub note {
 
 sub write_resource {
     my ($self, $data) = @_;
-    my $rw = App::ConfigManager::Resource::Write->new(
+    my $rw = App::PlannedCopy::Resource::Write->new(
         resource_file => $self->resource_file );
     try   { $rw->create_yaml( { resources => $data } ) }
     catch {

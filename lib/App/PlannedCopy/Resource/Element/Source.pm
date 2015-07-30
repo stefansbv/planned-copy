@@ -1,4 +1,4 @@
-package App::ConfigManager::Resource::Element::Source;
+package App::PlannedCopy::Resource::Element::Source;
 
 # ABSTRACT: The source resource element object
 
@@ -10,9 +10,9 @@ use Moose::Util::TypeConstraints;
 use namespace::autoclean;
 use Path::Tiny;
 
-extends qw(App::ConfigManager);
+extends qw(App::PlannedCopy);
 
-with qw(App::ConfigManager::Role::Resource::Element);
+with qw(App::PlannedCopy::Role::Resource::Element);
 
 has '_type' => (
     is       => 'ro',

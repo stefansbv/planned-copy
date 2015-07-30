@@ -1,4 +1,4 @@
-package App::ConfigManager::Resource::Element;
+package App::PlannedCopy::Resource::Element;
 
 # ABSTRACT: Parse a resource.yml config file
 
@@ -6,8 +6,8 @@ use 5.010001;
 use Moose;
 use namespace::autoclean;
 
-use App::ConfigManager::Resource::Element::Source;
-use App::ConfigManager::Resource::Element::Destination;
+use App::PlannedCopy::Resource::Element::Source;
+use App::PlannedCopy::Resource::Element::Destination;
 
 has '_source' => (
     is       => 'ro',
@@ -23,13 +23,13 @@ has '_destination' => (
 
 sub src {
     my $self = shift;
-    return App::ConfigManager::Resource::Element::Source->new(
+    return App::PlannedCopy::Resource::Element::Source->new(
         $self->_source );
 }
 
 sub dst {
     my $self = shift;
-    return App::ConfigManager::Resource::Element::Destination->new(
+    return App::PlannedCopy::Resource::Element::Destination->new(
         $self->_destination );
 }
 

@@ -1,6 +1,6 @@
-package App::ConfigManager;
+package App::PlannedCopy;
 
-# ABSTRACT: Yet Another Configuration Manager - application
+# ABSTRACT: Planned copy - application
 
 use utf8;
 use Moose;
@@ -8,11 +8,11 @@ use 5.0100;
 
 use MooseX::App qw(Color Version);
 
-use App::ConfigManager::Config;
+use App::PlannedCopy::Config;
 
-with qw(App::ConfigManager::Role::Base);
+with qw(App::PlannedCopy::Role::Base);
 
-app_namespace 'App::ConfigManager::Command';
+app_namespace 'App::PlannedCopy::Command';
 
 option 'dryrun' => (
     is            => 'rw',
@@ -28,10 +28,10 @@ option 'verbose' => (
 
 has config => (
     is      => 'ro',
-    isa     => 'App::ConfigManager::Config',
+    isa     => 'App::PlannedCopy::Config',
     lazy    => 1,
     default => sub {
-        App::ConfigManager::Config->new;
+        App::PlannedCopy::Config->new;
     }
 );
 
