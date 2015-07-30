@@ -3,7 +3,7 @@ Planned Copy
 Ștefan Suciu
 2015-03-19
 
-Version: 0.522 alpha
+Version: 0.525 alpha
 
 Planned Copy - a smarter copy application for your Linux box.
 
