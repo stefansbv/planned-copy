@@ -4,7 +4,6 @@ package App::PlannedCopy::Command::Resu;
 
 use 5.010001;
 use utf8;
-
 use Try::Tiny;
 use Path::Tiny;
 use Path::Iterator::Rule;

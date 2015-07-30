@@ -4,7 +4,6 @@ package App::PlannedCopy::Command::Repo;
 
 use 5.010001;
 use utf8;
-
 use Git::Class;
 use Try::Tiny;
 use MooseX::App::Command;

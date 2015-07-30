@@ -52,6 +52,7 @@ sub item_printer {
         = $errorlevel eq 'error' ? 'bright_red'
         : $errorlevel eq 'warn'  ? 'bright_yellow'
         : $errorlevel eq 'info'  ? 'green'
+        : $errorlevel eq 'void'  ? 'reset'
         :                          'reset';
     $self->printer($color, $rec->src->_name, $rec->dst->short_path);
     return;

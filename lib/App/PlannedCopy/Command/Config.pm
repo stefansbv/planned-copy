@@ -4,7 +4,6 @@ package App::PlannedCopy::Command::Config;
 
 use 5.010001;
 use utf8;
-
 use Try::Tiny;
 use MooseX::App::Command;
 use Moose::Util::TypeConstraints;

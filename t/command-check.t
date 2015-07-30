@@ -32,7 +32,7 @@ Run the 'resu' command to create it.
 ---
 
 Summary:
- - processed: 0
+ - processed: 0 records
  - checked  : 0
  - skipped  : 0
 
@@ -40,7 +40,7 @@ Summary:
 
 is capture_stdout { $check->print_summary }, '
 Summary:
- - processed: 0
+ - processed: 0 records
  - checked  : 0
  - skipped  : 0
 
@@ -58,7 +58,7 @@ like capture_stdout { $check->execute }, qr/Job: 5 files to check:/,
 
 is capture_stdout { $check->print_summary }, '
 Summary:
- - processed: 5
+ - processed: 5 records
  - checked  : 3
  - skipped  : 2
 

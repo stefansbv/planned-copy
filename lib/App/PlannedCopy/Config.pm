@@ -10,6 +10,7 @@ use File::HomeDir;
 use Path::Tiny;
 use Config::GitLike 1.11;
 use URI;
+use namespace::autoclean;
 
 extends 'Config::GitLike';
 
@@ -75,5 +76,7 @@ sub resource_file {
     return unless $self->repo_path and $project;
     return path( $self->repo_path, $project, 'resource.yml' )->stringify;
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;

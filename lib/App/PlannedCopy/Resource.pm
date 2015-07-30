@@ -4,13 +4,11 @@ package App::PlannedCopy::Resource;
 
 use 5.010001;
 use utf8;
-
 use Moose;
 use MooseX::Iterator;
-use namespace::autoclean;
-
 use YAML::Tiny;
 use Try::Tiny;
+use namespace::autoclean;
 
 use App::PlannedCopy::Resource::Read;
 use App::PlannedCopy::Resource::Element;

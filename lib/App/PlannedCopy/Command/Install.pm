@@ -34,7 +34,8 @@ sub execute {
     my $iter = $res->resource_iter;
 
     say 'Job: ', $res->count, ' file', ( $res->count != 1 ? 's' : '' ),
-        ' to install', ( $self->verbose ? ' (verbose)' : '' ), ':', "\n";
+        ' to check and install', ( $self->verbose ? ' (verbose)' : '' ), ':',
+        "\n";
 
     $self->no_resource_message($self->project) if $res->count == 0;
 
@@ -75,6 +76,11 @@ sub install_file {
 
     my $src_path = $res->src->_abs_path;
     my $dst_path = $res->dst->_abs_path;
+    if ( $self->is_selfsame( $src_path, $dst_path ) ) {
+        $self->set_error_level('void');
+        $self->inc_count_skip;
+        return 1;
+    }
     my $parent_dir = $res->dst->_parent_dir;
     unless ( $parent_dir->is_dir ) {
         unless ( $parent_dir->mkpath ) {
@@ -119,7 +125,7 @@ sub print_summary {
     my $cnt_proc = $self->count_proc // 0;
     say '';
     say 'Summary:';
-    say ' - processed: ', $cnt_proc;
+    say ' - processed: ', $cnt_proc, ' records';
     say ' - installed: ', $self->dryrun ? '0 (dry-run)' : $self->count_inst;
     say ' - skipped  : ',
         $self->dryrun ? "$cnt_proc (dry-run)" : $self->count_skip;

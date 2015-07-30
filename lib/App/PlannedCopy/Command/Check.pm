@@ -82,7 +82,7 @@ sub print_summary {
     my $cnt_proc = $self->count_proc // 0;
     say '';
     say 'Summary:';
-    say ' - processed: ', $cnt_proc;
+    say ' - processed: ', $cnt_proc, ' records';
     say ' - checked  : ', $self->count_inst;
     say ' - skipped  : ', $self->count_skip;
     say '';

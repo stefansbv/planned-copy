@@ -2,12 +2,10 @@ package App::PlannedCopy;
 
 # ABSTRACT: Planned copy - application
 
+use 5.0100;
 use utf8;
 use Moose;
-use 5.0100;
-
 use MooseX::App qw(Color Version);
-
 use App::PlannedCopy::Config;
 
 with qw(App::PlannedCopy::Role::Base);
