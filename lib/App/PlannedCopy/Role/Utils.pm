@@ -19,10 +19,7 @@ sub is_selfsame {
         );
     }
     if ( !$dst->is_file ) {
-        Exception::IO::FileNotFound->throw(
-            message  => 'The destination path does not exist.',
-            pathname => $dst,
-        );
+        return 0;
     }
     my $digest_src;
     try {

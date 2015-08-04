@@ -59,8 +59,8 @@ like capture_stdout { $check->execute }, qr/Job: 5 files to check:/,
 is capture_stdout { $check->print_summary }, '
 Summary:
  - processed: 5 records
- - checked  : 3
- - skipped  : 2
+ - checked  : 4
+ - skipped  : 1
 
 ', 'print_summary should work';
 
