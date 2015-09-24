@@ -126,9 +126,8 @@ sub print_summary {
     say '';
     say 'Summary:';
     say ' - processed: ', $cnt_proc, ' records';
+    say ' - skipped  : ', $self->dryrun ? "$cnt_proc (dry-run)" : $self->count_skip;
     say ' - installed: ', $self->dryrun ? '0 (dry-run)' : $self->count_inst;
-    say ' - skipped  : ',
-        $self->dryrun ? "$cnt_proc (dry-run)" : $self->count_skip;
     say '';
     return;
 }

@@ -100,8 +100,8 @@ sub print_summary {
     my $cnt_proc = $self->count_proc // 0;
     say "\nSummary:";
     say " - processed   : ", $cnt_proc, ' records';
-    say " - synchronized: ", $self->dryrun ? '0 (dry-run)' : $self->count_inst;
     say " - skipped     : ", $self->dryrun ? "$cnt_proc (dry-run)" : $cnt_proc;
+    say " - synchronized: ", $self->dryrun ? '0 (dry-run)' : $self->count_inst;
     say "";
 
     return;
