@@ -97,7 +97,7 @@ sub install_file {
     $self->inc_count_inst;
 
     # Unpack archives
-    if ( $res->src->type_is('archive') and $res->dst->verb_is('unpack') ) {
+    if ( $res->src->type_is('archive') && $res->dst->verb_is('unpack') ) {
         $self->extract_archive($dst_path);
     }
 

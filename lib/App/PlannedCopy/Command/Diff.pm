@@ -100,6 +100,7 @@ sub diff {
         my $answer = prompt( "Runn diff? (y/N)", "n" );
         if ( $answer =~ m{[yY]} ) {
             $self->kompare( $src_path, $dst_path );
+            $self->inc_count_resu;
         }
     }
     $self->inc_count_inst;
@@ -112,8 +113,9 @@ sub print_summary {
     say '';
     say 'Summary:';
     say ' - processed: ', $cnt_proc, ' records';
-    say ' - diffed   : ', $self->count_inst;
+    say ' - checked  : ', $self->count_inst;
     say ' - skipped  : ', $self->count_skip;
+    say ' - diff-ed  : ', $self->count_resu;
     say '';
     return;
 }

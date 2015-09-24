@@ -15,6 +15,16 @@ has count_proc => (
     },
 );
 
+has count_resu => (
+    traits  => ['Counter'],
+    is      => 'rw',
+    isa     => 'Int',
+    default => 0,
+    handles => {
+        inc_count_resu => 'inc',
+    },
+);
+
 has count_inst => (
     traits  => ['Counter'],
     is      => 'rw',

@@ -70,9 +70,13 @@ sub check {
     my ($self, $rec) = @_;
     my $src_path = $rec->src->_abs_path;
     my $dst_path = $rec->dst->_abs_path;
-    $self->is_selfsame( $src_path, $dst_path )
-        ? $self->set_error_level('info')
-        : $self->set_error_level('warn');
+    if ( $self->is_selfsame( $src_path, $dst_path ) ) {
+        $self->set_error_level('info');
+    }
+    else {
+        $self->inc_count_resu;
+        $self->set_error_level('warn');
+    }
     $self->inc_count_inst;
     return;
 }
@@ -85,6 +89,7 @@ sub print_summary {
     say ' - processed: ', $cnt_proc, ' records';
     say ' - checked  : ', $self->count_inst;
     say ' - skipped  : ', $self->count_skip;
+    say ' - different: ', $self->count_resu;
     say '';
     return;
 }
