@@ -4,7 +4,8 @@ package App::PlannedCopy::Command::Repo;
 
 use 5.010001;
 use utf8;
-use Git::Class;
+use Git::Sub qw(clone);
+use Path::Tiny;
 use Try::Tiny;
 use MooseX::App::Command;
 use Moose::Util::TypeConstraints;
@@ -29,11 +30,16 @@ sub execute {
     my ( $self ) = @_;
 
     if ( $self->action eq 'clone' ) {
-        # continue... :)
-        # TODO
+        $self->clone_repo;
     }
 
-    my ($uri, $path);
+    return;
+}
+
+sub clone_repo {
+    my $self = shift;
+
+    my ( $uri, $path );
     try {
         $uri  = $self->config->uri;
         $path = $self->config->repo_path;
@@ -47,45 +53,30 @@ sub execute {
             return;
         }
     };
-    return unless $uri and $path;
 
-    try   { $self->clone_repo($uri, $path) }
-    catch {
-        if ( my $e = Exception::Base->catch($_) ) {
-            if ( $e->isa('Exception::IO::Git') ) {
-                say "[EE] ", $e->usermsg;
-                say "[EE] Reason: ", $e->logmsg;
-            }
-        }
-    };
+    unless ( $uri and $path ) {
+        say "[II] URI and path are required.";
+        say "[II] Run the 'config' comand to create the config file.";
+        return;
+    }
+
+    if ( $self->dryrun ) {
+        print "Cloning the repo '$uri' into '$path'...dry-run.\n";
+        return;
+    }
+
+    my $to_path = path($path)->parent;
+    if ( chdir $to_path ) {
+        try { git::clone $uri->as_string };
+    }
+    else {
+        say "[EE] Can't cd to $to_path: $!\n";
+    }
 
     return;
 }
 
 # git clone ssh://[Git users]@[IP address or hostname]/[Git repository path]
-sub clone_repo {
-    my ( $self, $uri, $path) = @_;
-
-    if ($self->dryrun) {
-        print "Cloning the repo '$uri' into '$path'...dry-run.\n";
-        return;
-    }
-
-    my $git = Git::Class::Cmd->new( die_on_error => 1, verbose => $self->verbose );
-    print "Cloning the repo into '$path'...\r";
-    try   { $git->clone( $uri, $path ) }
-    catch {
-        say "";
-        Exception::IO::Git->throw(
-            usermsg => 'The git clone command failed.',
-            logmsg  => $_,
-        );
-    };
-    print "Cloning the repo into '$path'...done\n";
-
-    return;
-}
-
 
 __PACKAGE__->meta->make_immutable;
 

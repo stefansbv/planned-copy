@@ -81,14 +81,16 @@ The features and also the commands of the application are:
 
 The main commands:
 * install - Install the configuration files (copy files and set permissions);
-* sync - Synchronize the configuration files (copy back to the repo);
-* check - Compare the repository files with the installed versions;
+* sync    - Synchronize the configuration files (copy back to the repo);
+* check   - Compare the repository files with the installed versions;
 
-Additional commands:
-* config - Configure the application;
-* repo - Manage the repository (clone only for now);
-* resu - Manage the resource config files (create/update);
-* diff - Run a diff utility on the repo files and the installed versions;
+Additional helper and info commands:
+* config  - Configure the application;
+* repo    - Manage the repository (clone only for now);
+* resu    - Manage the resource config files (create/update);
+* diff    - Run a diff utility on the repo files and the installed versions;
+* list    - Print a list of the projects in the repository;
+* version - Print the current version;
 
 
 Quick Usage
