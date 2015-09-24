@@ -7,6 +7,7 @@ use utf8;
 use Moose::Role;
 use Path::Tiny;
 use Try::Tiny;
+use Capture::Tiny ':all';
 
 use App::PlannedCopy::Exceptions;
 
@@ -123,6 +124,26 @@ sub no_resource_message {
     say "There is no resource file for the '$proj' project.\nRun the 'resu' command to create it.";
     say "---";
     return
+}
+
+sub quote_string {
+    my $str = shift;
+    return unless $str;
+    $str    = qq{$str} if $str =~ m{\s};
+    return $str;
+}
+
+sub kompare {
+    my ($self, $src_path, $dst_path) = @_;
+    my $cmd = $self->diff_cmd;
+    my @args;
+    push @args, quote_string($src_path);
+    push @args, quote_string($dst_path);
+    say "# $cmd @args" if $self->verbose;
+    my ( $stdout, $stderr, $exit ) = capture { system( $cmd, @args ) };
+    die "Can't execute '$cmd'!\n Error: $stderr" if $stderr;
+    say $stdout if $stdout;
+    return;
 }
 
 no Moose::Role;

@@ -71,6 +71,16 @@ has 'uri' => (
     },
 );
 
+has 'diff_tool' => (
+    is      => 'ro',
+    isa     => 'Str',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return $self->get( key => 'local.diff-tool' ) || 'kompare';
+    },
+);
+
 sub resource_file {
     my ($self, $project) = @_;
     return unless $self->repo_path and $project;

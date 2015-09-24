@@ -1,4 +1,3 @@
-# -*- perl -*-
 #
 # Test the Base role
 #
