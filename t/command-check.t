@@ -35,6 +35,7 @@ Summary:
  - processed: 0 records
  - checked  : 0
  - skipped  : 0
+ - different: 0
 
 ", 'execute should work';
 
@@ -43,6 +44,7 @@ Summary:
  - processed: 0 records
  - checked  : 0
  - skipped  : 0
+ - different: 0
 
 ', 'print_summary should work';
 
@@ -61,6 +63,7 @@ Summary:
  - processed: 5 records
  - checked  : 4
  - skipped  : 1
+ - different: 1
 
 ', 'print_summary should work';
 
