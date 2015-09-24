@@ -1,9 +1,9 @@
 Planned Copy
 ============
 Ștefan Suciu
-2015-07-30
+2015-09-24
 
-Version: 0.526
+Version: 0.600
 
 Planned Copy - a smarter copy application for your Linux box.
 
@@ -88,6 +88,7 @@ Additional commands:
 * config - Configure the application;
 * repo - Manage the repository (clone only for now);
 * resu - Manage the resource config files (create/update);
+* diff - Run a diff utility on the repo files and the installed versions;
 
 
 Quick Usage
