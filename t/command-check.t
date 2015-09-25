@@ -24,7 +24,7 @@ ok my $check = App::PlannedCopy::Command::Check->new(
     config  => $conf,
     ), 'resource command constructor';
 
-is capture_stdout { $check->execute }, "Job: 0 files to check:
+is capture_stdout { $check->execute }, " odbc, job: 0 files to check:
 
 ---
 There is no resource file for the 'odbc' project.
@@ -39,7 +39,7 @@ Summary:
 
 ", 'execute should work';
 
-is capture_stdout { $check->print_summary }, '
+is capture_stdout { $check->print_project_summary }, '
 Summary:
  - processed: 0 records
  - checked  : 0
@@ -55,10 +55,10 @@ ok $check = App::PlannedCopy::Command::Check->new(
     config  => $conf,
     ), 'other resource command constructor';
 
-like capture_stdout { $check->execute }, qr/Job: 5 files to check:/,
+like capture_stdout { $check->execute }, qr/job: 5 files to check:/,
     'execute should work';
 
-is capture_stdout { $check->print_summary }, '
+is capture_stdout { $check->print_project_summary }, '
 Summary:
  - processed: 5 records
  - checked  : 4
