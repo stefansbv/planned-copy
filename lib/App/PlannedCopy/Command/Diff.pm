@@ -97,7 +97,7 @@ sub diff {
     else {
         $self->set_error_level('warn');
         say "# ", $self->diff_cmd, " $src_path $dst_path";
-        my $answer = prompt( "Runn diff? (y/N)", "n" );
+        my $answer = prompt( "Runn diff? (Y/n)", "y" );
         if ( $answer =~ m{[yY]} ) {
             $self->kompare( $src_path, $dst_path );
             $self->inc_count_resu;
