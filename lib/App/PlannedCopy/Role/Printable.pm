@@ -102,6 +102,17 @@ sub project_list_printer {
     return;
 }
 
+sub difference_printer {
+    my ( $self, @items ) = @_;
+    my $color = 'bright_yellow';
+    foreach my $item (@items) {
+        my $proj = $item->[0];
+        my $resu = $item->[1];
+        $self->printer($color, $proj, $resu);
+    }
+    return;
+}
+
 no Moose::Role;
 
 1;

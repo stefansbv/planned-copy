@@ -4,8 +4,6 @@ package App::PlannedCopy::Command::List;
 
 use 5.010001;
 use utf8;
-use Path::Tiny;
-use Path::Iterator::Rule;
 use MooseX::App::Command;
 use namespace::autoclean;
 
@@ -23,32 +21,6 @@ sub execute {
     $self->print_summary;
 
     return;
-}
-
-sub get_projects {
-    my $self = shift;
-
-    die "EE Not configured!\n" unless defined $self->config->repo_path;
-
-    my $rule = Path::Iterator::Rule->new;
-    $rule->skip_vcs;
-    # $rule->file->name( 'resource.yml' );
-    $rule->min_depth(1);
-    $rule->max_depth(1);
-
-    my $next = $rule->iter( $self->config->repo_path );
-    my @dirs;
-    while ( defined( my $item = $next->() ) ) {
-        # push @dirs, path($file)->parent;
-        my $path = path($item);
-        if ( $path->is_dir ) {
-            my $has_resu = path( $path, 'resource.yml')->is_file ? 1 : 0;
-            $self->inc_count_inst if $has_resu;
-            $self->inc_count_proc;
-            push @dirs, { path => $path->basename, resource => $has_resu };
-        }
-    }
-    return \@dirs;
 }
 
 sub print_summary {

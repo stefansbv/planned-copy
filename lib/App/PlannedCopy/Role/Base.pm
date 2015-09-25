@@ -21,7 +21,8 @@ has count_resu => (
     isa     => 'Int',
     default => 0,
     handles => {
-        inc_count_resu => 'inc',
+        inc_count_resu   => 'inc',
+        reset_count_resu => 'reset',
     },
 );
 

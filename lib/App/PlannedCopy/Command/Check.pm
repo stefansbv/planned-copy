@@ -20,54 +20,94 @@ command_long_description q[Compare the repository files with the installed versi
 parameter 'project' => (
     is            => 'rw',
     isa           => 'Str',
-    required      => 1,
+    required      => 0,
     documentation => q[Project name.],
 );
 
-sub execute {
-    my ( $self ) = @_;
+has '_differences' => (
+    is      => 'rw',
+    isa     => 'ArrayRef',
+    traits  => ['Array'],
+    lazy    => 1,
+    default => sub { [] },
+    handles => {
+        get_diff   => 'elements',
+        count_diff => 'count',
+    },
+);
 
-    my $file = $self->config->resource_file( $self->project );
-    my $res  = App::PlannedCopy::Resource->new( resource_file => $file);
+sub execute {
+    my ($self) = @_;
+
+    if ( $self->project ) {
+        $self->check_project( $self->project );
+    }
+    else {
+        foreach my $item ( @{ $self->get_projects } ) {
+            my $path = $item->{path};
+            my $resu = $item->{resource};
+            next unless $resu == 1;
+            $self->check_project( $path, 'batch' );
+        }
+        $self->print_summary;
+    }
+
+    return;
+}
+
+sub check_project {
+    my ( $self, $project, $batch ) = @_;
+
+    my $file = $self->config->resource_file($project);
+    my $res  = App::PlannedCopy::Resource->new( resource_file => $file );
     my $iter = $res->resource_iter;
 
-    say 'Job: ', $res->count, ' file', ( $res->count != 1 ? 's' : '' ),
-        ' to check', ( $self->verbose ? ' (verbose)' : '' ), ':', "\n";
+    say " $project, job: ", $res->count, ' file',
+        ( $res->count != 1 ? 's' : '' ),
+        ' to check', ( $self->verbose ? ' (verbose)' : '' ),
+        ( $batch ? '...' : ':' ),
+        ( $batch ? '' : "\n" );
 
-    $self->no_resource_message($self->project) if $res->count == 0;
+    $self->no_resource_message( $self->project ) if $res->count == 0;
+
+    $self->reset_count_resu;
 
     while ( $iter->has_next ) {
         $self->set_error_level('info');
-        my $rec  = $iter->next;
+        my $rec = $iter->next;
         my $cont = try { $self->validate_element($rec) }
         catch {
             my $e = $self->handle_exception($_);
-            $self->item_printer($rec);
-            $self->exception_printer($e) if $e;
+            $self->item_printer($rec) unless $batch;
+            $self->exception_printer($e) if $e and not $batch;
             $self->inc_count_skip;
-            return undef;       # required
+            return undef;    # required
         };
         if ($cont) {
             try {
                 $self->check($rec);
-                $self->item_printer($rec);
+                $self->item_printer($rec) unless $batch;
             }
             catch {
                 my $e = $self->handle_exception($_);
-                $self->exception_printer($e) if $e;
+                $self->exception_printer($e) if $e and not $batch;
                 $self->inc_count_skip;
             };
         }
         $self->inc_count_proc;
     }
 
-    $self->print_summary;
-
+    if ($batch) {
+        $self->store_summary($project);
+    }
+    else {
+        $self->print_project_summary;
+    }
     return;
 }
 
 sub check {
-    my ($self, $rec) = @_;
+    my ( $self, $rec ) = @_;
     my $src_path = $rec->src->_abs_path;
     my $dst_path = $rec->dst->_abs_path;
     if ( $self->is_selfsame( $src_path, $dst_path ) ) {
@@ -81,7 +121,14 @@ sub check {
     return;
 }
 
-sub print_summary {
+sub store_summary {
+    my ( $self, $project ) = @_;
+    push @{ $self->_differences }, [ $project, $self->count_resu ]
+        if $self->count_resu > 0;
+    return;
+}
+
+sub print_project_summary {
     my $self = shift;
     my $cnt_proc = $self->count_proc // 0;
     say '';
@@ -91,6 +138,24 @@ sub print_summary {
     say ' - skipped  : ', $self->count_skip;
     say ' - different: ', $self->count_resu;
     say '';
+    return;
+}
+
+sub print_summary {
+    my $self = shift;
+    my $cnt_proc = $self->count_proc // 0;
+
+    say '';
+    $self->difference_printer( $self->get_diff );
+
+    say '';
+    say 'Summary:';
+    say ' - processed: ', $cnt_proc, ' records';
+    say ' - checked  : ', $self->count_inst;
+    say ' - skipped  : ', $self->count_skip;
+    say ' - different: ', $self->count_diff;
+    say '';
+
     return;
 }
 
