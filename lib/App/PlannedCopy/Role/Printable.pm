@@ -60,13 +60,37 @@ sub item_printer {
 
 sub exception_printer {
     my ($self, $e) = @_;
-    if ($self->verbose) {
-        print color 'bright_red';
-        print "  [EE] ";
-        print color 'reset';
-        print $e->message, ' ', $e->pathname;
-        print "\n";
+    if ( $e->isa('Exception::IO::PathNotDefined') ) {
+        $self->print_exeception_message( $e->message, $e->pathname )
+            if $self->verbose;
     }
+    elsif ( $e->isa('Exception::IO::PathNotFound') ) {
+        $self->print_exeception_message($e->message, $e->pathname);
+    }
+    elsif ( $e->isa('Exception::IO::FileNotFound') ) {
+        $self->print_exeception_message($e->message, $e->pathname);
+    }
+    elsif ( $e->isa('Exception::IO::PermissionDenied') ) {
+        $self->print_exeception_message($e->message, $e->pathname);
+    }
+    elsif ( $e->isa('Exception::IO::SystemCmd') ) {
+        $self->print_exeception_message($e->usermsg, $e->logmsg);
+    }
+    else {
+        # Unknown exception
+        say "Unknown exception!: ", $e; # ?!
+    }
+
+    return;
+}
+
+sub print_exeception_message {
+    my ( $self, $message, $details ) = @_;
+    print color 'bright_red';
+    print "  [EE] ";
+    print color 'reset';
+    print $message, ' ', $details;
+    print "\n";
     return;
 }
 

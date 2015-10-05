@@ -67,7 +67,13 @@ sub clone_repo {
 
     my $to_path = path($path)->parent;
     if ( chdir $to_path ) {
-        try { git::clone $uri->as_string };
+        try { git::clone $uri->as_string }
+        catch {
+            Exception::IO::Git->throw(
+                usermsg  => 'Git clone failed.',
+                logmsg   => $_,
+            );
+        };
     }
     else {
         say "[EE] Can't cd to $to_path: $!\n";

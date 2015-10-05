@@ -97,7 +97,7 @@ sub validate_element {
 
     # Check the destination file.
     if ( $res->dst->_path =~ m/^{\s?undef\s?}/ ) {
-        Exception::IO::PathNotFound->throw(
+        Exception::IO::PathNotDefined->throw(
             message  => 'The destination path is not defined.',
             pathname => '',
         );
@@ -142,7 +142,12 @@ sub kompare {
     push @args, quote_string($dst_path);
     say "# $cmd @args" if $self->verbose;
     my ( $stdout, $stderr, $exit ) = capture { system( $cmd, @args ) };
-    die "Can't execute '$cmd'!\n Error: $stderr" if $stderr;
+    if ($stderr) {
+        Exception::IO::SystemCmd->throw(
+            usermsg => 'The diff command failed.',
+            logmsg  => $stderr,
+        );
+    }
     say $stdout if $stdout;
     return;
 }
