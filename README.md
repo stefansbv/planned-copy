@@ -1,9 +1,9 @@
 Planned Copy
 ============
 Ștefan Suciu
-2015-09-25
+2015-10-05
 
-Version: 0.700
+Version: 0.705
 
 Planned Copy - a smarter copy application for your Linux box.
 
