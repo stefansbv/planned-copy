@@ -1,7 +1,7 @@
 #
 # Test the application commands, parameters and options
 #
-use Test::Most tests => 11+1;
+use Test::Most tests => 12+1;
 use Test::NoWarnings;
 
 use App::PlannedCopy;
@@ -105,6 +105,15 @@ subtest 'Command "sync" without options' => sub {
     isa_ok( $ins_01, 'App::PlannedCopy::Command::Sync' );
     is( $ins_01->dryrun, undef, 'Option "dryrun" is not set' );
     is( $ins_01->verbose, undef, 'Option "verbose" is not set' );
+};
+
+subtest 'Command "sync" with all params' => sub {
+    MooseX::App::ParsedArgv->new( argv => [qw(sync test somefile)] );
+    my $ins_01 = App::PlannedCopy->new_with_command();
+    isa_ok( $ins_01, 'App::PlannedCopy::Command::Sync' );
+    is( $ins_01->dryrun, undef, 'Option "dryrun" is not set' );
+    is( $ins_01->verbose, undef, 'Option "verbose" is not set' );
+    is( $ins_01->dst_name, 'somefile', 'Param "somefile" is set');
 };
 
 # end
