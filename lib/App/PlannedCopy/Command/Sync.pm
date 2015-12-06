@@ -38,11 +38,22 @@ sub execute {
     my $file = $self->config->resource_file( $self->project );
     my $res  = App::PlannedCopy::Resource->new( resource_file => $file);
     my $iter = $res->resource_iter;
-    my $name = $self->dst_name;
 
-    say 'Job: ', $res->count, ' file', ( $res->count != 1 ? 's' : '' ),
-        ' to check and synchronize', ( $self->verbose ? ' (verbose)' : '' ),
-        ':', "\n";
+    my $name = $self->dst_name;
+    if ($name) {
+        say 'Job: 1 file',
+            ' to check and synchronize',
+            ( $self->verbose ? ' (verbose)' : '' ),
+            ':',
+            "\n";
+    }
+    else {
+        say 'Job: ', $res->count, ' file', ( $res->count != 1 ? 's' : '' ),
+            ' to check and synchronize',
+            ( $self->verbose ? ' (verbose)' : '' ),
+            ':',
+            "\n";
+    }
 
     $self->no_resource_message($self->project) if $res->count == 0;
 

@@ -26,6 +26,13 @@ parameter 'project' => (
     documentation => q[Project name.],
 );
 
+parameter 'dst_name' => (
+    is            => 'rw',
+    isa           => 'Str',
+    required      => 0,
+    documentation => q[Optional destination file name.],
+);
+
 sub execute {
     my ( $self ) = @_;
 
@@ -33,15 +40,30 @@ sub execute {
     my $res  = App::PlannedCopy::Resource->new( resource_file => $file);
     my $iter = $res->resource_iter;
 
-    say 'Job: ', $res->count, ' file', ( $res->count != 1 ? 's' : '' ),
-        ' to check and install', ( $self->verbose ? ' (verbose)' : '' ), ':',
-        "\n";
+    my $name = $self->dst_name;
+    if ($name) {
+        say 'Job: 1 file',
+            ' to check and install', ( $self->verbose ? ' (verbose)' : '' ),
+            ':',
+            "\n";
+    }
+    else {
+        say 'Job: ', $res->count, ' file', ( $res->count != 1 ? 's' : '' ),
+            ' to check and install', ( $self->verbose ? ' (verbose)' : '' ),
+            ':',
+            "\n";
+    }
 
     $self->no_resource_message($self->project) if $res->count == 0;
 
     while ( $iter->has_next ) {
         $self->set_error_level('info');
         my $rec  = $iter->next;
+        if ($name) {
+
+            # Skip until found; not efficient but simple to implement ;)
+            next unless $rec->dst->_name eq $name;
+        }
         my $cont = try { $self->validate_element($rec) }
         catch {
             my $e = $self->handle_exception($_);
