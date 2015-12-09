@@ -29,6 +29,7 @@ parameter 'dst_name' => (
     is            => 'rw',
     isa           => 'Str',
     required      => 0,
+    cmd_flag      => 'file',
     documentation => q[Optional destination file name.],
 );
 
