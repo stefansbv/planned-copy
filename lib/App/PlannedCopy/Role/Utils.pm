@@ -159,14 +159,12 @@ sub get_projects {
 
     my $rule = Path::Iterator::Rule->new;
     $rule->skip_vcs;
-    # $rule->file->name( 'resource.yml' );
     $rule->min_depth(1);
     $rule->max_depth(1);
 
     my $next = $rule->iter( $self->config->repo_path );
     my @dirs;
     while ( defined( my $item = $next->() ) ) {
-        # push @dirs, path($file)->parent;
         my $path = path($item);
         if ( $path->is_dir ) {
             my $has_resu = path( $path, 'resource.yml')->is_file ? 1 : 0;
@@ -176,6 +174,35 @@ sub get_projects {
         }
     }
     return \@dirs;
+}
+
+sub get_files {
+    my ( $self, $project ) = @_;
+
+    die "EE Project name not provided!\n" unless $project;
+
+    my $path = path( $self->config->repo_path, $project );
+    unless ( $path->is_dir ) {
+        Exception::IO::PathNotFound->throw(
+            message  => 'The project path was not found.',
+            pathname => $path,
+        );
+    }
+    my $rule = Path::Iterator::Rule->new;
+    $rule->skip_vcs;
+    $rule->min_depth(1);
+
+    my $next = $rule->iter($path);
+    my $dirs_aref = [];
+    while ( defined( my $item = $next->() ) ) {
+        my $path = path($item);
+        if ( !$path->is_dir ) {
+            $self->inc_count_inst;
+            $self->inc_count_proc;
+            push @{$dirs_aref}, { path => $path->basename };
+        }
+    }
+    return $dirs_aref;
 }
 
 no Moose::Role;

@@ -13,6 +13,7 @@ STDOUT->autoflush(1);
 
 has 'term_size' => (
     is      => 'ro',
+    isa     => 'Int',
     default => sub {
         my ($wdt) = GetTerminalSize();  # adjust output f(wdt)
         return $wdt;

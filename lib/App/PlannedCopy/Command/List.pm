@@ -5,6 +5,8 @@ package App::PlannedCopy::Command::List;
 use 5.010001;
 use utf8;
 use MooseX::App::Command;
+use App::PlannedCopy::Ls;
+use Try::Tiny;
 use namespace::autoclean;
 
 extends qw(App::PlannedCopy);
@@ -12,11 +14,41 @@ extends qw(App::PlannedCopy);
 with qw(App::PlannedCopy::Role::Utils
         App::PlannedCopy::Role::Printable);
 
+parameter 'project' => (
+    is            => 'rw',
+    isa           => 'Str',
+    required      => 0,
+    documentation => q[Project name.],
+);
+
 sub execute {
     my ( $self ) = @_;
 
-    say "Job: list projects:\n";
-    $self->project_list_printer( @{ $self->get_projects } );
+    if ( my $project = $self->project ) {
+        say "Job: list files in '$project':\n";
+        my @items;
+        try {
+            @items = map { $_->{path} } @{ $self->get_files($project) };
+        }
+        catch {
+            if ( my $e = Exception::Base->catch($_) ) {
+                if ( $e->isa('Exception::IO') ) {
+                    say "[EE] ", $e->message, ' : ', $e->pathname;
+                }
+                else {
+                    say "[EE] Unknown exception: $_";
+                }
+            }
+        };
+        return unless scalar @items;
+        my $list  = App::PlannedCopy::Ls->new( items => \@items );
+        $list->column_printer;
+        return;
+    }
+    else {
+        say "Job: list projects:\n";
+        $self->project_list_printer( @{ $self->get_projects } );
+    }
 
     $self->print_summary;
 
