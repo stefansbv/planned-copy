@@ -27,7 +27,7 @@ has 'items' => (
     default => sub { [] },
     handles => {
         all_items    => 'elements',
-        count_items  => 'count',
+        items_count  => 'count',
         sorted_items => 'sort',
     },
 );
@@ -39,9 +39,10 @@ has 'spaces_no' => (
     default => sub { 2 },
 );
 
-has 'cols_no' => (
+has column_count => (
     is      => 'rw',
     isa     => 'Int',
+    traits  => ['Counter'],
     lazy    => 1,
     default => sub {
         my $self     = shift;
@@ -51,16 +52,20 @@ has 'cols_no' => (
             unless defined $max_flen
             and $max_flen > 0;
         my $cols_no  = int( $self->term_size / $max_flen );
-        my $items_no = $self->count_items;
+        my $items_no = $self->items_count;
         return $items_no < $cols_no ? $items_no : $cols_no;
+    },
+    handles => {
+        inc_cols => 'inc',
+        dec_cols => 'dec',
     },
 );
 
 sub items_per_col {
-    my ( $self, $cols_no ) = @_;
+    my ( $self, $column_count ) = @_;
     die "Wron parameter for 'items_per_col'"
-        unless defined $cols_no and $cols_no > 0;
-    return int( $self->count_items / $cols_no );
+        unless defined $column_count and $column_count > 0;
+    return int( $self->items_count / $column_count );
 }
 
 sub build_printf_template {
@@ -79,39 +84,43 @@ sub build_printf_template {
 sub column_printer {
     my $self = shift;
 
-    if ( $self->count_items == 0 ) {
+    if ( $self->items_count == 0 ) {
         say "II No items to display!";
         return;
     }
-    my $cols_no       = $self->cols_no;
-    my $items_in_cols = $self->distribute_items($cols_no);
+
+    my $items_in_cols = $self->distribute_items;
 
     # Check width and try to optimize
-    my $diff = $self->get_diff($items_in_cols);
-    if ( $diff < 0 ) {
-        my $new_diff = $diff + $cols_no - 1; # 1 space
-        if ( $new_diff > 0 ) {
-            $self->spaces_no(1);             # adjust spaces
-        }
-        else {
-            # Ajust columns number and redistribute items
-            $cols_no -= 1;
-            $items_in_cols = $self->distribute_items($cols_no);
-        }
-    }
-    elsif ( $diff > 20 ) {
-        $cols_no += 1;                       # add a column
-        $items_in_cols = $self->distribute_items($cols_no);
+    if ( $self->items_count > $self->column_count ) {
+
         my $diff = $self->get_diff($items_in_cols);
         if ( $diff < 0 ) {
-            # Fall back
-            $cols_no -= 1;                   # remove a column
-            $items_in_cols = $self->distribute_items($cols_no);
+            my $new_diff = $diff + $self->column_count - 1;    # 1 space
+            if ( $new_diff > 0 ) {
+                $self->spaces_no(1);         # adjust spaces
+            }
+            else {
+                # Ajust columns number and redistribute items
+                $self->dec_cols;
+                $items_in_cols = $self->distribute_items;
+            }
+        }
+        elsif ( $diff > 20 ) {
+            $self->inc_cols;                 # add a column
+            $items_in_cols = $self->distribute_items;
+            my $diff = $self->get_diff($items_in_cols);
+            if ( $diff < 0 ) {
+
+                # Fall back
+                $self->dec_cols;             # remove a column
+                $items_in_cols = $self->distribute_items;
+            }
         }
     }
 
     # Print by row
-    my $col_idx = $cols_no - 1;
+    my $col_idx = $self->column_count - 1;
     my $row_idx = scalar @{$items_in_cols->[0]} - 1;
 
     my $templ = $self->build_printf_template($items_in_cols, $col_idx);
@@ -130,32 +139,33 @@ sub get_diff {
     my ( $self, $items_in_cols ) = @_;
 
     my @maxwidths;    # the max width for each col
-    my $cols_no = 0;
+    my $column_count = 0;
     foreach my $col ( @{$items_in_cols} ) {
-        $cols_no++;
+        $column_count++;
         push @maxwidths, $self->get_maxlen($col);
     }
 
     my $maxwidth;                            # the sum of the widths
     map { $maxwidth += $_ } @maxwidths;
-    $maxwidth = $maxwidth + ( $cols_no - 1 ) * $self->spaces_no;
+    $maxwidth = $maxwidth + ( $column_count - 1 ) * $self->spaces_no;
 
     return $self->term_size - $maxwidth;
 }
 
 sub distribute_items {
-    my ($self, $cols_no) = @_;
+    my $self = shift;
 
+    my $column_count  = $self->column_count;
     my @items = $self->sorted_items;
 
-    my $items_surplus = int( $self->count_items % $cols_no );
+    my $items_surplus = int( $self->items_count % $column_count );
 
     my @cols;
-    for ( my $c = 0; $c < $cols_no; $c++ ) {
+    for ( my $c = 0; $c < $column_count; $c++ ) {
 
         # Add the surplus items to the first columns
         my $surplus       = $items_surplus > 0 ? 1 : 0;
-        my $items_per_col = $self->items_per_col($cols_no) + $surplus;
+        my $items_per_col = $self->items_per_col($column_count) + $surplus;
         $items_surplus--;
 
         for ( my $i = 0; $i < $items_per_col; $i++ ) {
