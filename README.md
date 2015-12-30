@@ -99,20 +99,20 @@ Quick Usage
 The initial configuration of `plcp`:
 
 ```
-% plcp config set --url user@host:/path/to/git-repos/configs.git
-% plcp config set --path /home/user/configs
+$ plcp config set --url user@host:/path/to/git-repos/configs.git
+$ plcp config set --path /home/user/configs
 ```
 
 Clone the repository to localhost:
 
 ```
-% plcp repo clone
+$ plcp repo clone
 ```
 
 Add/update the `resource.yml` file in the `linux` directory:
 
 ```
-% plcp resu linux
+$ plcp resu linux
 ```
 
 Edit the `linux/resource.yml` file and set the destination path for
@@ -121,7 +121,7 @@ all the items.
 Finally install the files with:
 
 ```
-% plcp install linux
+$ plcp install linux
 ```
 
 License And Copyright
