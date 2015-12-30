@@ -119,11 +119,16 @@ sub column_printer {
         }
     }
 
-    # Print by row
-    my $col_idx = $self->column_count - 1;
-    my $row_idx = scalar @{$items_in_cols->[0]} - 1;
+    $self->print_by_row($items_in_cols);
 
-    my $templ = $self->build_printf_template($items_in_cols, $col_idx);
+    return;
+}
+
+sub print_by_row {
+    my ( $self, $items_in_cols ) = @_;
+    my $col_idx = $self->column_count - 1;
+    my $row_idx = scalar @{ $items_in_cols->[0] } - 1;
+    my $templ   = $self->build_printf_template( $items_in_cols, $col_idx );
     for my $r ( 0 .. $row_idx ) {
         my @row = ();
         for my $c ( 0 .. $col_idx ) {
@@ -131,7 +136,6 @@ sub column_printer {
         }
         printf "$templ\n", @row;
     }
-
     return;
 }
 
