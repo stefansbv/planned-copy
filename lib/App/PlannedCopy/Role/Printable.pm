@@ -77,6 +77,10 @@ sub exception_printer {
     elsif ( $e->isa('Exception::IO::SystemCmd') ) {
         $self->print_exeception_message($e->usermsg, $e->logmsg);
     }
+    elsif ( $e->isa('Exception::IO::WrongUser') ) {
+        $self->print_exeception_message( $e->message, $e->username )
+            if $self->verbose;
+    }
     else {
         # Unknown exception
         say "Unknown exception!: ", $e; # ?!

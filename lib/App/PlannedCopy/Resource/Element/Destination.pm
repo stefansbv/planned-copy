@@ -43,6 +43,16 @@ has '_parent_dir' => (
     },
 );
 
+has '_user' => (
+    is       => 'ro',
+    isa      => 'Str',
+    required => 0,
+    init_arg => 'user',
+    default  => sub {
+        return getpwuid($<);
+    },
+);
+
 sub verb_is {
     my ($self, $verb_action) = @_;
     return 1 if $self->_verb eq $verb_action;

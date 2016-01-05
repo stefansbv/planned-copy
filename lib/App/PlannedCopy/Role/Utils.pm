@@ -14,6 +14,14 @@ use App::PlannedCopy::Exceptions;
 
 sub is_selfsame {
     my ( $self, $src, $dst ) = @_;
+
+    # Check the user
+    if ($self->current_user ne $dst->_user ) {
+        Exception::IO::WrongUser->throw(
+            message  => 'Skiping, user is not',
+            username => $dst->_user,
+        );
+    }
     if ( $dst =~ m{undef}i ) {
         Exception::IO::PathNotDefined->throw(
             message  => 'The destination path is not defined.',
@@ -85,6 +93,14 @@ sub set_perm {
 
 sub validate_element {
     my ($self, $res) = @_;
+
+    # Check the user
+    if ($self->current_user ne $res->dst->_user ) {
+        Exception::IO::WrongUser->throw(
+            message  => 'Skiping, user is not',
+            username => $res->dst->_user,
+        );
+    }
 
     # Check the source file
     my $src_path = $res->src->_abs_path;

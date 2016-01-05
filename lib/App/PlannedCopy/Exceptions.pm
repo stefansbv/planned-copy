@@ -54,6 +54,11 @@ use Exception::Base (
         has               => [qw( pathname )],
         string_attributes => [qw( message pathname )],
     },
+    'Exception::IO::WrongUser' => {
+        isa               => 'Exception::IO',
+        has               => [qw( username )],
+        string_attributes => [qw( message username )],
+    },
 );
 
 1;

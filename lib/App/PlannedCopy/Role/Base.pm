@@ -55,6 +55,15 @@ has 'error_level' => (
     default  => sub {'info'},
 );
 
+has 'current_user' => (
+    is       => 'ro',
+    isa      => 'Str',
+    init_arg => undef,
+    default  => sub {
+        return getpwuid($<);
+    },
+);
+
 sub is_error_level {
     my ($self, $level) = @_;
     return $self->get_error_level eq $level;
