@@ -115,8 +115,11 @@ sub install_file {
     }
 
     # Copy and set perm
-    $self->copy_file( $src_path, $dst_path);
-    $self->set_perm($dst_path, $res->dst->_perm);
+
+    $self->copy_file( $src_path, $dst_path );
+    $self->set_perm( $dst_path, $res->dst->_perm );
+    $self->change_owner( $dst_path, $res->dst->_user )
+        if $self->current_user eq 'root' && !$res->dst->_user_is_default;
     $self->inc_count_inst;
 
     # Unpack archives

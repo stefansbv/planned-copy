@@ -96,6 +96,8 @@ sub execute {
 sub synchronize {
     my ( $self, $res ) = @_;
 
+    return if $self->dryrun;
+
     my $src_path = $res->dst->_abs_path;
     my $dst_path = $res->src->_abs_path;
 
@@ -104,10 +106,6 @@ sub synchronize {
         $self->set_error_level('void');
         return;
     }
-
-    $self->set_error_level('warn');
-
-    return if $self->dryrun;
 
     $self->set_error_level('info');
 

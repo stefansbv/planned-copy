@@ -21,6 +21,7 @@ resources:
       name: config.pro
       path: t/etc
       perm: 0644
+      user: firebird
     source:
       name: config.pro
       path: other/

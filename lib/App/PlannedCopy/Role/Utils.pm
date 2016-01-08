@@ -15,13 +15,6 @@ use App::PlannedCopy::Exceptions;
 sub is_selfsame {
     my ( $self, $src, $dst ) = @_;
 
-    # Check the user
-    if ($self->current_user ne $dst->_user ) {
-        Exception::IO::WrongUser->throw(
-            message  => 'Skiping, user is not',
-            username => $dst->_user,
-        );
-    }
     if ( $dst =~ m{undef}i ) {
         Exception::IO::PathNotDefined->throw(
             message  => 'The destination path is not defined.',
@@ -91,16 +84,28 @@ sub set_perm {
     return;
 }
 
+sub change_owner {
+    my ( $self, $file, $user ) = @_;
+    print " change_owner $file, $user\n";
+    die "The 'change_owner' method works only with files.\n"
+        unless $file->is_file;
+    my ( $login, $pass, $uid, $gid ) = getpwnam($user)
+        or die "$user not in passwd file";
+    try   { chown $uid, $gid, $file->stringify }
+    catch {
+        Exception::IO::SystemCmd->throw(
+            usermsg => 'The chown command failed.',
+            logmsg  => $_,
+        );
+    };
+    return;
+}
+
 sub validate_element {
     my ($self, $res) = @_;
 
     # Check the user
-    if ($self->current_user ne $res->dst->_user ) {
-        Exception::IO::WrongUser->throw(
-            message  => 'Skiping, user is not',
-            username => $res->dst->_user,
-        );
-    }
+    return unless $self->check_user($res);
 
     # Check the source file
     my $src_path = $res->src->_abs_path;
@@ -124,14 +129,12 @@ sub validate_element {
 
 sub handle_exception {
     my ($self, $ex) = @_;
-
     if ( my $e = Exception::Base->catch($ex) ) {
         $e->isa('Exception::IO::PathNotFound')
             ? $self->set_error_level('reset')
             : $self->set_error_level('error');
         return $e;
     }
-
     return;
 }
 
@@ -219,6 +222,19 @@ sub get_files {
         }
     }
     return $dirs_aref;
+}
+
+sub check_user {
+    my ( $self, $res ) = @_;
+    if (   $self->current_user ne $res->dst->_user
+        && $self->current_user ne 'root' )
+    {
+        Exception::IO::WrongUser->throw(
+            message  => 'Skipping, user is not root or',
+            username => $res->dst->_user,
+        );
+    }
+    return 1;
 }
 
 no Moose::Role;

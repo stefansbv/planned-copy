@@ -107,9 +107,9 @@ sub check_project {
 }
 
 sub check {
-    my ( $self, $rec ) = @_;
-    my $src_path = $rec->src->_abs_path;
-    my $dst_path = $rec->dst->_abs_path;
+    my ( $self, $res ) = @_;
+    my $src_path = $res->src->_abs_path;
+    my $dst_path = $res->dst->_abs_path;
     if ( $self->is_selfsame( $src_path, $dst_path ) ) {
         $self->set_error_level('info');
     }

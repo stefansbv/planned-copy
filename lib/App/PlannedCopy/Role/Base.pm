@@ -2,6 +2,7 @@ package App::PlannedCopy::Role::Base;
 
 # ABSTRACT: Base role for the application
 
+use English;
 use Moose::Role;
 use MooseX::App::Role;
 
@@ -60,7 +61,7 @@ has 'current_user' => (
     isa      => 'Str',
     init_arg => undef,
     default  => sub {
-        return getpwuid($<);
+        return getpwuid($REAL_USER_ID);
     },
 );
 

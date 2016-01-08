@@ -43,6 +43,16 @@ has '_parent_dir' => (
     },
 );
 
+has '_user_is_default' => (
+    is       => 'rw',
+    isa      => 'Str',
+    required => 0,
+    init_arg => undef,
+    default => sub {
+        return 1;
+    },
+);
+
 has '_user' => (
     is       => 'ro',
     isa      => 'Str',
@@ -50,6 +60,10 @@ has '_user' => (
     init_arg => 'user',
     default  => sub {
         return getpwuid($<);
+    },
+    trigger => sub {
+        my ( $self, $new, $old ) = @_;
+        $self->_user_is_default(0);          # reset attribute
     },
 );
 
