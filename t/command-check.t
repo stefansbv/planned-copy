@@ -51,19 +51,19 @@ Summary:
 #-- With a resource file
 
 ok $check = App::PlannedCopy::Command::Check->new(
-    project => 'other',
+    project => 'check',
     config  => $conf,
     ), 'other resource command constructor';
 
-like capture_stdout { $check->execute }, qr/job: 5 files to check:/,
+like capture_stdout { $check->execute }, qr/job: 2 files to check:/,
     'execute should work';
 
 is capture_stdout { $check->print_project_summary }, '
 Summary:
- - processed: 5 records
- - checked  : 3
- - skipped  : 2
- - different: 0
+ - processed: 2 records
+ - checked  : 2
+ - skipped  : 0
+ - different: 1
 
 ', 'print_summary should work';
 

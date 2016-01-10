@@ -1,0 +1,18 @@
+---
+resources:
+  -
+    destination:
+      name: system.conf
+      path: t/etc
+      perm: '0644'
+    source:
+      name: system.conf
+      path: check
+  -
+    destination:
+      name: user.conf
+      path: t/etc
+      perm: '0644'
+    source:
+      name: user.conf
+      path: check
