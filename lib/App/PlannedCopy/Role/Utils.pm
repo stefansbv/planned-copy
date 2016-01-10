@@ -25,9 +25,7 @@ sub is_selfsame {
         return 0;
     }
     my $digest_src;
-    try {
-        $digest_src = $src->digest('MD5');
-    }
+    try   { $digest_src = $src->digest('MD5') }
     catch {
         my $err = $_;
         if ( $err =~ m{permission}i ) {
@@ -36,25 +34,20 @@ sub is_selfsame {
                 pathname => $src,
             );
         }
-        else {
-           die "Unknown error: $err";
-        }
+        else { die "Unknown error: $err" }
     };
     my $digest_dst;
-    try {
-        $digest_dst = $dst->digest('MD5');
-    }
+    try   { $digest_dst = $dst->digest('MD5') }
     catch {
         my $err = $_;
         if ( $err =~ m{permission}i ) {
+            say "THROW!";
             Exception::IO::PermissionDenied->throw(
                 message  => 'Permision denied for destination path:',
                 pathname => $src,
             );
         }
-        else {
-           die "Unknown error: $err";
-        }
+        else { die "Unknown error: $err" }
     };
     return ( $digest_src eq $digest_dst ) ? 1 : 0;
 }
@@ -86,7 +79,6 @@ sub set_perm {
 
 sub change_owner {
     my ( $self, $file, $user ) = @_;
-    print " change_owner $file, $user\n";
     die "The 'change_owner' method works only with files.\n"
         unless $file->is_file;
     my ( $login, $pass, $uid, $gid ) = getpwnam($user)
@@ -104,9 +96,6 @@ sub change_owner {
 sub validate_element {
     my ($self, $res) = @_;
 
-    # Check the user
-    return unless $self->check_user($res);
-
     # Check the source file
     my $src_path = $res->src->_abs_path;
     unless ( $src_path->is_file ) {
@@ -123,6 +112,19 @@ sub validate_element {
             pathname => '',
         );
     }
+
+    # Check if the file is readable
+    try   { $res->dst->_path->digest('MD5') }
+    catch {
+        my $err = $_;
+        if ( $err =~ m{permission}i ) {
+            Exception::IO::PermissionDenied->throw(
+                message  => 'Permision denied for destination path:',
+                pathname => $res->dst->_path,
+            );
+        }
+        else { die "Unknown error: $err" }
+    };
 
     return 1;
 }
@@ -224,14 +226,23 @@ sub get_files {
     return $dirs_aref;
 }
 
+sub check_res_user {
+    my ( $self, $res ) = @_;
+    if ( $self->current_user ne $res->dst->_user ) {
+        Exception::IO::WrongUser->throw(
+            message  => "Skipping, you're not",
+            username => $res->dst->_user,
+        );
+    }
+    return 1;
+}
+
 sub check_user {
     my ( $self, $res ) = @_;
-    if (   $self->current_user ne $res->dst->_user
-        && $self->current_user ne 'root' )
-    {
+    if ( $self->current_user ne $self->repo_owner ) {
         Exception::IO::WrongUser->throw(
-            message  => 'Skipping, user is not root or',
-            username => $res->dst->_user,
+            message  => "Skipping, you're not the repo ownwer ",
+            username => $self->repo_owner,
         );
     }
     return 1;
@@ -240,3 +251,80 @@ sub check_user {
 no Moose::Role;
 
 1;
+
+__END__
+
+=encoding utf8
+
+=head1 Name
+
+App::Transfer::Reader - Base class for the reader interface
+
+=head1 Synopsis
+
+  ok my $reader = App::Transfer::Reader->load({
+      transfer => $transfer,
+      recipe   => $recipe,
+      reader   => 'excel',
+      options  => $options,
+  });
+  my $records = $reader->get_data;
+
+=head1 Description
+
+App::Transfer::Reader is the base class for all reader modules.
+
+=head1 Interface
+
+=head2 Constructors
+
+=head3 C<load>
+
+  my $reader = App::Transfer::Reader->load( \%params );
+
+A factory method for instantiating Transfer readers.  It loads the
+subclass for the specified reader and calls C<new> with the hash
+parameter.  Supported parameters are:
+
+=over
+
+=item C<transfer>
+
+The App::Transfer object.
+
+=item C<recipe>
+
+An L<App::Transfer::Recipe> representing the recipe in use.
+
+=item C<reader>
+
+The name of the reader to be used.
+
+=item C<options>
+
+An L<App::Transfer::Options> representing the options and configs
+passed and read by the application.
+
+=back
+
+=head2 Attributes
+
+=head3 C<transfer>
+
+  my $transfer = $self->transfer;
+
+Returns the L<App::Transfer> object that instantiated the reader.
+
+=head3 C<recipe>
+
+  my $recipe = $self->recipe;
+
+Returns the L<App::Transfer::Recipe> object that instantiated the reader.
+
+=head3 C<options>
+
+  my $options = $self->options;
+
+Returns the L<App::Transfer::Options> object that instantiated the reader.
+
+=cut

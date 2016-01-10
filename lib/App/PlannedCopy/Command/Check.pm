@@ -108,6 +108,7 @@ sub check_project {
 
 sub check {
     my ( $self, $res ) = @_;
+
     my $src_path = $res->src->_abs_path;
     my $dst_path = $res->dst->_abs_path;
     if ( $self->is_selfsame( $src_path, $dst_path ) ) {

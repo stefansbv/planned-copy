@@ -59,24 +59,31 @@ sub execute {
 
     while ( $iter->has_next ) {
         $self->set_error_level('info');
-        my $rec  = $iter->next;
+        my $res  = $iter->next;
         if ($name) {
 
             # Skip until found; not efficient but simple to implement ;)
-            next unless $rec->dst->_name eq $name;
+            next unless $res->dst->_name eq $name;
         }
-        my $cont = try { $self->validate_element($rec) }
+        my $cont = try {
+            $self->validate_element($res);
+
+            # Check the user if is not root, and is explicitly set
+            unless ( $self->current_user eq 'root' ) {
+                $self->check_res_user($res) if !$res->dst->_user_is_default;
+            }
+        }
         catch {
             my $e = $self->handle_exception($_);
-            $self->item_printer($rec);
+            $self->item_printer($res);
             $self->exception_printer($e) if $e;
             $self->inc_count_skip;
             return undef;       # required
         };
         if ($cont) {
             try {
-                $self->install_file($rec);
-                $self->item_printer($rec);
+                $self->install_file($res);
+                $self->item_printer($res);
             }
             catch {
                 my $e = $self->handle_exception($_);
@@ -97,6 +104,7 @@ sub install_file {
 
     return if $self->dryrun;
 
+    # Check is src and dst are selfsame
     my $src_path = $res->src->_abs_path;
     my $dst_path = $res->dst->_abs_path;
     if ( $self->is_selfsame( $src_path, $dst_path ) ) {
@@ -114,8 +122,7 @@ sub install_file {
         }
     }
 
-    # Copy and set perm
-
+    # Copy and set perms
     $self->copy_file( $src_path, $dst_path );
     $self->set_perm( $dst_path, $res->dst->_perm );
     $self->change_owner( $dst_path, $res->dst->_user )

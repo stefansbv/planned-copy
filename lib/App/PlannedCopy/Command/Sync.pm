@@ -60,24 +60,32 @@ sub execute {
 
     while ( $iter->has_next ) {
         $self->set_error_level('info');
-        my $rec  = $iter->next;
+        my $res  = $iter->next;
         if ($name) {
 
-            # Skip until found; not efficient but simple to implement ;)
-            next unless $rec->dst->_name eq $name;
+            # Skip until the desired element is found; not efficient
+            # but simple to implement ;)
+            next unless $res->dst->_name eq $name;
         }
-        my $cont = try { $self->validate_element($rec) }
+        my $cont = try {
+            $self->validate_element($res);
+
+            # Check the user if is not root
+            unless ( $self->current_user eq 'root' ) {
+                $self->check_user($res);
+            }
+        }
         catch {
             my $e = $self->handle_exception($_);
-            $self->item_printer($rec);
+            $self->item_printer($res);
             $self->exception_printer($e) if $e;
             $self->inc_count_skip;
             return undef;       # required
         };
         if ($cont) {
             try {
-                $self->synchronize($rec);
-                $self->item_printer($rec);
+                $self->synchronize($res);
+                $self->item_printer($res);
             }
             catch {
                 my $e = $self->handle_exception($_);
@@ -104,6 +112,7 @@ sub synchronize {
     # Compare files
     if ( $self->is_selfsame( $src_path, $dst_path ) ) {
         $self->set_error_level('void');
+        $self->inc_count_skip;
         return;
     }
 
@@ -112,6 +121,8 @@ sub synchronize {
     # Copy and set perm
     $self->copy_file($src_path, $dst_path);
     $self->set_perm($dst_path, 0644);
+    $self->change_owner( $dst_path, $self->repo_owner )
+        if $self->current_user eq 'root';
     $self->inc_count_inst;
 
     return;
@@ -123,7 +134,7 @@ sub print_summary {
     my $cnt_proc = $self->count_proc // 0;
     say "\nSummary:";
     say " - processed   : ", $cnt_proc, ' records';
-    say " - skipped     : ", $self->dryrun ? "$cnt_proc (dry-run)" : $cnt_proc;
+    say ' - skipped     : ', $self->dryrun ? "$cnt_proc (dry-run)" : $self->count_skip;
     say " - synchronized: ", $self->dryrun ? '0 (dry-run)' : $self->count_inst;
     say "";
 

@@ -33,6 +33,18 @@ has config => (
     }
 );
 
+has 'repo_owner' => (
+    is       => 'ro',
+    isa      => 'Str',
+    init_arg => undef,
+    default  => sub {
+        my $self = shift;
+        my $repo_path = $self->config->repo_path;
+        my ($user) = $repo_path =~ m{^/home/(\w+)/}xmg;
+        return $user;
+    },
+);
+
 __PACKAGE__->meta->make_immutable;
 
 1;
