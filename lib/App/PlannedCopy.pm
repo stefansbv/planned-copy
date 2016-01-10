@@ -35,7 +35,7 @@ has config => (
 
 has 'repo_owner' => (
     is       => 'ro',
-    isa      => 'Str',
+    isa      => 'Maybe[Str]',
     init_arg => undef,
     default  => sub {
         my $self = shift;
