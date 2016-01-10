@@ -112,7 +112,7 @@ sub check {
     my $src_path = $res->src->_abs_path;
     my $dst_path = $res->dst->_abs_path;
     if ( $self->is_selfsame( $src_path, $dst_path ) ) {
-        $self->set_error_level('info');
+        $self->set_error_level('done');
     }
     else {
         $self->inc_count_resu;

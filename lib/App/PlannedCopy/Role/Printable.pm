@@ -51,8 +51,9 @@ sub item_printer {
     my $errorlevel = $self->get_error_level;
     my $color
         = $errorlevel eq 'error' ? 'bright_red'
-        : $errorlevel eq 'warn'  ? 'bright_yellow'
-        : $errorlevel eq 'info'  ? 'green'
+        : $errorlevel eq 'warn'  ? 'bold yellow'
+        : $errorlevel eq 'info'  ? 'blue'
+        : $errorlevel eq 'done'  ? 'green'
         : $errorlevel eq 'void'  ? 'reset'
         :                          'reset';
     $self->printer($color, $rec->src->_name, $rec->dst->short_path);
@@ -72,7 +73,8 @@ sub exception_printer {
         $self->print_exeception_message($e->message, $e->pathname);
     }
     elsif ( $e->isa('Exception::IO::PermissionDenied') ) {
-        $self->print_exeception_message($e->message, $e->pathname);
+        $self->print_exeception_message($e->message, $e->pathname)
+            if $self->verbose;
     }
     elsif ( $e->isa('Exception::IO::SystemCmd') ) {
         $self->print_exeception_message($e->usermsg, $e->logmsg);

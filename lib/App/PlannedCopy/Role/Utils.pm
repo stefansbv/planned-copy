@@ -132,9 +132,15 @@ sub validate_element {
 sub handle_exception {
     my ($self, $ex) = @_;
     if ( my $e = Exception::Base->catch($ex) ) {
-        $e->isa('Exception::IO::PathNotFound')
-            ? $self->set_error_level('reset')
-            : $self->set_error_level('error');
+        if ( $e->isa('Exception::IO::PathNotFound') ) {
+            $self->set_error_level('reset');
+        }
+        elsif ( $e->isa('Exception::IO::PathNotDefined') ) {
+            $self->set_error_level('info');
+        }
+        else {
+            $self->set_error_level('error');
+        }
         return $e;
     }
     return;

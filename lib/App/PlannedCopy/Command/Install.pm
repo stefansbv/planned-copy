@@ -72,6 +72,7 @@ sub execute {
             unless ( $self->current_user eq 'root' ) {
                 $self->check_res_user($res) if !$res->dst->_user_is_default;
             }
+            1;                               # required
         }
         catch {
             my $e = $self->handle_exception($_);
@@ -104,13 +105,14 @@ sub install_file {
 
     return if $self->dryrun;
 
-    # Check is src and dst are selfsame
     my $src_path = $res->src->_abs_path;
     my $dst_path = $res->dst->_abs_path;
+
+    # Compare files
     if ( $self->is_selfsame( $src_path, $dst_path ) ) {
         $self->set_error_level('void');
         $self->inc_count_skip;
-        return 1;
+        return;
     }
     my $parent_dir = $res->dst->_parent_dir;
     unless ( $parent_dir->is_dir ) {
@@ -121,6 +123,8 @@ sub install_file {
             );
         }
     }
+
+    $self->set_error_level('done');
 
     # Copy and set perms
     $self->copy_file( $src_path, $dst_path );
@@ -134,7 +138,7 @@ sub install_file {
         $self->extract_archive($dst_path);
     }
 
-    return 1;
+    return 1;                                # require for the test
 }
 
 sub extract_archive {

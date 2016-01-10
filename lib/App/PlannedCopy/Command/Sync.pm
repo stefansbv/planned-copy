@@ -116,7 +116,7 @@ sub synchronize {
         return;
     }
 
-    $self->set_error_level('info');
+    $self->set_error_level('done');
 
     # Copy and set perm
     $self->copy_file($src_path, $dst_path);

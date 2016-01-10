@@ -86,13 +86,16 @@ sub diff {
 
     # Skip archives
     if ( $rec->src->type_is('archive') ) {
+        $self->set_error_level('void');
+        $self->inc_count_skip;
         return;
     }
 
     my $src_path = $rec->src->_abs_path;
     my $dst_path = $rec->dst->_abs_path;
+
     if ( $self->is_selfsame( $src_path, $dst_path ) ) {
-        $self->set_error_level('info');
+        $self->set_error_level('done');
     }
     else {
         $self->set_error_level('warn');
