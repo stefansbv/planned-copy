@@ -113,6 +113,14 @@ sub validate_element {
         );
     }
 
+    # Check the destination path
+    unless ( $res->dst->_parent_dir->is_dir ) {
+        Exception::IO::PathNotFound->throw(
+            message  => 'Not installed, path not found',
+            pathname => $res->dst->_parent_dir,
+        );
+    }
+
     # Check if the file is readable
     try   { $res->dst->_path->digest('MD5') }
     catch {

@@ -74,19 +74,19 @@ sub check_project {
 
     while ( $iter->has_next ) {
         $self->set_error_level('info');
-        my $rec = $iter->next;
-        my $cont = try { $self->validate_element($rec) }
+        my $res = $iter->next;
+        my $cont = try { $self->validate_element($res) }
         catch {
             my $e = $self->handle_exception($_);
-            $self->item_printer($rec) unless $batch;
+            $self->item_printer($res) unless $batch;
             $self->exception_printer($e) if $e and not $batch;
             $self->inc_count_skip;
             return undef;    # required
         };
         if ($cont) {
             try {
-                $self->check($rec);
-                $self->item_printer($rec) unless $batch;
+                $self->check($res);
+                $self->item_printer($res) unless $batch;
             }
             catch {
                 my $e = $self->handle_exception($_);
