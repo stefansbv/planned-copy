@@ -11,7 +11,9 @@ use namespace::autoclean;
 extends qw(App::PlannedCopy);
 
 with qw(App::PlannedCopy::Role::Printable
-        App::PlannedCopy::Role::Utils);
+        App::PlannedCopy::Role::Utils
+        App::PlannedCopy::Role::Validate::Check
+       );
 
 use App::PlannedCopy::Resource;
 
@@ -22,6 +24,48 @@ parameter 'project' => (
     isa           => 'Str',
     required      => 0,
     documentation => q[Project name.],
+);
+
+has 'resource_file' => (
+    is      => 'ro',
+    isa     => 'Str',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return $self->config->resource_file( $self->project );
+    },
+);
+
+has 'resource' => (
+    is      => 'ro',
+    isa     => 'App::PlannedCopy::Resource',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return App::PlannedCopy::Resource->new(
+            resource_file => $self->resource_file,
+        );
+    },
+);
+
+has 'resource_iter' => (
+    is      => 'ro',
+    isa     => 'MooseX::Iterator::Array',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return $self->resource->resource_iter;
+    },
+);
+
+has 'resource_count' => (
+    is      => 'ro',
+    isa     => 'Int',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        $self->resource->count;
+    },
 );
 
 has '_differences' => (
@@ -38,37 +82,35 @@ has '_differences' => (
 
 sub execute {
     my ($self) = @_;
-
     if ( $self->project ) {
-        $self->check_project( $self->project );
+        $self->check_project;
     }
     else {
         foreach my $item ( @{ $self->get_projects } ) {
             my $path = $item->{path};
             my $resu = $item->{resource};
             next unless $resu == 1;
-            $self->check_project( $path, 'batch' );
+            $self->project($path); # set project
+            $self->check_project( 'batch' );
         }
         $self->print_summary;
     }
-
     return;
 }
 
 sub check_project {
-    my ( $self, $project, $batch ) = @_;
+    my ( $self, $batch ) = @_;
 
-    my $file = $self->config->resource_file($project);
-    my $res  = App::PlannedCopy::Resource->new( resource_file => $file );
-    my $iter = $res->resource_iter;
+    my $iter = $self->resource_iter;
 
-    say " $project, job: ", $res->count, ' file',
-        ( $res->count != 1 ? 's' : '' ),
+    say " ", $self->project, ", job: ", $self->resource_count, ' file',
+        ( $self->resource_count != 1 ? 's' : '' ),
         ' to check', ( $self->verbose ? ' (verbose)' : '' ),
         ( $batch ? '...' : ':' ),
         ( $batch ? '' : "\n" );
 
-    $self->no_resource_message( $self->project ) if $res->count == 0;
+    $self->no_resource_message( $self->project )
+        if $self->resource_count == 0;
 
     $self->reset_count_resu;
 
@@ -98,7 +140,7 @@ sub check_project {
     }
 
     if ($batch) {
-        $self->store_summary($project);
+        $self->store_summary( $self->project );
     }
     else {
         $self->print_project_summary;

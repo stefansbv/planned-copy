@@ -1,7 +1,7 @@
 #
 # Test the check command
 #
-use Test::More tests => 9;
+use Test::More;
 
 use Capture::Tiny 0.12 qw(:all);
 use Path::Tiny;
@@ -14,20 +14,31 @@ ok my $conf = App::PlannedCopy::Config->new, 'config constructor';
 
 ok $conf->load, 'load test config files';
 
-is $conf->resource_file('odbc'), 't/repo/odbc/resource.yml',
-    'resource file path';
+subtest 'No resource file' => sub {
 
-#-- No resource file
+    is $conf->resource_file('check-no-resu'),
+        't/test-repo/check-no-resu/resource.yml', 'nonexistent resource file';
 
-ok my $check = App::PlannedCopy::Command::Check->new(
-    project => 'odbc',
-    config  => $conf,
+    ok my $check = App::PlannedCopy::Command::Check->new(
+        project => 'check-no-resu',
+        config  => $conf,
     ), 'resource command constructor';
 
-is capture_stdout { $check->execute }, " odbc, job: 0 files to check:
+    is $check->resource_file,
+        't/test-repo/check-no-resu/resource.yml',
+        'nonexistent resource file';
+
+    is $check->project, 'check-no-resu', 'project name';
+
+    isa_ok $check->resource, 'App::PlannedCopy::Resource',
+        'resource object';
+
+
+    is capture_stdout { $check->execute },
+        " check-no-resu, job: 0 files to check:
 
 ---
-There is no resource file for the 'odbc' project.
+There is no resource file for the 'check-no-resu' project.
 Run the 'resu' command to create it.
 ---
 
@@ -39,7 +50,7 @@ Summary:
 
 ", 'execute should work';
 
-is capture_stdout { $check->print_project_summary }, '
+    is capture_stdout { $check->print_project_summary }, '
 Summary:
  - processed: 0 records
  - checked  : 0
@@ -48,23 +59,37 @@ Summary:
 
 ', 'print_summary should work';
 
-#-- With a resource file
+};
 
-ok $check = App::PlannedCopy::Command::Check->new(
-    project => 'check',
-    config  => $conf,
+subtest 'With a resource file' => sub {
+
+    is $conf->resource_file('check'), 't/test-repo/check/resource.yml',
+        'resource file path';
+
+    ok my $check = App::PlannedCopy::Command::Check->new(
+        project => 'check',
+        config  => $conf,
     ), 'other resource command constructor';
 
-like capture_stdout { $check->execute }, qr/job: 2 files to check:/,
-    'execute should work';
+    is $check->resource_file,
+        't/test-repo/check/resource.yml', 'resource file';
 
-is capture_stdout { $check->print_project_summary }, '
+    is $check->project, 'check', 'project name';
+
+    isa_ok $check->resource, 'App::PlannedCopy::Resource', 'resource object';
+
+    like capture_stdout { $check->execute }, qr/job: 3 files to check:/,
+        'execute should work';
+
+    is capture_stdout { $check->print_project_summary }, '
 Summary:
- - processed: 2 records
- - checked  : 2
+ - processed: 3 records
+ - checked  : 3
  - skipped  : 0
  - different: 1
 
 ', 'print_summary should work';
+};
 
-# end
+done_testing();
+
