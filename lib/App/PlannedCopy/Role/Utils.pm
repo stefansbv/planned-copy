@@ -22,7 +22,10 @@ sub is_selfsame {
         );
     }
     if ( !$dst->is_file ) {
-        return 0;
+        Exception::IO::FileNotFound->throw(
+            message  => 'Not installed:',
+            pathname => $dst,
+        );
     }
     my $digest_src;
     try   { $digest_src = $src->digest('MD5') }
@@ -30,7 +33,7 @@ sub is_selfsame {
         my $err = $_;
         if ( $err =~ m{permission}i ) {
             Exception::IO::PermissionDenied->throw(
-                message  => 'Permision denied for source path:',
+                message  => 'Permision denied for src path:',
                 pathname => $src,
             );
         }
@@ -43,7 +46,7 @@ sub is_selfsame {
         if ( $err =~ m{permission}i ) {
             say "THROW!";
             Exception::IO::PermissionDenied->throw(
-                message  => 'Permision denied for destination path:',
+                message  => 'Permision denied for dst path:',
                 pathname => $src,
             );
         }
@@ -93,50 +96,6 @@ sub change_owner {
     return;
 }
 
-sub validate_element {
-    my ($self, $res) = @_;
-
-    # Check the source file
-    my $src_path = $res->src->_abs_path;
-    unless ( $src_path->is_file ) {
-        Exception::IO::FileNotFound->throw(
-            message  => 'The source file was not found.',
-            pathname => $res->src->short_path,
-        );
-    }
-
-    # Check the destination file.
-    if ( $res->dst->_path =~ m/^{\s?undef\s?}/ ) {
-        Exception::IO::PathNotDefined->throw(
-            message  => 'The destination path is not defined.',
-            pathname => '',
-        );
-    }
-
-    # Check the destination path
-    unless ( $res->dst->_parent_dir->is_dir ) {
-        Exception::IO::PathNotFound->throw(
-            message  => 'Not installed, path not found',
-            pathname => $res->dst->_parent_dir,
-        );
-    }
-
-    # Check if the file is readable
-    try   { $res->dst->_path->digest('MD5') }
-    catch {
-        my $err = $_;
-        if ( $err =~ m{permission}i ) {
-            Exception::IO::PermissionDenied->throw(
-                message  => 'Permision denied for destination path:',
-                pathname => $res->dst->_path,
-            );
-        }
-        else { die "Unknown error: $err" }
-    };
-
-    return 1;
-}
-
 sub handle_exception {
     my ($self, $ex) = @_;
     if ( my $e = Exception::Base->catch($ex) ) {
@@ -144,6 +103,9 @@ sub handle_exception {
             $self->set_error_level('reset');
         }
         elsif ( $e->isa('Exception::IO::PathNotDefined') ) {
+            $self->set_error_level('info');
+        }
+        elsif ( $e->isa('Exception::IO::FileNotFound') ) {
             $self->set_error_level('info');
         }
         else {
@@ -272,73 +234,10 @@ __END__
 
 =head1 Name
 
-App::Transfer::Reader - Base class for the reader interface
-
 =head1 Synopsis
-
-  ok my $reader = App::Transfer::Reader->load({
-      transfer => $transfer,
-      recipe   => $recipe,
-      reader   => 'excel',
-      options  => $options,
-  });
-  my $records = $reader->get_data;
 
 =head1 Description
 
-App::Transfer::Reader is the base class for all reader modules.
-
 =head1 Interface
-
-=head2 Constructors
-
-=head3 C<load>
-
-  my $reader = App::Transfer::Reader->load( \%params );
-
-A factory method for instantiating Transfer readers.  It loads the
-subclass for the specified reader and calls C<new> with the hash
-parameter.  Supported parameters are:
-
-=over
-
-=item C<transfer>
-
-The App::Transfer object.
-
-=item C<recipe>
-
-An L<App::Transfer::Recipe> representing the recipe in use.
-
-=item C<reader>
-
-The name of the reader to be used.
-
-=item C<options>
-
-An L<App::Transfer::Options> representing the options and configs
-passed and read by the application.
-
-=back
-
-=head2 Attributes
-
-=head3 C<transfer>
-
-  my $transfer = $self->transfer;
-
-Returns the L<App::Transfer> object that instantiated the reader.
-
-=head3 C<recipe>
-
-  my $recipe = $self->recipe;
-
-Returns the L<App::Transfer::Recipe> object that instantiated the reader.
-
-=head3 C<options>
-
-  my $options = $self->options;
-
-Returns the L<App::Transfer::Options> object that instantiated the reader.
 
 =cut
