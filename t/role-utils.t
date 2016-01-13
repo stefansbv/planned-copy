@@ -11,7 +11,11 @@ use MooseX::ClassCompositor;
 use App::PlannedCopy::Role::Utils;
 
 my @attributes = ( qw() );
-my @methods    = ( qw(is_selfsame copy_file set_perm) );
+
+my @methods = ( qw( is_selfsame copy_file set_perm change_owner
+				   handle_exception no_resource_message quote_string
+				   kompare get_projects get_files check_res_user
+				   check_user ) );
 
 my $instance;
 my $class = MooseX::ClassCompositor->new( { class_basename => 'Test', } )
@@ -33,6 +37,11 @@ ok my $dst2 = path('t/etc/config.pro'), 'destination file path';
 is $src2->is_file, 1, 'src is a file';
 lives_ok { $instance->copy_file($src2, $dst2) } 'file copy';
 is $dst2->is_file, 1, 'dst is a file';
+
+# Selfsame
+throws_ok { $instance->is_selfsame( $src1, $dst1 ) }
+    qr/Not installed/, 'is_selfsame: not installed caught okay';
+lives_ok { $instance->is_selfsame($src2, $dst2) } 'is selfsame';
 
 # Set perm
 throws_ok { $instance->set_perm( $dst1, 0644 ) }
