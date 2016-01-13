@@ -70,7 +70,8 @@ sub exception_printer {
         $self->print_exeception_message($e->message, $e->pathname);
     }
     elsif ( $e->isa('Exception::IO::FileNotFound') ) {
-        $self->print_exeception_message($e->message, $e->pathname);
+        $self->print_exeception_message( $e->message, $e->pathname )
+            if $self->verbose;
     }
     elsif ( $e->isa('Exception::IO::PermissionDenied') ) {
         $self->print_exeception_message($e->message, $e->pathname)
