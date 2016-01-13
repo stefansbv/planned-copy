@@ -1,0 +1,26 @@
+---
+resources:
+  -
+    destination:
+      name: filename1
+      path: t/test-dst/check
+      perm: '0644'
+    source:
+      name: filename1
+      path: check
+  -
+    destination:
+      name: filename2
+      path: t/test-dst/check
+      perm: '0644'
+    source:
+      name: filename2
+      path: check
+  -
+    destination:
+      name: filename3
+      path: t/test-dst/check
+      perm: '0644'
+    source:
+      name: filename3
+      path: check
