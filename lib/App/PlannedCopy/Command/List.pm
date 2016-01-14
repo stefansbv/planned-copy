@@ -59,8 +59,8 @@ sub print_summary {
     my $self = shift;
     say '';
     say 'Summary:';
-    say ' - directories: ', $self->count_proc;
-    say ' - projects   : ', $self->count_inst;
+    say ' - directories: ', $self->count_dirs;
+    say ' - projects   : ', $self->count_proj;
     say '';
     return;
 }
