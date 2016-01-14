@@ -24,15 +24,7 @@ subtest 'No resource file' => sub {
         config  => $conf,
     ), 'resource command constructor';
 
-    is $check->resource_file,
-        't/test-repo/check-no-resu/resource.yml',
-        'nonexistent resource file';
-
     is $check->project, 'check-no-resu', 'project name';
-
-    isa_ok $check->resource, 'App::PlannedCopy::Resource',
-        'resource object';
-
 
     is capture_stdout { $check->execute },
         " check-no-resu, job: 0 files to check:
@@ -70,13 +62,6 @@ subtest 'With a resource file' => sub {
         project => 'check',
         config  => $conf,
     ), 'other resource command constructor';
-
-    is $check->resource_file,
-        't/test-repo/check/resource.yml', 'resource file';
-
-    is $check->project, 'check', 'project name';
-
-    isa_ok $check->resource, 'App::PlannedCopy::Resource', 'resource object';
 
     like capture_stdout { $check->execute }, qr/job: 3 files to check:/,
         'execute should work';
