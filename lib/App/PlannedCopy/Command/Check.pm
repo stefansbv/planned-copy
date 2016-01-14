@@ -26,48 +26,6 @@ parameter 'project' => (
     documentation => q[Project name.],
 );
 
-has 'resource_file' => (
-    is      => 'ro',
-    isa     => 'Str',
-    lazy    => 1,
-    default => sub {
-        my $self = shift;
-        return $self->config->resource_file( $self->project );
-    },
-);
-
-has 'resource' => (
-    is      => 'ro',
-    isa     => 'App::PlannedCopy::Resource',
-    lazy    => 1,
-    default => sub {
-        my $self = shift;
-        return App::PlannedCopy::Resource->new(
-            resource_file => $self->resource_file,
-        );
-    },
-);
-
-has 'resource_iter' => (
-    is      => 'ro',
-    isa     => 'MooseX::Iterator::Array',
-    lazy    => 1,
-    default => sub {
-        my $self = shift;
-        return $self->resource->resource_iter;
-    },
-);
-
-has 'resource_count' => (
-    is      => 'ro',
-    isa     => 'Int',
-    lazy    => 1,
-    default => sub {
-        my $self = shift;
-        $self->resource->count;
-    },
-);
-
 has '_differences' => (
     is      => 'rw',
     isa     => 'ArrayRef',
@@ -101,16 +59,19 @@ sub execute {
 sub check_project {
     my ( $self, $batch ) = @_;
 
-    my $iter = $self->resource_iter;
+    my $file = $self->config->resource_file( $self->project );
+    my $resu = App::PlannedCopy::Resource->new( resource_file => $file );
+    my $iter = $resu->resource_iter;
+    my $cnt  = $resu->count;
 
-    say " ", $self->project, ", job: ", $self->resource_count, ' file',
-        ( $self->resource_count != 1 ? 's' : '' ),
+    say " ", $self->project, ", job: ", $cnt, ' file',
+        ( $cnt != 1 ? 's' : '' ),
         ' to check', ( $self->verbose ? ' (verbose)' : '' ),
         ( $batch ? '...' : ':' ),
         ( $batch ? '' : "\n" );
 
     $self->no_resource_message( $self->project )
-        if $self->resource_count == 0;
+        if $cnt == 0;
 
     $self->reset_count_resu;
 
