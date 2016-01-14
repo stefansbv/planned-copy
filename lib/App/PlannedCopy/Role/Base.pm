@@ -47,6 +47,26 @@ has count_skip => (
     },
 );
 
+has count_proj => (
+    traits  => ['Counter'],
+    is      => 'rw',
+    isa     => 'Int',
+    default => 0,
+    handles => {
+        inc_count_proj => 'inc',
+    },
+);
+
+has count_dirs => (
+    traits  => ['Counter'],
+    is      => 'rw',
+    isa     => 'Int',
+    default => 0,
+    handles => {
+        inc_count_dirs => 'inc',
+    },
+);
+
 has 'error_level' => (
     is       => 'rw',
     isa      => 'Str',

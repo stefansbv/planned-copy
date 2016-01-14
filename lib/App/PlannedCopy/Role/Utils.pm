@@ -165,8 +165,8 @@ sub get_projects {
         my $path = path($item);
         if ( $path->is_dir ) {
             my $has_resu = path( $path, 'resource.yml')->is_file ? 1 : 0;
-            $self->inc_count_inst if $has_resu;
-            $self->inc_count_proc;
+            $self->inc_count_proj if $has_resu;
+            $self->inc_count_dirs;
             push @dirs, { path => $path->basename, resource => $has_resu };
         }
     }
