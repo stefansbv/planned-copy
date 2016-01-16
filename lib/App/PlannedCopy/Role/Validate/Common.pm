@@ -5,9 +5,66 @@ package App::PlannedCopy::Role::Validate::Common;
 use 5.0100;
 use utf8;
 use Fcntl qw(S_IRUSR S_IWUSR);
+use Try::Tiny;
 use Moose::Role;
 
 use App::PlannedCopy::Exceptions;
+
+#-- Src
+
+sub src_parentdir_readable {
+    my ( $self, $res ) = @_;
+    my $readable = try { $res->src->_parent_dir->stat->cando(S_IRUSR, 1) }
+    catch  {
+        my $err = $_;
+        if ( $err =~ m/Permission denied/i ) {
+            Exception::IO::PermissionDenied->throw(
+                message  => 'Read denied for src dir:',
+                pathname => $res->dst->_path,
+            );
+        }
+        else {
+            die "Unknown stat ERROR: $err";
+        }
+    };
+    unless ($readable) {
+        Exception::IO::PermissionDenied->throw(
+            message  => 'Read denied for src dir:',
+            pathname => $res->src->_parent_dir,
+        );
+    }
+    return 1;
+}
+
+sub src_file_readable {
+    my ( $self, $res ) = @_;
+    my $readable = try { $res->src->_abs_path->stat->cando(S_IRUSR, 1) }
+    catch  {
+        my $err = $_;
+        if ( $err =~ m/Permission denied/i ) {
+            Exception::IO::PermissionDenied->throw(
+                message  => 'Read denied for src file:',
+                pathname => $res->dst->_path,
+            );
+        }
+        elsif ( $err =~ m/No such file or directory/i ) {
+            Exception::IO::FileNotFound->throw(
+                message  => 'The source file was not found.',
+                pathname => $res->src->short_path,
+            );
+        }
+        else {
+            die "Unknown stat ERROR: $err";
+        }
+    };
+    unless ($readable) {
+        Exception::IO::PermissionDenied->throw(
+            message  => 'Read denied for src file:',
+            pathname => $res->src->_abs_path,
+        );
+    }
+    return 1;
+}
 
 sub src_isfile {
     my ( $self, $res ) = @_;
@@ -22,47 +79,29 @@ sub src_isfile {
 
 sub src_file_writeable {
     my ( $self, $res ) = @_;
-    unless ( $res->src->_abs_path->stat->cando(S_IWUSR, 1) ) {
+    my $writeable = try { $res->src->_abs_path->stat->cando(S_IWUSR, 1) }
+    catch  {
+        my $err = $_;
+        if ( $err =~ m/Permission denied/i ) {
+            Exception::IO::PermissionDenied->throw(
+                message  => 'Write denied for src file:',
+                pathname => $res->dst->_path,
+            );
+        }
+        else {
+            die "Unknown stat ERROR: $err";
+        }
+    };
+    unless ($writeable) {
         Exception::IO::PermissionDenied->throw(
-            message  => 'Permision denied for src path:',
+            message  => 'Write denied for src path:',
             pathname => $res->dst->_path,
         );
     }
     return 1;
 }
 
-sub src_dir_readable {
-    my ( $self, $res ) = @_;
-    unless ( $res->src->_parent_dir->stat->cando(S_IRUSR, 1) ) {
-        Exception::IO::PermissionDenied->throw(
-            message  => 'Permision denied for src path:',
-            pathname => $res->src->_parent_dir,
-        );
-    }
-    return 1;
-}
-
-sub src_file_readable {
-    my ( $self, $res ) = @_;
-    unless ( $res->src->_abs_path->stat->cando(S_IRUSR, 1) ) {
-        Exception::IO::PermissionDenied->throw(
-            message  => 'Permision denied for src file:',
-            pathname => $res->src->_abs_path,
-        );
-    }
-    return 1;
-}
-
-sub src_file_writable {
-    my ( $self, $res ) = @_;
-    unless ( $res->src->_abs_path->stat->cando(S_IWUSR, 1) ) {
-        Exception::IO::PermissionDenied->throw(
-            message  => 'Permision denied for src path:',
-            pathname => $res->dst->_path,
-        );
-    }
-    return 1;
-}
+#-- Dst
 
 sub dst_file_defined {
     my ( $self, $res ) = @_;
@@ -75,20 +114,22 @@ sub dst_file_defined {
     return 1;
 }
 
-sub dst_file_readable {
+sub dst_parentdir_readable {
     my ( $self, $res ) = @_;
-    unless ( $res->dst->_abs_path->stat->cando( S_IRUSR, 1 ) ) {
-        Exception::IO::PermissionDenied->throw(
-            message  => 'Permision denied for dst path:',
-            pathname => $res->dst->_abs_path,
-        );
-    }
-    return 1;
-}
-
-sub dst_dir_readable {
-    my ( $self, $res ) = @_;
-    unless ( $res->dst->_parent_dir->stat->cando(S_IRUSR, 1) ) {
+    my $readable = try { $res->dst->_parent_dir->stat->cando(S_IRUSR, 1) }
+    catch  {
+        my $err = $_;
+        if ( $err =~ m/Permission denied/i ) {
+            Exception::IO::PermissionDenied->throw(
+                message  => 'Permision denied for dst path:',
+                pathname => $res->dst->_path,
+            );
+        }
+        else {
+            die "Unknown stat ERROR: $err";
+        }
+    };
+    unless ($readable) {
         Exception::IO::PermissionDenied->throw(
             message  => 'Permision denied for dst path:',
             pathname => $res->dst->_parent_dir,
@@ -97,9 +138,52 @@ sub dst_dir_readable {
     return 1;
 }
 
+sub dst_file_readable {
+    my ( $self, $res ) = @_;
+    my $readable = try { $res->dst->_abs_path->stat->cando( S_IRUSR, 1 ) }
+    catch  {
+        my $err = $_;
+        if ( $err =~ m/Permission denied/i ) {
+            Exception::IO::PermissionDenied->throw(
+                message  => 'Permision denied for dst path:',
+                pathname => $res->dst->_path,
+            );
+        }
+        elsif ( $err =~ m/No such file or directory/i ) {
+            Exception::IO::FileNotFound->throw(
+                message  => 'Not installed:',
+                pathname => $res->src->short_path,
+            );
+        }
+        else {
+            die "Unknown stat ERROR: $err";
+        }
+    };
+    unless ($readable) {
+        Exception::IO::PermissionDenied->throw(
+            message  => 'Permision denied for dst path:',
+            pathname => $res->dst->_path,
+        );
+    }
+    return 1;
+}
+
 sub dst_path_writeable {
     my ( $self, $res ) = @_;
-    unless ( $res->dst->_path->stat->cando( S_IWUSR, 1 ) ) {
+    my $writeable = try { $res->dst->_path->stat->cando( S_IWUSR, 1 ) }
+    catch  {
+        my $err = $_;
+        if ( $err =~ m/Permission denied/i ) {
+            Exception::IO::PermissionDenied->throw(
+                message  => 'Permision denied for dst path:',
+                pathname => $res->dst->_path,
+            );
+        }
+        else {
+            die "Unknown stat ERROR: $err";
+        }
+    };
+    unless ($writeable) {
         Exception::IO::PermissionDenied->throw(
             message  => 'Permision denied for dst path:',
             pathname => $res->dst->_path,
@@ -138,12 +222,55 @@ __END__
 
 =encoding utf8
 
-=head1 Name
-
 =head1 Synopsis
 
 =head1 Description
 
 =head1 Interface
 
+=head2 dst_file_defined
+
+=head2 dst_file_readable
+
+Checks the source parent dir of a resource element to see if it's
+readable, using the L<File::stat> method, and throws an
+L<Exception::IO::PermissionDenied> exception if is not readable or the
+error message contains the "Permission denied" string or dies with an
+"Unknown stat ERROR: $err" error message.
+
+=head2 dst_isfile
+
+Checks the destination L<_abs_path> of a resource element and return
+true or throws an L<Exception::IO::PermissionDenied> exception if the
+is_file method of the L<Path::Tiny> instance object returns true or
+respectively false.
+
+=head2 dst_parentdir_readable
+
+Checks the destination parent dir of a resource element to see if it's
+readable, using the L<File::stat> method, and throws an
+L<Exception::IO::PermissionDenied> exception if is not readable or the
+error message contains the "Permission denied" string or dies with an
+"Unknown stat ERROR: $err" error message.
+
+=head2 dst_path_exists
+
+=head2 dst_path_writeable
+
+=head2 src_file_readable
+
+=head2 src_file_writeable
+
+=head2 src_isfile
+
+Checks the source L<_abs_path> of a resource element and return true
+or throws an L<Exception::IO::PermissionDenied> exception if the
+is_file method of the L<Path::Tiny> instance object returns true or
+respectively false.
+
+=head2 src_parentdir_readable
+
 =cut
+
+TODO: POD
+
