@@ -46,9 +46,10 @@ parameter 'action' => (
 has 'context' => (
     is      => 'ro',
     isa     => 'Str',
+    lazy    => 1,
     default => sub {
-        my $username = getpwuid($<);
-        return ( $username eq 'root' ) ? 'global' : 'user';
+        my $self = shift;
+        return ( $self->config->current_user eq 'root' ) ? 'global' : 'user';
     },
 );
 

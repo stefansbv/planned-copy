@@ -1,0 +1,26 @@
+---
+resources:
+  -
+    destination:
+      name: filename1
+      path: t/test-dst/sync
+      perm: '0644'
+    source:
+      name: filename1
+      path: sync
+  -
+    destination:
+      name: filename2
+      path: t/test-dst/sync
+      perm: '0644'
+    source:
+      name: filename2
+      path: sync
+  -
+    destination:
+      name: filename3
+      path: t/test-dst/sync
+      perm: '0644'
+    source:
+      name: filename3
+      path: sync

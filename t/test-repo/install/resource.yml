@@ -1,0 +1,26 @@
+---
+resources:
+  -
+    destination:
+      name: filename1
+      path: t/test-dst/install
+      perm: '0644'
+    source:
+      name: filename1
+      path: install
+  -
+    destination:
+      name: filename2
+      path: t/test-dst/install
+      perm: '0644'
+    source:
+      name: filename2
+      path: install
+  -
+    destination:
+      name: filename3
+      path: t/test-dst/install
+      perm: '0644'
+    source:
+      name: filename3
+      path: install
