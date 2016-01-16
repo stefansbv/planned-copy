@@ -6,12 +6,10 @@ use 5.010001;
 use utf8;
 use Moose;
 use MooseX::Types::Path::Tiny qw(Path);
-use namespace::autoclean;
-
 use YAML::Tiny 1.57;                         # errstr deprecated
 use Try::Tiny;
-
 use App::PlannedCopy::Exceptions;
+use namespace::autoclean;
 
 has 'resource_file' => (
     is     => 'ro',

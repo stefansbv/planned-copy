@@ -1,6 +1,6 @@
 package App::PlannedCopy::Resource;
 
-# ABSTRACT: Read a resource.yml config file
+# ABSTRACT: Build an iterable data structure from a resource.yml file
 
 use 5.010001;
 use utf8;

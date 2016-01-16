@@ -16,8 +16,8 @@ sub validate_element {
     $self->src_isfile($res);
     $self->dst_file_defined($res);
     $self->dst_path_exists($res);
-    $self->dst_isfile($res);
     $self->dst_file_readable($res);
+    $self->dst_isfile($res);
 
     return 1;
 }
@@ -30,12 +30,27 @@ __END__
 
 =encoding utf8
 
-=head1 Name
-
 =head1 Synopsis
+
+    with qw( App::PlannedCopy::Role::Validate::Check );
+    my $cont = try { $self->validate_element($res) }
+    catch {
+        $self->handle_exception($_);
+        ...
+        return undef;    # required
+    };
+    if ($cont) {
+        ...
+    }
 
 =head1 Description
 
+A role for resource element validation - for the check command.
+
 =head1 Interface
+
+=head2 Instance Methods
+
+=head3 validate_element
 
 =cut

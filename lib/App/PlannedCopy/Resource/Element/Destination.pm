@@ -2,6 +2,7 @@ package App::PlannedCopy::Resource::Element::Destination;
 
 # ABSTRACT: The destination resource element object
 
+use utf8;
 use Moose;
 use App::PlannedCopy::Types;
 use namespace::autoclean;
@@ -76,3 +77,47 @@ sub verb_is {
 __PACKAGE__->meta->make_immutable;
 
 1;
+
+=head1 Synopsis
+
+=head1 Description
+
+A destination resource element object.
+
+=head1 Attributes
+
+=head2 _perm
+
+Returns an Octal custom type representing the required permissions of
+the file.
+
+=head2 _verb
+
+Returns an action verb string.  The only currently known verb is
+C<unpack> and is used to extract the files from archives.
+
+=head2 _abs_path
+
+The absolute path of the C<_full_path> as returned by the C<absolute>
+instance method of the L<Path::Tiny> object.
+
+=head2 _parent_dir
+
+The parent dir of the C<_abs_path> as returned by the C<parent>
+instance method of the L<Path::Tiny> object.
+
+=head2 _user_is_default
+
+=head2 _user
+
+Return true if the user attribute was not explicitly set for a
+resource.
+
+=head1 Instance Methods
+
+=head2 verb_is
+
+Return true if the L<_verb> attribute equals to the C<$verb_action>
+parameter.
+
+=cut

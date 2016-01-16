@@ -36,3 +36,33 @@ sub dst {
 __PACKAGE__->meta->make_immutable;
 
 1;
+
+=head1 DESCRIPTION
+
+Creates and returns L<App::PlannedCopy::Resource::Element> objects
+which holds the source and destination data of a specific resource
+element.
+
+=head1 Attributes
+
+=head2 _source
+
+An hash reference containing a source section of the resource file.
+
+=head2 _destination
+
+An hash reference containing a destionation section of the resource
+file.
+
+=head1 Instance Methods
+
+=head2 src
+
+Returns the L<App::PlannedCopy::Resource::Element::Source> instance.
+
+=head2 dst
+
+Returns the L<App::PlannedCopy::Resource::Element::Destination>
+instance.
+
+=cut

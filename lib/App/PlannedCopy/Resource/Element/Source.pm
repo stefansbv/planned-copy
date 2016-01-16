@@ -2,13 +2,11 @@ package App::PlannedCopy::Resource::Element::Source;
 
 # ABSTRACT: The source resource element object
 
-use 5.010001;
 use utf8;
-
 use Moose;
 use Moose::Util::TypeConstraints;
-use namespace::autoclean;
 use Path::Tiny;
+use namespace::autoclean;
 
 extends qw(App::PlannedCopy);
 
@@ -62,3 +60,39 @@ sub type_is {
 __PACKAGE__->meta->make_immutable;
 
 1;
+
+__END__
+
+=encoding utf8
+
+=head1 Synopsis
+
+=head1 Description
+
+A source resource element object.
+
+=head1 Attributes
+
+=head2 _type
+
+Returns a source type, the default is C<file> and the only other value,
+currently supported is C<archive>.
+
+=head2 _abs_path
+
+The absolute path of the C<_full_path> as returned by the C<absolute>
+instance method of the L<Path::Tiny> object.
+
+=head2 _parent_dir
+
+The parent dir of the C<_abs_path> as returned by the C<parent>
+instance method of the L<Path::Tiny> object.
+
+=head1 Instance Methods
+
+=head2 type_is
+
+Return true if the L<_type> attribute equals to the C<$type_name>
+parameter.
+
+=cut

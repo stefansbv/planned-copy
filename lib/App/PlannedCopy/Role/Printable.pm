@@ -53,6 +53,7 @@ sub item_printer {
         = $errorlevel eq 'error' ? 'bright_red'
         : $errorlevel eq 'warn'  ? 'bold yellow'
         : $errorlevel eq 'info'  ? 'blue'
+        : $errorlevel eq 'winfo' ? 'bold blue'
         : $errorlevel eq 'done'  ? 'green'
         : $errorlevel eq 'void'  ? 'reset'
         :                          'reset';
@@ -86,7 +87,7 @@ sub exception_printer {
     }
     else {
         # Unknown exception
-        say "Unknown exception!: ", $e; # ?!
+        say "!Unknown exception!: ", $e;
     }
 
     return;
@@ -148,3 +149,39 @@ sub difference_printer {
 no Moose::Role;
 
 1;
+
+__END__
+
+=encoding utf8
+
+=head1 Synopsis
+
+TODO
+
+=head1 Description
+
+=head1 Interface
+
+=head2 Attributes
+
+=head3 term_size
+
+=head2 Instance Methods
+
+=head3 difference_printer
+
+=head3 exception_printer
+
+=head3 item_printer
+
+=head3 list_printer
+
+=head3 points
+
+=head3 print_exeception_message
+
+=head3 printer
+
+=head3 project_list_printer
+
+=cut

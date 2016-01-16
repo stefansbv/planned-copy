@@ -94,7 +94,7 @@ where the file is supposed to be installed.
 
 =head2 _full_path
 
-A Path::Tiny object built using the L<_path> and L<_name> attributes.
+A Path::Tiny object built from the L<_path> and L<_name> attributes.
 
 =head1 METHODS
 

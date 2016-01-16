@@ -42,3 +42,35 @@ sub create_yaml {
 __PACKAGE__->meta->make_immutable;
 
 1;
+
+__END__
+
+=encoding utf8
+
+=head1 Synopsis
+
+    my $rw = App::PlannedCopy::Resource::Write->new(
+        resource_file => $resource_file
+    );
+    $rw->create_yaml( { resources => $data } );
+
+
+=head1 Description
+
+Write a 'resource.yml' file.
+
+=head1 Interface
+
+=head2 Attributes
+
+=head3 resource_file
+
+Holds the resource file path as a Path::Tiny object.
+
+=head2 Instance Methods
+
+=head3 create_yaml
+
+Create a YAML file using the data provided.
+
+=cut
