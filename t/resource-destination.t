@@ -6,11 +6,14 @@ use Path::Tiny;
 
 use App::PlannedCopy::Resource::Element::Destination;
 
+my $repo_path = path( qw(t test-repo check) );
+my $dest_path = path( qw(t test-dst check) );
+
 subtest 'minimum valid config' => sub {
     my $args = {
         destination => {
-            name => 'lircd.conf',
-            path => '/etc/lirc',
+            name => 'filename1',
+            path => 't/test-dst/check',
             perm => '0644',
         },
     };
@@ -20,22 +23,23 @@ subtest 'minimum valid config' => sub {
 
     isa_ok $dst, 'App::PlannedCopy::Resource::Element::Destination';
 
-    is $dst->_name, path('lircd.conf'), 'destination name';
-    is $dst->_path, path('/etc/lirc'),  'destination path';
+    is $dst->_name, 'filename1', 'destination name';
+    is $dst->_path, $dest_path, 'destination path';
     is $dst->_perm, '0644', 'destination perm';
-    is $dst->_abs_path, path('/etc/lirc/lircd.conf'),
+    is $dst->_abs_path, path( $dest_path, qw(filename1) )->absolute,
         'destination absolute path';
-    is $dst->_parent_dir, path('/etc/lirc'),
+    is $dst->_parent_dir, $dest_path->absolute,
         'destination absolute path parent';
 };
 
 subtest 'maximum valid config' => sub {
     my $args = {
         destination => {
-            name => 'lircd.conf',
-            path => '/etc/lirc',
+            name => 'filename3',
+            path => 't/test-dst/check',
             perm => '0644',
             verb => 'unpack',
+            user => 'someuser',
         },
     };
 
@@ -44,16 +48,15 @@ subtest 'maximum valid config' => sub {
 
     isa_ok $dst, 'App::PlannedCopy::Resource::Element::Destination';
 
-    is $dst->_name, path('lircd.conf'), 'destination name';
-    is $dst->_path, path('/etc/lirc'),  'destination path';
-    is $dst->_perm, '0644', 'destination perm';
-    is $dst->_verb, 'unpack', 'destination verb';
-    is $dst->_abs_path, path('/etc/lirc/lircd.conf'),
+    is $dst->_name, 'filename3', 'destination name';
+    is $dst->_path, $dest_path,  'destination path';
+    is $dst->_perm, '0644',      'destination perm';
+    is $dst->_verb, 'unpack',    'destination verb';
+    is $dst->_user, 'someuser',  'destination user';
+    is $dst->_abs_path, path( $dest_path, qw(filename3) )->absolute,
         'destination absolute path';
-    is $dst->_parent_dir, path('/etc/lirc'),
+    is $dst->_parent_dir, $dest_path->absolute,
         'destination absolute path parent';
 };
 
 done_testing;
-
-# end

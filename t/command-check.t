@@ -8,6 +8,10 @@ use Path::Tiny;
 use App::PlannedCopy::Config;
 use App::PlannedCopy::Command::Check;
 
+my $repo1_path = path( qw(t test-repo check-no-resu) );
+my $repo2_path = path( qw(t test-repo check) );
+my $dest_path  = path( qw(t test-dst check) );
+
 local $ENV{APP_CM_USR_CONFIG} = path( qw(t user.conf) );
 
 ok my $conf = App::PlannedCopy::Config->new, 'config constructor';
@@ -17,7 +21,8 @@ ok $conf->load, 'load test config files';
 subtest 'No resource file' => sub {
 
     is $conf->resource_file('check-no-resu'),
-        't/test-repo/check-no-resu/resource.yml', 'nonexistent resource file';
+        path( $repo1_path, qw(resource.yml) ),
+        'nonexistent resource file';
 
     ok my $check = App::PlannedCopy::Command::Check->new(
         project => 'check-no-resu',
@@ -55,13 +60,14 @@ Summary:
 
 subtest 'With a resource file' => sub {
 
-    is $conf->resource_file('check'), 't/test-repo/check/resource.yml',
+    is $conf->resource_file('check'),
+        path( $repo2_path, qw(resource.yml) ),
         'resource file path';
 
     ok my $check = App::PlannedCopy::Command::Check->new(
         project => 'check',
         config  => $conf,
-    ), 'other resource command constructor';
+    ), 'command constructor';
 
     like capture_stdout { $check->execute }, qr/job: 3 files to check:/,
         'execute should work';
@@ -69,12 +75,11 @@ subtest 'With a resource file' => sub {
     is capture_stdout { $check->print_project_summary }, '
 Summary:
  - processed: 3 records
- - checked  : 3
- - skipped  : 0
+ - checked  : 2
+ - skipped  : 1
  - different: 1
 
 ', 'print_summary should work';
 };
 
-done_testing();
-
+done_testing;

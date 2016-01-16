@@ -13,7 +13,9 @@ use namespace::autoclean;
 extends qw(App::PlannedCopy);
 
 with qw(App::PlannedCopy::Role::Printable
-        App::PlannedCopy::Role::Utils);
+        App::PlannedCopy::Role::Utils
+        App::PlannedCopy::Role::Validate::Install
+       );
 
 use App::PlannedCopy::Resource;
 
@@ -69,7 +71,7 @@ sub execute {
             $self->validate_element($res);
 
             # Check the user if is not root, and is explicitly set
-            unless ( $self->current_user eq 'root' ) {
+            unless ( $self->config->current_user eq 'root' ) {
                 $self->check_res_user($res) if !$res->dst->_user_is_default;
             }
             1;                               # required
@@ -130,7 +132,8 @@ sub install_file {
     $self->copy_file( $src_path, $dst_path );
     $self->set_perm( $dst_path, $res->dst->_perm );
     $self->change_owner( $dst_path, $res->dst->_user )
-        if $self->current_user eq 'root' && !$res->dst->_user_is_default;
+        if $self->config->current_user eq 'root'
+        && !$res->dst->_user_is_default;
     $self->inc_count_inst;
 
     # Unpack archives

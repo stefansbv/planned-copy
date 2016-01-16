@@ -1,4 +1,3 @@
-# -*- mode-cperl -*-
 #
 # Test the Resource::Element object container
 #

@@ -12,7 +12,9 @@ use namespace::autoclean;
 extends qw(App::PlannedCopy);
 
 with qw(App::PlannedCopy::Role::Printable
-        App::PlannedCopy::Role::Utils);
+        App::PlannedCopy::Role::Utils
+        App::PlannedCopy::Role::Validate::Sync
+       );
 
 use App::PlannedCopy::Resource;
 
@@ -70,9 +72,9 @@ sub execute {
         my $cont = try {
             $self->validate_element($res);
 
-            # Check the user if is not root
-            unless ( $self->current_user eq 'root' ) {
-                $self->check_user($res);
+            # Check the user if is not root                         TODO!
+            unless ( $self->config->current_user eq 'root' ) {
+                $self->check_user;
             }
         }
         catch {
@@ -122,7 +124,7 @@ sub synchronize {
     $self->copy_file($src_path, $dst_path);
     $self->set_perm($dst_path, 0644);
     $self->change_owner( $dst_path, $self->repo_owner )
-        if $self->current_user eq 'root';
+        if $self->config->current_user eq 'root';
     $self->inc_count_inst;
 
     return;

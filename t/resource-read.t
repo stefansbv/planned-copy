@@ -1,4 +1,3 @@
-# -*- perl -*-
 #
 # Read the test data from t/resource.t
 #

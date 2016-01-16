@@ -21,7 +21,7 @@ ok $conf->load, 'load test config files';
 subtest 'No resource file' => sub {
 
     is $conf->resource_file('sync-no-resu'),
-        path( $repo1_path, qw(resource.yml) ),
+        path( $repo1_path, 'resource.yml' ),
         'nonexistent resource file';
 
     ok my $sync = App::PlannedCopy::Command::Sync->new(
@@ -59,7 +59,7 @@ Summary:
 subtest 'With a resource file' => sub {
 
     is $conf->resource_file('sync'),
-        path( $repo2_path, qw(resource.yml) ),
+        path( $repo2_path, 'resource.yml' ),
         'resource file path';
 
     ok my $sync = App::PlannedCopy::Command::Sync->new(
@@ -74,12 +74,16 @@ subtest 'With a resource file' => sub {
     is capture_stdout { $sync->print_summary }, '
 Summary:
  - processed   : 3 records
- - skipped     : 1
- - synchronized: 2
+ - skipped     : 2
+ - synchronized: 1
 
 ', 'print_summary should work';
 };
 
 # Rewind
+my $dst_file3 = path( $repo2_path, 'filename3' );
+my @lines = $dst_file3->lines;
+splice @lines, 3, 0, "Line 2 (new)\n";
+$dst_file3->spew(@lines);
 
 done_testing;

@@ -5,7 +5,7 @@ package App::PlannedCopy::Command::Diff;
 use 5.010001;
 use utf8;
 use Try::Tiny;
-use IO::Prompt::Tiny qw/prompt/;
+use IO::Prompt::Tiny qw(prompt);
 use Capture::Tiny ':all';
 use MooseX::App::Command;
 use namespace::autoclean;
@@ -13,7 +13,9 @@ use namespace::autoclean;
 extends qw(App::PlannedCopy);
 
 with qw(App::PlannedCopy::Role::Printable
-        App::PlannedCopy::Role::Utils);
+        App::PlannedCopy::Role::Utils
+        App::PlannedCopy::Role::Validate::Diff
+       );
 
 use App::PlannedCopy::Resource;
 
@@ -24,6 +26,12 @@ parameter 'project' => (
     isa           => 'Str',
     required      => 1,
     documentation => q[Project name.],
+);
+
+has 'prompting' => (
+    is      => 'rw',
+    isa     => 'Int',
+    default => sub { 1 },
 );
 
 has 'diff_cmd' => (
@@ -98,12 +106,17 @@ sub diff {
         $self->set_error_level('done');
     }
     else {
-        $self->set_error_level('warn');
-        say "# ", $self->diff_cmd, " $src_path $dst_path";
-        my $answer = prompt( "Runn diff? (Y/n)", "y" );
-        if ( $answer =~ m{[yY]} ) {
-            $self->kompare( $src_path, $dst_path );
-            $self->inc_count_resu;
+        if ( $self->prompting ) {
+            $self->set_error_level('warn');
+            say "# ", $self->diff_cmd, " $src_path $dst_path";
+            my $answer = prompt( "Runn diff? (Y/n/q)", "y" );
+            if ( $answer =~ m{[yY]} ) {
+                $self->kompare( $src_path, $dst_path );
+                $self->inc_count_resu;
+            }
+            elsif ( $answer =~ m{[qQ]} ) {
+                $self->prompting(0);
+            }
         }
     }
     $self->inc_count_inst;
@@ -126,3 +139,7 @@ sub print_summary {
 __PACKAGE__->meta->make_immutable;
 
 1;
+
+__END__
+
+Yes / No / Quit prompting
