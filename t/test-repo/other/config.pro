@@ -1,3 +1,0 @@
-Project file.
-
-New line.
