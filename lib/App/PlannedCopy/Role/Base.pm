@@ -2,7 +2,6 @@ package App::PlannedCopy::Role::Base;
 
 # ABSTRACT: Base role for the application
 
-use English;
 use Moose::Role;
 use MooseX::App::Role;
 
@@ -74,15 +73,6 @@ has 'error_level' => (
     reader   => 'get_error_level',
     writer   => 'set_error_level',
     default  => sub {'info'},
-);
-
-has 'current_user' => (
-    is       => 'ro',
-    isa      => 'Str',
-    init_arg => undef,
-    default  => sub {
-        return getpwuid($REAL_USER_ID);
-    },
 );
 
 sub is_error_level {
