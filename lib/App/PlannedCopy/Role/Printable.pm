@@ -6,7 +6,7 @@ use 5.0100;
 use utf8;
 use Moose::Role;
 use Term::ReadKey;
-use Term::ANSIColor;
+use Term::ExtendedColor qw(:all);
 use Perl6::Form;
 use IO::Handle;
 
@@ -34,16 +34,13 @@ sub printer {
     my ($self, $color, $msg_l, $msg_r) = @_;
     my $points = $self->points($msg_l, $msg_r);
     my $space  = q{ };
-    print color $color;
-    print $space
-        , $msg_l
-        , $space
-        , $points
-        , $space
-        , $msg_r
-        ;
-    print color 'reset';
-    print "\n";
+        print $space,
+            , fg($color, $msg_l),
+            , $space,
+            , $points,
+            , $space,
+            , fg($color, $msg_r),
+            , "\n";
     return;
 }
 
@@ -51,11 +48,11 @@ sub item_printer {
     my ( $self, $rec ) = @_;
     my $errorlevel = $self->get_error_level;
     my $color
-        = $errorlevel eq 'error' ? 'bright_red'
-        : $errorlevel eq 'warn'  ? 'bold yellow'
-        : $errorlevel eq 'info'  ? 'blue'
-        : $errorlevel eq 'winfo' ? 'bold blue'
-        : $errorlevel eq 'done'  ? 'green'
+        = $errorlevel eq 'error' ? 'red2'
+        : $errorlevel eq 'warn'  ? 'yellow1'
+        : $errorlevel eq 'info'  ? 'blue2'
+        : $errorlevel eq 'winfo' ? 'blue2'
+        : $errorlevel eq 'done'  ? 'green2'
         : $errorlevel eq 'void'  ? 'reset'
         :                          'reset';
     $self->printer($color, $rec->src->_name, $rec->dst->short_path);
@@ -96,9 +93,7 @@ sub exception_printer {
 
 sub print_exeception_message {
     my ( $self, $message, $details ) = @_;
-    print color 'bright_red';
-    print "  [EE] ";
-    print color 'reset';
+    print fg('red1', '  [EE] ');
     print $message, ' ', $details;
     print "\n";
     return;
@@ -124,11 +119,11 @@ sub project_list_printer {
         my $resu = $item->{resource};
         my ($color, $mesg);
         if ($resu == 1) {
-            $color = 'green';
+            $color = 'green2';
             $mesg  = 'resource';
         }
         else {
-            $color = 'bright_yellow';
+            $color = 'yellow2';
             $mesg  = 'no resource';
         }
         $self->printer($color, $path, $mesg);
@@ -145,29 +140,6 @@ sub difference_printer {
         $self->printer($color, $proj, $resu);
     }
     return;
-}
-
-sub summary_printer {
-    my ($self, $command, $sdata) = @_;
-    my $legend    = q(- blue for not found
-- green for the same
-- yellow for something
-- red for error
-- another thing on another line
-);
-
-    print form
-    '                                                                                    ',
-    ' Summary                                            Legend:                         ',
-    '  - processed: {<<<}                                 {<<<<<<<<<<<<<<<<<<<<<<<<<<<:} ',
-                 $sdata->{processed},                     $legend,
-    '  - checked:   {<<<}                                 {:<<<<<<<<<<<<<<<<<<<<<<<<<<:} ',
-                 $sdata->{checked},                       $legend,
-    '  - skipped    {<<<}                                 {:<<<<<<<<<<<<<<<<<<<<<<<<<<:} ',
-                 $sdata->{skipped},                       $legend,
-    '  - different: {<<<}                                 {:[[[[[[[[[[[[[[[[[[[[[[[[[[[} ',
-                 $sdata->{different},                     $legend,
-    '                                                                                    ',
 }
 
 no Moose::Role;

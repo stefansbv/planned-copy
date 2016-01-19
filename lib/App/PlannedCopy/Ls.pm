@@ -6,7 +6,6 @@ use 5.0100;
 use utf8;
 use Moose;
 use Term::ReadKey;
-use Term::ANSIColor;
 use namespace::autoclean;
 
 STDOUT->autoflush(1);
