@@ -7,6 +7,7 @@ use utf8;
 use Moose::Role;
 use Term::ReadKey;
 use Term::ANSIColor;
+use Perl6::Form;
 use IO::Handle;
 
 STDOUT->autoflush(1);
@@ -144,6 +145,29 @@ sub difference_printer {
         $self->printer($color, $proj, $resu);
     }
     return;
+}
+
+sub summary_printer {
+    my ($self, $command, $sdata) = @_;
+    my $legend    = q(- blue for not found
+- green for the same
+- yellow for something
+- red for error
+- another thing on another line
+);
+
+    print form
+    '                                                                                    ',
+    ' Summary                                            Legend:                         ',
+    '  - processed: {<<<}                                 {<<<<<<<<<<<<<<<<<<<<<<<<<<<:} ',
+                 $sdata->{processed},                     $legend,
+    '  - checked:   {<<<}                                 {:<<<<<<<<<<<<<<<<<<<<<<<<<<:} ',
+                 $sdata->{checked},                       $legend,
+    '  - skipped    {<<<}                                 {:<<<<<<<<<<<<<<<<<<<<<<<<<<:} ',
+                 $sdata->{skipped},                       $legend,
+    '  - different: {<<<}                                 {:[[[[[[[[[[[[[[[[[[[[[[[[[[[} ',
+                 $sdata->{different},                     $legend,
+    '                                                                                    ',
 }
 
 no Moose::Role;

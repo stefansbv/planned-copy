@@ -106,6 +106,7 @@ sub check_project {
     else {
         $self->print_project_summary;
     }
+
     return;
 }
 
@@ -135,13 +136,21 @@ sub store_summary {
 sub print_project_summary {
     my $self = shift;
     my $cnt_proc = $self->count_proc // 0;
-    say '';
-    say 'Summary:';
-    say ' - processed: ', $cnt_proc, ' records';
-    say ' - checked  : ', $self->count_inst;
-    say ' - skipped  : ', $self->count_skip;
-    say ' - different: ', $self->count_resu;
-    say '';
+    # say '';
+    # say 'Summary:';
+    # say ' - processed: ', $cnt_proc, ' records';
+    # say ' - checked  : ', $self->count_inst;
+    # say ' - skipped  : ', $self->count_skip;
+    # say ' - different: ', $self->count_resu;
+    # say '';
+    $self->summary_printer(
+        'check',
+        {   processed => $cnt_proc,
+            checked   => $self->count_inst,
+            skipped   => $self->count_skip,
+            different => $self->count_resu,
+        }
+    );
     return;
 }
 
