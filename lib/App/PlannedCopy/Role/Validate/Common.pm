@@ -214,6 +214,25 @@ sub dst_isfile {
     return 1;
 }
 
+sub dst_file_mode {
+    my ( $self, $res ) = @_;
+    my $mode = try { $res->dst->_abs_path->stat->mode }
+    catch  {
+        my $err = $_;
+        if ( $err =~ m/Permission denied/i ) {
+            Exception::IO::PermissionDenied->throw(
+                message  => 'Permision denied for dst path:',
+                pathname => $res->dst->_path,
+            );
+        }
+        else {
+            die "Unknown stat ERROR: $err";
+        }
+    };
+    my $perms = sprintf "%04o", $mode & 07777;
+    return $perms;
+}
+
 no Moose::Role;
 
 1;
@@ -233,7 +252,7 @@ __END__
 =head2 dst_file_readable
 
 Checks the source parent dir of a resource element to see if it's
-readable, using the L<File::stat> method, and throws an
+readable, using the L<File::stat> function, and throws an
 L<Exception::IO::PermissionDenied> exception if is not readable or the
 error message contains the "Permission denied" string or dies with an
 "Unknown stat ERROR: $err" error message.
@@ -248,7 +267,7 @@ respectively false.
 =head2 dst_parentdir_readable
 
 Checks the destination parent dir of a resource element to see if it's
-readable, using the L<File::stat> method, and throws an
+readable, using the L<File::stat> function, and throws an
 L<Exception::IO::PermissionDenied> exception if is not readable or the
 error message contains the "Permission denied" string or dies with an
 "Unknown stat ERROR: $err" error message.

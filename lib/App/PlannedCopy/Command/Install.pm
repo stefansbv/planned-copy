@@ -110,11 +110,23 @@ sub install_file {
     my $src_path = $res->src->_abs_path;
     my $dst_path = $res->dst->_abs_path;
 
+    my $copy_flag = 0;
+    my $mode_flag = 0;
+
     # Compare files
     if ( $self->is_selfsame( $src_path, $dst_path ) ) {
-        $self->set_error_level('none');
-        $self->inc_count_skip;
-        return;
+        my $mode = $self->dst_file_mode($res);
+        if ( $mode eq $res->dst->_perm ) {
+            $self->set_error_level('none');
+            $self->inc_count_skip;
+            return;
+        }
+        else {
+            $mode_flag = 1;
+        }
+    }
+    else {
+        $copy_flag = 1;
     }
     my $parent_dir = $res->dst->_parent_dir;
     unless ( $parent_dir->is_dir ) {
@@ -129,8 +141,8 @@ sub install_file {
     $self->set_error_level('done');
 
     # Copy and set perms
-    $self->copy_file( $src_path, $dst_path );
-    $self->set_perm( $dst_path, $res->dst->_perm );
+    $self->copy_file( $src_path, $dst_path )       if $copy_flag;
+    $self->set_perm( $dst_path, $res->dst->_perm ) if $mode_flag || $copy_flag;
     $self->change_owner( $dst_path, $res->dst->_user )
         if $self->config->current_user eq 'root'
         && !$res->dst->_user_is_default;
