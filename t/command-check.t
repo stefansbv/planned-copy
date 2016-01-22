@@ -2,8 +2,8 @@
 # Test the check command
 #
 use Test::More;
-
-use Capture::Tiny 0.12 qw(:all);
+use Term::ExtendedColor qw(uncolor);
+use Capture::Tiny 0.12 qw(capture_stdout);
 use Path::Tiny;
 use App::PlannedCopy::Config;
 use App::PlannedCopy::Command::Check;
@@ -32,7 +32,7 @@ subtest 'No resource file' => sub {
 
     is $check->project, 'check-no-resu', 'project name';
 
-    is capture_stdout { $check->execute },
+    is uncolor ( capture_stdout { $check->execute } ),
         " check-no-resu, job: 0 files to check (verbose):
 
 ---
@@ -71,7 +71,8 @@ subtest 'With a resource file' => sub {
         verbose => 1,
     ), 'command constructor';
 
-    like capture_stdout { $check->execute }, qr/check, job: 3 files to check/,
+    like uncolor ( capture_stdout { $check->execute } ),
+        qr/check, job: 3 files to check/,
         'execute should work';
 
     is capture_stdout { $check->print_project_summary }, '
