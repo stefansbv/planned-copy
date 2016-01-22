@@ -59,6 +59,11 @@ use Exception::Base (
         has               => [qw( username )],
         string_attributes => [qw( message username )],
     },
+    'Exception::IO::WrongPerms' => {
+        isa               => 'Exception::IO',
+        has               => [qw( perm type )],
+        string_attributes => [qw( message perm )],
+    },
 );
 
 1;

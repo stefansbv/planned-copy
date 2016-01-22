@@ -216,13 +216,25 @@ sub dst_isfile {
 
 sub dst_file_mode {
     my ( $self, $res ) = @_;
-    my $mode = try { $res->dst->_abs_path->stat->mode }
+    my $perms = $self->get_perms( $res->dst->_abs_path );
+    unless ( $perms eq $res->dst->_perm ) {
+        Exception::IO::WrongPerms->throw(
+            message => 'Wrong permissions:',
+            perm    => $perms,
+        );
+    }
+    return 1;
+}
+
+sub get_perms {
+    my ( $self, $file ) = @_;
+    my $mode = try { $file->stat->mode }
     catch  {
         my $err = $_;
         if ( $err =~ m/Permission denied/i ) {
             Exception::IO::PermissionDenied->throw(
                 message  => 'Permision denied for dst path:',
-                pathname => $res->dst->_path,
+                pathname => $file,
             );
         }
         else {

@@ -107,13 +107,19 @@ sub handle_exception {
         elsif ( $e->isa('Exception::IO::PermissionDenied') ) {
             $self->set_error_level('info');
         }
+        elsif ( $e->isa('Exception::IO::WrongUser') ) {
+            $self->set_error_level('warn');
+        }
+        elsif ( $e->isa('Exception::IO::WrongPerms') ) {
+            $self->set_error_level('warn');
+        }
         else {
             $self->set_error_level('error');
         }
         return $e;
     }
     else {
-        say "Unhandled exception:", $ex;
+        die "Unhandled exception:", $ex;
     }
     return;
 }
@@ -154,7 +160,7 @@ sub kompare {
 sub get_project_files {
     my ( $self, $project ) = @_;
 
-    die "EE Project name was not provided for 'get_project_files'!\n"
+    die "Project name was not provided for 'get_project_files'!\n"
         unless $project;
 
     my $proj = $self->find_project( sub { $_->{path} eq $project } );

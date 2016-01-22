@@ -51,6 +51,7 @@ sub execute {
             $self->project($path); # set project
             $self->check_project( 'batch' );
         }
+        $self->set_error_level('warn');
         $self->print_summary;
     }
     return;

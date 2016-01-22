@@ -115,7 +115,7 @@ sub install_file {
 
     # Compare files
     if ( $self->is_selfsame( $src_path, $dst_path ) ) {
-        my $mode = $self->dst_file_mode($res);
+        my $mode = $self->get_perms( $res->dst->_abs_path );
         if ( $mode eq $res->dst->_perm ) {
             $self->set_error_level('none');
             $self->inc_count_skip;

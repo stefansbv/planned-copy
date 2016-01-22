@@ -68,7 +68,9 @@ has '_projects' => (
 sub _build_projects {
     my $self = shift;
 
-    die "EE Not configured!\n" unless defined $self->config->repo_path;
+    die
+        "Not configured!\n  Please, use the config command to configure the planned-copy.\n"
+        unless defined $self->config->repo_path;
 
     my $rule = Path::Iterator::Rule->new;
     $rule->skip_vcs;

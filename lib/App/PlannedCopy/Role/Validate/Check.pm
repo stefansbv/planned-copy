@@ -18,6 +18,7 @@ sub validate_element {
     $self->dst_path_exists($res);
     $self->dst_file_readable($res);
     $self->dst_isfile($res);
+    $self->dst_file_mode($res);
 
     return 1;
 }

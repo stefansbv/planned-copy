@@ -44,16 +44,33 @@ sub printer {
     return;
 }
 
-sub item_printer {
-    my ( $self, $rec ) = @_;
+sub get_error_str {
+    my $self       = shift;
     my $errorlevel = $self->get_error_level;
-    my $color
-        = $errorlevel eq 'error' ? 'red2'
+    return
+          $errorlevel eq 'error' ? '[EE]'
+        : $errorlevel eq 'warn'  ? '[WW]'
+        : $errorlevel eq 'info'  ? '[II]'
+        : $errorlevel eq 'done'  ? ''
+        : $errorlevel eq 'none'  ? ''
+        :                          '';
+}
+
+sub get_color {
+    my $self       = shift;
+    my $errorlevel = $self->get_error_level;
+    return
+          $errorlevel eq 'error' ? 'red2'
         : $errorlevel eq 'warn'  ? 'yellow1'
         : $errorlevel eq 'info'  ? 'blue2'
         : $errorlevel eq 'done'  ? 'green2'
         : $errorlevel eq 'none'  ? 'reset'
         :                          'reset';
+}
+
+sub item_printer {
+    my ( $self, $rec ) = @_;
+    my $color = $self->get_color;
     $self->printer($color, $rec->src->_name, $rec->dst->short_path);
     return;
 }
@@ -82,6 +99,10 @@ sub exception_printer {
         $self->print_exeception_message( $e->message, $e->username )
             if $self->verbose;
     }
+    elsif ( $e->isa('Exception::IO::WrongPerms') ) {
+        $self->print_exeception_message( $e->message, $e->perm )
+            if $self->verbose;
+    }
     else {
         # Unknown exception
         say "!Unknown exception!: ", $e;
@@ -92,7 +113,9 @@ sub exception_printer {
 
 sub print_exeception_message {
     my ( $self, $message, $details ) = @_;
-    print fg('red1', '  [EE] ');
+    my $color = $self->get_color;
+    my $erstr = $self->get_error_str;
+    print fg($color, "  $erstr ");
     print $message, ' ', $details;
     print "\n";
     return;
@@ -132,7 +155,7 @@ sub project_list_printer {
 
 sub difference_printer {
     my ( $self, @items ) = @_;
-    my $color = 'bright_yellow';
+    my $color = $self->get_color;
     foreach my $item (@items) {
         my $proj = $item->[0];
         my $resu = $item->[1];

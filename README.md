@@ -1,9 +1,9 @@
 Planned Copy
 ============
 Ștefan Suciu
-2015-12-30
+2016-01-22
 
-Version: 0.802
+Version: 0.840
 
 Planned Copy - a smarter copy application for your Linux box.
 
@@ -127,7 +127,7 @@ $ plcp install linux
 License And Copyright
 ---------------------
 
-Copyright (C) 2015 Ștefan Suciu
+Copyright (C) 2016 Ștefan Suciu
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
