@@ -5,6 +5,7 @@ package App::PlannedCopy::Command::Check;
 use 5.010001;
 use utf8;
 use Try::Tiny;
+use Term::ExtendedColor qw(fg);
 use MooseX::App::Command;
 use namespace::autoclean;
 
@@ -51,6 +52,7 @@ sub execute {
             next unless $resu == 1;
             $self->project($path); # set project
             $self->check_project( 'batch' );
+            print "." unless $self->verbose;
         }
         print "\n" unless $self->verbose;
         $self->set_error_level('warn');
@@ -68,14 +70,11 @@ sub check_project {
     my $cnt  = $resu->count;
 
     if ( $self->verbose ) {
-        say " ", $self->project, ", job: ", $cnt, ' file',
+        say " ", fg('green1', $self->project), ", job: ", $cnt, ' file',
             ( $cnt != 1 ? 's' : '' ),
             ' to check', ( $self->verbose ? ' (verbose)' : '' ),
             ( $batch ? '...' : ':' ),
             ( $batch ? '' : "\n" );
-    }
-    else {
-        print ".";
     }
 
     $self->no_resource_message( $self->project )

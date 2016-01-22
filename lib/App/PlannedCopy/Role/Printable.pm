@@ -6,7 +6,7 @@ use 5.0100;
 use utf8;
 use Moose::Role;
 use Term::ReadKey;
-use Term::ExtendedColor qw(:all);
+use Term::ExtendedColor qw(fg);
 use Perl6::Form;
 use IO::Handle;
 
