@@ -19,7 +19,7 @@ my $class = MooseX::ClassCompositor->new( { class_basename => 'Test', } )
 map has_attribute_ok( $class, $_ ), @attributes;
 map can_ok( $class, $_ ), @methods;
 lives_ok{ $instance = $class->new(
-    first_attribute => 'cool',
+    project => 'test',
 )} 'Test creation of an instance';
 
 is $instance->is_error_level('info'), 1, 'error level is info';

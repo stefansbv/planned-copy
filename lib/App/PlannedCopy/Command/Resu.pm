@@ -48,7 +48,6 @@ has 'resource_old' => (
     handles => {
         get_old_res    => 'get',
         has_no_old_res => 'is_empty',
-        num_old_res    => 'count',
         old_res_keys   => 'keys',
         old_res_pairs  => 'kv',
     },
@@ -63,9 +62,7 @@ has 'resource_fs' => (
     handles => {
         get_fs_res    => 'get',
         has_no_fs_res => 'is_empty',
-        num_fs_res    => 'count',
         fs_res_keys   => 'keys',
-        fs_res_pairs  => 'kv',
     },
 );
 
@@ -140,9 +137,24 @@ sub _build_old_resource {
 
 sub _build_fs_resource {
     my $self = shift;
-    my $proj = $self->project;
+    my @items;
+    try {
+        @items = @{ $self->get_all_files( $self->project ) };
+    }
+    catch {
+        if ( my $e = Exception::Base->catch($_) ) {
+            if ( $e->isa('Exception::IO::PathNotFound') ) {
+                $self->print_exeception_message($e->message, $e->pathname);
+                exit;
+            }
+            else {
+                die "Unexpected exception: $_";
+            }
+        }
+    };
+    return {} unless scalar @items;
     my %items;
-    foreach my $rec ( @{ $self->get_files( $self->project ) } ) {
+    foreach my $rec ( @items ) {
         my $file = $rec->{name};
         my $path = $rec->{path};
         my $name = path($path, $file)->stringify;
@@ -252,9 +264,18 @@ sub write_resource {
     return;
 }
 
-sub get_files {
+sub get_all_files {
     my ($self, $dir) = @_;
-    die "The 'dir' parameter is required for 'get_files'\n" unless $dir;
+
+    die "The 'dir' parameter is required for 'get_all_files'\n" unless $dir;
+    my $proj = $self->find_project( sub { $_->{path} eq $dir } );
+    unless ($proj) {
+        Exception::IO::PathNotFound->throw(
+            message  => 'The project was not found:',
+            pathname => $dir,
+        );
+    }
+
     my $abs_dir = path( $self->config->repo_path, $dir );
     my $rule    = Path::Iterator::Rule->new;
     $rule->skip(

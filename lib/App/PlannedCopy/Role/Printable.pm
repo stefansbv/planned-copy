@@ -51,9 +51,8 @@ sub item_printer {
         = $errorlevel eq 'error' ? 'red2'
         : $errorlevel eq 'warn'  ? 'yellow1'
         : $errorlevel eq 'info'  ? 'blue2'
-        : $errorlevel eq 'winfo' ? 'blue2'
         : $errorlevel eq 'done'  ? 'green2'
-        : $errorlevel eq 'void'  ? 'reset'
+        : $errorlevel eq 'none'  ? 'reset'
         :                          'reset';
     $self->printer($color, $rec->src->_name, $rec->dst->short_path);
     return;
@@ -102,9 +101,9 @@ sub print_exeception_message {
 sub list_printer {
     my ( $self, $errorlevel, @array ) = @_;
     my $color
-        = $errorlevel eq 'removed' ? 'bright_red'
-        : $errorlevel eq 'added'   ? 'bright_yellow'
-        : $errorlevel eq 'kept'    ? 'green'
+        = $errorlevel eq 'removed' ? 'yellow2'
+        : $errorlevel eq 'added'   ? 'green2'
+        : $errorlevel eq 'kept'    ? 'reset'
         :                            'reset';
     foreach my $item (@array) {
         $self->printer($color, $item, $errorlevel);

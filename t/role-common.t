@@ -19,14 +19,14 @@ my @methods = (
     qw(
        src_parentdir_readable
        src_file_readable
-	   src_isfile
+       src_isfile
        src_file_writeable
        dst_file_defined
        dst_parentdir_readable
        dst_file_readable
        dst_path_writeable
        dst_path_exists
-	   dst_isfile
+       dst_isfile
   ));
 
 my $instance;
@@ -66,7 +66,7 @@ subtest 'src and dst ok' => sub {
     lives_ok { $instance->dst_file_readable($elem) } 'dst file readable';
     lives_ok { $instance->dst_path_writeable($elem) } 'dst path writeable';
     lives_ok { $instance->dst_path_exists($elem) } 'dst path exists';
-	lives_ok { $instance->dst_isfile($elem) } 'dst file exists';
+    lives_ok { $instance->dst_isfile($elem) } 'dst file exists';
 };
 
 subtest 'nonexistent src file' => sub {
@@ -88,7 +88,7 @@ subtest 'nonexistent src file' => sub {
     isa_ok $elem->dst, 'App::PlannedCopy::Resource::Element::Destination';
 
     lives_ok { $instance->src_parentdir_readable($elem) }
-		'src parent dir readable';
+        'src parent dir readable';
     throws_ok { $instance->src_file_readable($elem) }
         qr/The source file was not found/,
         'src_file_readable: src file not found caught';
@@ -121,14 +121,14 @@ subtest 'nonexistent dst file (res not installed yet)' => sub {
 
     lives_ok { $instance->src_isfile($elem) } 'src path is valid';
     lives_ok { $instance->src_parentdir_readable($elem) }
-		'src parent dir readable';
+        'src parent dir readable';
     lives_ok { $instance->src_file_readable($elem) } 'src file readable';
     lives_ok { $instance->src_file_writeable($elem) } 'src file writeable';
 
     lives_ok { $instance->dst_file_defined($elem) } 'dst file defined';
     lives_ok { $instance->dst_path_exists($elem) } 'dst path exists';
     lives_ok { $instance->dst_parentdir_readable($elem) }
-		'dst parent dir readable';
+        'dst parent dir readable';
     throws_ok { $instance->dst_file_readable($elem) }
         qr/Not installed/,
         'dst_file_readable: not installed caught';
@@ -154,9 +154,9 @@ subtest 'nonexistent dst path (res not installed yet)' => sub {
     isa_ok $elem->dst, 'App::PlannedCopy::Resource::Element::Destination';
 
     lives_ok { $instance->src_parentdir_readable($elem) }
-		'src parent dir readable';
+        'src parent dir readable';
     lives_ok { $instance->src_file_readable($elem) } 'src file readable';
-	lives_ok { $instance->src_isfile($elem) } 'src path is valid';
+    lives_ok { $instance->src_isfile($elem) } 'src path is valid';
     lives_ok { $instance->src_file_writeable($elem) } 'src file writeable';
 
     lives_ok { $instance->dst_file_defined($elem) } 'dst file defined';

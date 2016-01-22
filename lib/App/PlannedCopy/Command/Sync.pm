@@ -113,7 +113,7 @@ sub synchronize {
 
     # Compare files
     if ( $self->is_selfsame( $src_path, $dst_path ) ) {
-        $self->set_error_level('void');
+        $self->set_error_level('none');
         $self->inc_count_skip;
         return;
     }

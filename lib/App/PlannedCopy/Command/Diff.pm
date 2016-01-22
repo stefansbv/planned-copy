@@ -94,7 +94,7 @@ sub diff {
 
     # Skip archives
     if ( $rec->src->type_is('archive') ) {
-        $self->set_error_level('void');
+        $self->set_error_level('none');
         $self->inc_count_skip;
         return;
     }

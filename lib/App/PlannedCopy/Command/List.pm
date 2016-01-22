@@ -28,26 +28,26 @@ sub execute {
         say "Job: list files in '$project':\n";
         my @items;
         try {
-            @items = map { $_->{path} } @{ $self->get_files($project) };
+            @items = @{ $self->get_project_files($project) };
         }
         catch {
             if ( my $e = Exception::Base->catch($_) ) {
-                if ( $e->isa('Exception::IO') ) {
-                    say "[EE] ", $e->message, ' : ', $e->pathname;
+                if ( $e->isa('Exception::IO::PathNotFound') ) {
+                    $self->print_exeception_message($e->message, $e->pathname);
                 }
                 else {
-                    say "[EE] Unknown exception: $_";
+                    die "Unexpected exception: $_";
                 }
             }
         };
         return unless scalar @items;
-        my $list  = App::PlannedCopy::Ls->new( items => \@items );
+        my $list = App::PlannedCopy::Ls->new( items => \@items );
         $list->column_printer;
         return;
     }
     else {
         say "Job: list projects:\n";
-        $self->project_list_printer( @{ $self->get_projects } );
+        $self->project_list_printer( $self->projects );
     }
 
     $self->print_summary;
@@ -68,10 +68,3 @@ sub print_summary {
 __PACKAGE__->meta->make_immutable;
 
 1;
-
-=head2 get_projects
-
-Returns an array reference of the names of the subdirectories of
-L<repo_path> that contains a resource file (L<resource.yml>).
-
-=cut

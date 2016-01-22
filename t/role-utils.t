@@ -14,7 +14,7 @@ my @attributes = ( qw() );
 
 my @methods = ( qw( is_selfsame copy_file set_perm change_owner
                    handle_exception no_resource_message quote_string
-                   kompare get_projects get_files check_res_user
+                   kompare get_project_files check_res_user
                    check_user ) );
 
 my $instance;

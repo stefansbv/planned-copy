@@ -44,7 +44,7 @@ sub execute {
         $self->check_project;
     }
     else {
-        foreach my $item ( @{ $self->get_projects } ) {
+        foreach my $item ( $self->projects ) {
             my $path = $item->{path};
             my $resu = $item->{resource};
             next unless $resu == 1;

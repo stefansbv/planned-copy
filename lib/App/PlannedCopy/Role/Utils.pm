@@ -151,57 +151,37 @@ sub kompare {
     return;
 }
 
-sub get_projects {
-    my $self = shift;
-
-    die "EE Not configured!\n" unless defined $self->config->repo_path;
-
-    my $rule = Path::Iterator::Rule->new;
-    $rule->skip_vcs;
-    $rule->min_depth(1);
-    $rule->max_depth(1);
-
-    my $next = $rule->iter( $self->config->repo_path );
-    my @dirs;
-    while ( defined( my $item = $next->() ) ) {
-        my $path = path($item);
-        if ( $path->is_dir ) {
-            my $has_resu = path( $path, 'resource.yml')->is_file ? 1 : 0;
-            $self->inc_count_proj if $has_resu;
-            $self->inc_count_dirs;
-            push @dirs, { path => $path->basename, resource => $has_resu };
-        }
-    }
-    return \@dirs;
-}
-
-sub get_files {
+sub get_project_files {
     my ( $self, $project ) = @_;
 
-    die "EE Project name not provided!\n" unless $project;
+    die "EE Project name was not provided for 'get_project_files'!\n"
+        unless $project;
 
-    my $path = path( $self->config->repo_path, $project );
-    unless ( $path->is_dir ) {
+    my $proj = $self->find_project( sub { $_->{path} eq $project } );
+    unless ($proj) {
         Exception::IO::PathNotFound->throw(
-            message  => 'The project path was not found.',
-            pathname => $path,
+            message  => 'The project was not found:',
+            pathname => $project,
         );
     }
+
+    my $path = path( $self->config->repo_path, $project );
     my $rule = Path::Iterator::Rule->new;
     $rule->skip_vcs;
+    $rule->skip(
+        $rule->new->file->empty,
+        $rule->new->file->name('resource.yml'),
+    );
     $rule->min_depth(1);
 
-    my $next = $rule->iter($path);
-    my $dirs_aref = [];
+    my $next = $rule->iter( $path,
+        { relative => 0, sorted => 1, follow_symlinks => 0 } );
+    my $dirs = [];
     while ( defined( my $item = $next->() ) ) {
         my $path = path($item);
-        if ( !$path->is_dir ) {
-            $self->inc_count_inst;
-            $self->inc_count_proc;
-            push @{$dirs_aref}, { path => $path->basename };
-        }
+        push @{$dirs}, $path->basename,
     }
-    return $dirs_aref;
+    return $dirs;
 }
 
 sub check_res_user {
@@ -249,9 +229,7 @@ __END__
 
 =head2 copy_file
 
-=head2 get_files
-
-=head2 get_projects
+=head2 get_project_files
 
 =head2 handle_exception
 

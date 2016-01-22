@@ -21,8 +21,8 @@ has 'term_size' => (
 
 has 'items' => (
     is      => 'ro',
-    traits  => ['Array'],
     isa     => 'ArrayRef',
+    traits  => ['Array'],
     default => sub { [] },
     handles => {
         all_items    => 'elements',
