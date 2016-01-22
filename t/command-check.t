@@ -27,12 +27,13 @@ subtest 'No resource file' => sub {
     ok my $check = App::PlannedCopy::Command::Check->new(
         project => 'check-no-resu',
         config  => $conf,
+        verbose => 1,
     ), 'resource command constructor';
 
     is $check->project, 'check-no-resu', 'project name';
 
     is capture_stdout { $check->execute },
-        " check-no-resu, job: 0 files to check:
+        " check-no-resu, job: 0 files to check (verbose):
 
 ---
 There is no resource file for the 'check-no-resu' project.
@@ -67,9 +68,10 @@ subtest 'With a resource file' => sub {
     ok my $check = App::PlannedCopy::Command::Check->new(
         project => 'check',
         config  => $conf,
+        verbose => 1,
     ), 'command constructor';
 
-    like capture_stdout { $check->execute }, qr/job: 3 files to check:/,
+    like capture_stdout { $check->execute }, qr/check, job: 3 files to check/,
         'execute should work';
 
     is capture_stdout { $check->print_project_summary }, '

@@ -44,6 +44,7 @@ sub execute {
         $self->check_project;
     }
     else {
+        print "Checking " unless $self->verbose;
         foreach my $item ( $self->projects ) {
             my $path = $item->{path};
             my $resu = $item->{resource};
@@ -51,6 +52,7 @@ sub execute {
             $self->project($path); # set project
             $self->check_project( 'batch' );
         }
+        print "\n" unless $self->verbose;
         $self->set_error_level('warn');
         $self->print_summary;
     }
@@ -65,11 +67,16 @@ sub check_project {
     my $iter = $resu->resource_iter;
     my $cnt  = $resu->count;
 
-    say " ", $self->project, ", job: ", $cnt, ' file',
-        ( $cnt != 1 ? 's' : '' ),
-        ' to check', ( $self->verbose ? ' (verbose)' : '' ),
-        ( $batch ? '...' : ':' ),
-        ( $batch ? '' : "\n" );
+    if ( $self->verbose ) {
+        say " ", $self->project, ", job: ", $cnt, ' file',
+            ( $cnt != 1 ? 's' : '' ),
+            ' to check', ( $self->verbose ? ' (verbose)' : '' ),
+            ( $batch ? '...' : ':' ),
+            ( $batch ? '' : "\n" );
+    }
+    else {
+        print ".";
+    }
 
     $self->no_resource_message( $self->project )
         if $cnt == 0;
