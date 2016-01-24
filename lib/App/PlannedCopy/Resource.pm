@@ -70,22 +70,41 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
-=head1 DESCRIPTION
+__END__
+
+=encoding utf8
+
+=head1 Synopsis
+
+    use App::PlannedCopy::Resource;
+
+    my $resource_file = 'resource.yml';
+    my $res  = App::PlannedCopy::Resource->new( resource_file => $resource_file );
+    my $iter = $res->resource_iter;
+    while ( $iter->has_next ) {
+        $self->set_error_level('info');
+        my $res = $iter->next;
+        # Do something with $res ...
+    }
+
+=head1 Description
 
 Build an iterable data structure from a L<resource.yml> file.  The
 elements of the data structure are Resource::Element objects.
 
-=head1 ATTRIBUTES
+=head1 Interface
 
-=head2 _resource
+=head2 Attributes
+
+=head3 _resource
 
 An array reference containing the Resource::Element objects.
 
-=head2 resource_file
+=head3 resource_file
 
 A path string to a L<resource.yml> file.
 
-=head2 resource_iter
+=head3 resource_iter
 
 A meta class attribute for the itertor.
 

@@ -211,9 +211,9 @@ sub execute {
         $self->write_resource( \@res_data );
     }
 
-    $self->list_printer( 'removed', @del );
-    $self->list_printer( 'kept',    @upd );
-    $self->list_printer( 'added',   @add );
+    $self->project_changes_list_printer( 'removed', @del );
+    $self->project_changes_list_printer( 'kept',    @upd );
+    $self->project_changes_list_printer( 'added',   @add );
 
     $self->print_summary;
     $self->note

@@ -1,6 +1,6 @@
 package App::PlannedCopy;
 
-# ABSTRACT: Planned copy - application
+# ABSTRACT: The PlannedCopy application main module
 
 use 5.0100;
 use utf8;
@@ -82,7 +82,7 @@ sub _build_projects {
     while ( defined( my $item = $next->() ) ) {
         my $path = path($item);
         if ( $path->is_dir ) {
-            my $has_resu = path( $path, 'resource.yml')->is_file ? 1 : 0;
+            my $has_resu = path( $path, 'resource.yml' )->is_file ? 1 : 0;
             $self->inc_count_proj if $has_resu;
             $self->inc_count_dirs;
             push @dirs, { path => $path->basename, resource => $has_resu };
@@ -95,9 +95,43 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
-=head2 _projects
+__END__
 
-Returns an array reference of the names of the subdirectories of
+=encoding utf8
+
+=head1 Synopsis
+
+    use App::PlannedCopy;
+
+    my $cmd = App::PlannedCopy->new_with_command;
+
+    $cmd->execute;
+
+=head1 Description
+
+This is the main module of the PlannedCopy application.  It is built
+using the L<MooseX::App> module.
+
+=head1 Interface
+
+=head2 Attributes
+
+=head3 dryrun
+
+An attribute that holds the C<dryrun> comman line option.
+
+=head3 verbose
+
+An attribute that holds the C<verbose> comman line option.
+
+=head3 config
+
+Creates and returns an instance object of the
+L<App::PlannedCopy::Config> class.
+
+=head3 _projects
+
+Holds an array reference of the names of the subdirectories of
 L<repo_path> that contains a resource file (L<resource.yml>).
 
 =cut

@@ -57,7 +57,7 @@ __END__
 
 =head1 Description
 
-Write a 'resource.yml' file.
+Write a L<resource.yml> file.
 
 =head1 Interface
 

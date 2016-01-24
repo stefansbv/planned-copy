@@ -68,47 +68,52 @@ no Moose::Role;
 
 1;
 
-=head1 NAME
+__END__
 
-App::PlannedCopy::Role::Resource::Element - A helper role.
+=encoding utf8
 
-=head1 DESCRIPTION
+=head1 Synopsis
+
+
+=head1 Description
 
 This role provides the base methods and attributes to construct a
 resource element object.
 
-=head1 ATTRIBUTES
+=head1 Interface
 
-=head2 _name
+=head2 Attributes
+
+=head3 _name
 
 The name of the file.  If the destination name differs from the source
 name, the file is renamed, using the destination, name when is
 installed.
 
-=head2 _path
+=head3 _path
 
 The path to the file excluding the file L<_name>.  If it is a source
 path, than is a relative path of the L<_name> file in the repository.
 If it is a destination path, than is the absolute path to the place
 where the file is supposed to be installed.
 
-=head2 _full_path
+=head3 _full_path
 
 A Path::Tiny object built from the L<_path> and L<_name> attributes.
 
-=head1 METHODS
+=head2 Instance Methods
 
-=head2 short_path
+=head3 short_path
 
 Return a shorter path by removing the L</home/user/> string from the
 start if is a path relative to the home dir of the current user,
 othewise return the original L<_full_path>.
 
-=head2 name_len
+=head3 name_len
 
 The length of the name string, required in the Printer role.
 
-=head2 path_len
+=head3 path_len
 
 The length of the L<short_path> string, required in the Printer role.
 

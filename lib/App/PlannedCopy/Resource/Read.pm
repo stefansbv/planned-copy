@@ -41,3 +41,35 @@ sub _build_contents {
 __PACKAGE__->meta->make_immutable;
 
 1;
+
+__END__
+
+=encoding utf8
+
+=head1 Synopsis
+
+    use App::PlannedCopy::Resource::Read;
+
+    my $reader = App::PlannedCopy::Resource::Read->new(
+        resource_file => $self->resource_file );
+
+    my $contents = $reader->contents;
+
+=head1 Description
+
+Reads a L<resource.yml> file and returns it't contents as an array
+reference.
+
+=head1 Interface
+
+=head2 Attributes
+
+=head3 resource_file
+
+Holds the resource file path as a Path::Tiny object.
+
+=head3 contents
+
+Returns an array reference with the content of the L<resource.yml> file.
+
+=cut

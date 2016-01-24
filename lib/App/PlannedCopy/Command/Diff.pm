@@ -108,8 +108,9 @@ sub diff {
     else {
         if ( $self->prompting ) {
             $self->set_error_level('warn');
-            say "# ", $self->diff_cmd, " $src_path $dst_path";
-            my $answer = prompt( "Runn diff? (Y/n/q)", "y" );
+            my $cmd = $self->diff_cmd;
+            say "# diff $src_path $dst_path";
+            my $answer = prompt( "Run $cmd? (Y/n/q)", "y" );
             if ( $answer =~ m{[yY]} ) {
                 $self->kompare( $src_path, $dst_path );
                 $self->inc_count_resu;
@@ -141,5 +142,3 @@ __PACKAGE__->meta->make_immutable;
 1;
 
 __END__
-
-Yes / No / Quit prompting

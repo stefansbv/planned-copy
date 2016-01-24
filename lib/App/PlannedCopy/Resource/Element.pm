@@ -37,30 +37,55 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
-=head1 DESCRIPTION
+__END__
+
+=encoding utf8
+
+=head1 Synopsis
+
+    use App::PlannedCopy::Resource::Element;
+
+    my $rec = {
+        destination => {
+            name => 'some-file1',
+            path => '/etc',
+            perm => '0644',
+            user => 'root',
+        },
+        source => {
+            name => 'some-file1.sh',
+            path => '',
+        },
+    };
+
+    my $elem = App::PlannedCopy::Resource::Element->new($rec);
+
+=head1 Description
 
 Creates and returns L<App::PlannedCopy::Resource::Element> objects
 which holds the source and destination data of a specific resource
 element.
 
-=head1 Attributes
+=head1 Interface
 
-=head2 _source
+=head2 Attributes
+
+=head3 _source
 
 An hash reference containing a source section of the resource file.
 
-=head2 _destination
+=head3 _destination
 
 An hash reference containing a destionation section of the resource
 file.
 
-=head1 Instance Methods
+=head2 Instance Methods
 
-=head2 src
+=head3 src
 
 Returns the L<App::PlannedCopy::Resource::Element::Source> instance.
 
-=head2 dst
+=head3 dst
 
 Returns the L<App::PlannedCopy::Resource::Element::Destination>
 instance.

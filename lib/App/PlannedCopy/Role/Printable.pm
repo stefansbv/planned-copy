@@ -121,7 +121,7 @@ sub print_exeception_message {
     return;
 }
 
-sub list_printer {
+sub project_changes_list_printer {
     my ( $self, $errorlevel, @array ) = @_;
     my $color
         = $errorlevel eq 'removed' ? 'yellow2'
@@ -184,22 +184,56 @@ TODO
 
 =head3 term_size
 
+Holds and returns the terminal size in chars.
+
 =head2 Instance Methods
-
-=head3 difference_printer
-
-=head3 exception_printer
-
-=head3 item_printer
-
-=head3 list_printer
 
 =head3 points
 
-=head3 print_exeception_message
+Returns a string of dot chars used for displaying the ...
 
 =head3 printer
 
+A colorized print for items, consisting of a line that starts with the
+name of the source file, followed by a number of dot chars, followed
+by the name of the destination file.
+
+=head3 get_error_str
+
+Returns a string that identifies the exception type using a dispatch
+table.
+
+=head3 get_color
+
+A dispatch table that binds the C<error_level> with a color.
+
+=head3 item_printer
+
+Prints an item to the terminal using the C<printer> method.
+
+=head3 exception_printer
+
+Uses the C<print_exeception_message> method to print exceptions.
+
+=head3 print_exeception_message
+
+A colorized print for exception messages, consisting of a string
+returned by the C<get_error_str> method and the exception message and
+details.
+
+=head3 project_changes_list_printer
+
+A colorized print for items added, kept and removed from the resource
+file.
+
 =head3 project_list_printer
 
+A colorized print for the directories under the C<repo_path> dir.
+
+=head3 difference_printer
+
+Prints a list of items to the terminal using the C<printer> method.
+
 =cut
+
+

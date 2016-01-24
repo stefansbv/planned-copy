@@ -88,3 +88,70 @@ sub is_not_error_level {
 no Moose::Role;
 
 1;
+
+__END__
+
+=encoding utf8
+
+=head1 Synopsis
+
+    with qw( App::PlannedCopy::Role::Base );
+
+=head1 Description
+
+A common role which encapsulates the counter and error_level
+attributes and methods required by the resource element module.
+
+=head1 Interface
+
+=head2 Attributes
+
+=head3 count_proc
+
+A counter attribute for the processed records.
+
+=head3 count_resu
+
+A counter attribute for the resouce elemnents.
+
+=head3 count_inst
+
+A counter attribute for the installed, diffed, checked or synchronized
+records.
+
+=head3 count_skip
+
+A counter attribute for the skipped records.
+
+=head3 count_proj
+
+A counter attribute for the projects.
+
+=head3 count_dirs
+
+A counter attribute for the directories.
+
+=head3 error_level
+
+An r/w attribute to hold the C<error_level> for the current record.
+It is used to keep track of the state of the record.
+
+TODO: rename and describe better.
+
+=head2 Instance Methods
+
+=head3 is_error_level
+
+    $self->is_error_level('info');
+
+Returns true if the current error level matches the name given as
+parameter.
+
+=head3 is_not_error_level
+
+    $self->is_not_error_level('info');
+
+Returns true if the current error level does not match the name given
+as parameter.
+
+=cut

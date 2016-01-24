@@ -225,6 +225,9 @@ __END__
 
 =head1 Description
 
+A common role which encapsulates the attributes and methods required by the
+command modules.  It is used by
+
 =head1 Interface
 
 =head2 change_owner
