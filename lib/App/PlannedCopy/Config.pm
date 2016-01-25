@@ -86,8 +86,6 @@ has 'diff_tool' => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        # TODO fix: If diff-tool is set to a GUI tool, and DISPLAY is not
-        # set, throws an exception
         return $self->get( key => 'local.diff-tool' )
             || ( ( $self->current_user eq 'root' ) ? 'diff' : 'kompare' );
     },

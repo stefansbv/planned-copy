@@ -134,4 +134,13 @@ L<App::PlannedCopy::Config> class.
 Holds an array reference of the names of the subdirectories of
 L<repo_path> that contains a resource file (L<resource.yml>).
 
+=head1 Known Problems
+
+If the C<diff-tool> configuration is set to a tool with a GUI, and the
+tool could not be run in a given environment, C<plcp> throws an
+exception.
+
+Checking if the C<DISPLAY> environment variable is defined is not
+enough.
+
 =cut
