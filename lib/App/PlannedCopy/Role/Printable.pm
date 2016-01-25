@@ -182,10 +182,6 @@ TODO
 
 =head2 Attributes
 
-=head3 term_size
-
-Holds and returns the terminal size in chars.
-
 =head2 Instance Methods
 
 =head3 points

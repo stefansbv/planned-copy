@@ -4,6 +4,6 @@
 
 use App::PlannedCopy;
 
-my $cmd = App::PlannedCopy->new_with_command;
+App::PlannedCopy->new_with_command->run;
 
-$cmd->execute;
+# End

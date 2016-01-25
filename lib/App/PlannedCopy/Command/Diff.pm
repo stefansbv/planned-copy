@@ -47,7 +47,7 @@ has 'diff_cmd' => (
     },
 );
 
-sub execute {
+sub run {
     my ($self) = @_;
 
     my $file = $self->config->resource_file( $self->project );
@@ -72,7 +72,7 @@ sub execute {
         };
         if ($cont) {
             try {
-                $self->diff($rec);
+                $self->diff_files($rec);
                 $self->item_printer($rec);
             }
             catch {
@@ -89,7 +89,7 @@ sub execute {
     return;
 }
 
-sub diff {
+sub diff_files {
     my ( $self, $rec ) = @_;
 
     # Skip archives
@@ -142,3 +142,66 @@ __PACKAGE__->meta->make_immutable;
 1;
 
 __END__
+
+=encoding utf8
+
+=head1 Synopsis
+
+    use App::PlannedCopy;
+
+    App::PlannedCopy->new_with_command->run;
+
+=head1 Description
+
+The diff command.
+
+=head1 Interface
+
+=head2 Attributes
+
+=head3 project
+
+Required parameter attribute for the diff command.  The name of the
+project - a directory name under C<repo_path>.
+
+=head3 prompting
+
+An attribute used to stop prompting when the user responds with C<q>
+to a prompt.
+
+=head3 diff_cmd
+
+An attribute that holds the diff tool command.  It runs the command
+with the C<--version> option, to check if it's installed and dies if the
+command throws an error.
+
+The diff tool used, must have a C<--version> option or at least not
+treat this option as an error.
+
+=head2 Instance Methods
+
+=head3 run
+
+The method to be called when the C<diff> command is run.
+
+Builds an iterator for the resource items and iterates over them.  If
+the C<validate_element> method throws an exception, it is cached and
+the item is skipped.  If there is no fatal exception thrown, then the
+C<diff_file> method is called on the item.
+
+=head3 diff_files
+
+For items that are not archive files, compares the source and the
+destination file and if are different than prompts the user for
+running the diff tool.
+
+=head3 extract_archive
+
+Unpacks an archive file in the destination dir.  Can handle any type
+of archive that the C<Archive::Any::Lite> module recognizes.
+
+=head3 print_summary
+
+Prints the summary of the command.
+
+=cut

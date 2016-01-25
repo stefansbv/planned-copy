@@ -21,7 +21,7 @@ parameter 'project' => (
     documentation => q[Project name.],
 );
 
-sub execute {
+sub run {
     my ( $self ) = @_;
 
     if ( my $project = $self->project ) {
@@ -68,3 +68,41 @@ sub print_summary {
 __PACKAGE__->meta->make_immutable;
 
 1;
+
+__END__
+
+=encoding utf8
+
+=head1 Synopsis
+
+    use App::PlannedCopy;
+
+    App::PlannedCopy->new_with_command->run;
+
+=head1 Description
+
+The list command.
+
+=head1 Interface
+
+=head2 Attributes
+
+=head3 project
+
+Required parameter attribute for the list command.  The name of the
+project - a directory name under C<repo_path>.
+
+=head2 Instance Methods
+
+=head3 run
+
+The method to be called when the C<list> command is run.
+
+Gets a list of file for the C<project> and prints it using the
+C<App::PlannedCopy::Ls> module.
+
+=head3 print_summary
+
+Prints the summary of the command.
+
+=cut

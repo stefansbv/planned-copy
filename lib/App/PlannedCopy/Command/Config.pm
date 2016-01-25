@@ -137,3 +137,9 @@ sub _set {
 __PACKAGE__->meta->make_immutable;
 
 1;
+
+=head1 Synopsis
+
+    use App::PlannedCopy;
+
+    App::PlannedCopy->new_with_command->run;

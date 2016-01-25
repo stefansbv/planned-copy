@@ -21,7 +21,7 @@ has 'term_size' => (
 
 has 'items' => (
     is      => 'ro',
-    isa     => 'ArrayRef',
+    isa     => 'ArrayRef[Str]',
     traits  => ['Array'],
     default => sub { [] },
     handles => {
@@ -31,7 +31,7 @@ has 'items' => (
     },
 );
 
-has 'spaces_no' => (
+has 'spaces_num' => (
     is      => 'rw',
     isa     => 'Int',
     lazy    => 1,
@@ -69,13 +69,11 @@ sub items_per_col {
 
 sub build_printf_template {
     my ($self, $cols, $colidx) = @_;
-
-    # Build the template for printf
     my $templ = q{};
     for my $c ( 0 .. $colidx ) {
         my $w = $self->get_maxlen($cols->[$c]);
         $templ .= q{%-} . $w . q{s};
-        $templ .= q{ } x $self->spaces_no unless $c == $colidx;
+        $templ .= q{ } x $self->spaces_num unless $c == $colidx;
     }
     return $templ;
 }
@@ -93,11 +91,11 @@ sub column_printer {
     # Check width and try to optimize
     if ( $self->items_count > $self->column_count ) {
 
-        my $diff = $self->get_diff($items_in_cols);
+        my $diff = $self->get_width_diff($items_in_cols);
         if ( $diff < 0 ) {
             my $new_diff = $diff + $self->column_count - 1;    # 1 space
             if ( $new_diff > 0 ) {
-                $self->spaces_no(1);         # adjust spaces
+                $self->spaces_num(1);         # adjust spaces
             }
             else {
                 # Ajust columns number and redistribute items
@@ -108,7 +106,7 @@ sub column_printer {
         elsif ( $diff > 20 ) {
             $self->inc_cols;                 # add a column
             $items_in_cols = $self->distribute_items;
-            my $diff = $self->get_diff($items_in_cols);
+            my $diff = $self->get_width_diff($items_in_cols);
             if ( $diff < 0 ) {
 
                 # Fall back
@@ -138,7 +136,7 @@ sub print_by_row {
     return;
 }
 
-sub get_diff {
+sub get_width_diff {
     my ( $self, $items_in_cols ) = @_;
 
     my @maxwidths;    # the max width for each col
@@ -150,7 +148,7 @@ sub get_diff {
 
     my $maxwidth;                            # the sum of the widths
     map { $maxwidth += $_ } @maxwidths;
-    $maxwidth = $maxwidth + ( $column_count - 1 ) * $self->spaces_no;
+    $maxwidth = $maxwidth + ( $column_count - 1 ) * $self->spaces_num;
 
     return $self->term_size - $maxwidth;
 }
@@ -195,3 +193,83 @@ sub get_maxlen {
 __PACKAGE__->meta->make_immutable;
 
 1;
+
+__END__
+
+=encoding utf8
+
+=head1 Synopsis
+
+    my $list = App::PlannedCopy::Ls->new( items => \@items );
+    $list->column_printer;
+
+=head1 Description
+
+An original experimental algorithm for printing items in columns like the *nix ls
+utility does.
+
+=head1 Interface
+
+=head2 Attributes
+
+=head3 term_size
+
+Holds and returns the terminal size in chars.
+
+=head3 items
+
+Holds an array reference of the items to be printed.
+
+=head3 spaces_num
+
+The number of spaces between the columns.  Default is 2.
+
+=head3 column_count
+
+A r/w attribute for the column count.  The Initial value is calculated
+by dividing the C<term_size> with the length of the biggest item in the
+list.
+
+=head2 Instance Methods
+
+=head3 items_per_col
+
+Return the number of item per column, calculated using the formula:
+
+    int(items_count / $column_count)
+
+=head3 build_printf_template
+
+Builds the template for printf.
+
+=head3 column_printer
+
+Distributes the items in columns, checks if the strings fit the
+screen, if not redistributes them than prints to the screen using the
+C<print_by_row> method.
+
+=head3 print_by_row
+
+Gets the AoA of items and prints them row by row, using a custom
+C<printf> template.
+
+=head3 get_width_diff
+
+Returns the difference between the terminal width and the width of the
+longest string to be printed.
+
+It is used to check if the current distribution of the items fits.
+
+=head3 distribute_items
+
+Returns an AoA with the items distributes in columns.  The columns
+with lower indexes can get more items than those with higher indexes
+if the number of items does not divide exactly to the number of
+columns.
+
+=head3 get_maxlen
+
+Returns the maximum length of the string items in the array reference
+given as parameter.
+
+=cut

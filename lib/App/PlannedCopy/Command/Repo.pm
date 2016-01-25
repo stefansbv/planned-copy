@@ -26,13 +26,11 @@ parameter 'action' => (
     documentation => q[Action name (clone).],
 );
 
-sub execute {
+sub run {
     my ( $self ) = @_;
-
     if ( $self->action eq 'clone' ) {
         $self->clone_repo;
     }
-
     return;
 }
 
@@ -53,7 +51,6 @@ sub clone_repo {
             return;
         }
     };
-
     unless ( $uri and $path ) {
         say "[II] URI and path are required.";
         say "[II] Run the 'config' comand to create the config file.";
@@ -64,7 +61,6 @@ sub clone_repo {
         print "Cloning the repo '$uri' into '$path'...dry-run.\n";
         return;
     }
-
     my $to_path = path($path)->parent;
     if ( chdir $to_path ) {
         try { git::clone $uri->as_string }
@@ -82,8 +78,47 @@ sub clone_repo {
     return;
 }
 
-# git clone ssh://[Git users]@[IP address or hostname]/[Git repository path]
-
 __PACKAGE__->meta->make_immutable;
 
 1;
+
+__END__
+
+=encoding utf8
+
+=head1 Synopsis
+
+    use App::PlannedCopy;
+
+    App::PlannedCopy->new_with_command->run;
+
+=head1 Description
+
+The repo command.  It is used to clone the repository into the
+C<repo_path>.
+
+=head1 Interface
+
+=head2 Attributes
+
+=head3 action
+
+A required paramater attribute that holds the action to be taken.  The
+only defined option is currently C<clone>.
+
+=head2 Instance Methods
+
+=head3 run
+
+The method to be called when the C<repo> command is run.
+
+Invokes to only implemented method C<clone_repo>.
+
+=head3 clone_repo
+
+Uses the L<Git::Sub> module's clone method to clone the C<configs>
+repository.
+
+# git clone ssh://[Git users]@[IP address or hostname]/[Git repository path]
+
+=cut

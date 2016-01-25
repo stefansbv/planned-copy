@@ -1,6 +1,6 @@
 package App::PlannedCopy::Command::Install;
 
-# ABSTRACT: Install the configuration files
+# ABSTRACT: Install the project items (files)
 
 use 5.010001;
 use utf8;
@@ -36,7 +36,7 @@ parameter 'dst_name' => (
     documentation => q[Optional destination file name.],
 );
 
-sub execute {
+sub run {
     my ( $self ) = @_;
 
     my $file = $self->config->resource_file( $self->project );
@@ -187,3 +187,58 @@ sub print_summary {
 __PACKAGE__->meta->make_immutable;
 
 1;
+
+__END__
+
+=encoding utf8
+
+=head1 Synopsis
+
+    use App::PlannedCopy;
+
+    App::PlannedCopy->new_with_command->run;
+
+=head1 Description
+
+The install command.
+
+=head1 Interface
+
+=head2 Attributes
+
+=head3 project
+
+Required parameter attribute for the install command.  The name of the
+project - a directory name under C<repo_path>.
+
+=head3 dst_name
+
+Optional parameter attribute for the install command.  If provided
+only this file is installed.
+
+=head2 Instance Methods
+
+=head3 run
+
+The method to be called when the C<install> command is run.
+
+Builds an iterator for the resource items and iterates over them.  If
+the C<validate_element> method throws an exception, it is cached and
+the item is skipped.  If there is no fatal exception thrown, then the
+C<install_file> method is called on the item.
+
+=head3 install_file
+
+Copies an item (file), changes the owner and the perms.  Unpacks
+archive files.
+
+=head3 extract_archive
+
+Unpacks an archive file in the destination dir.  Can handle any type
+of archive that the C<Archive::Any::Lite> module recognizes.
+
+=head3 print_summary
+
+Prints the summary of the command execution.
+
+=cut

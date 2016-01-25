@@ -53,12 +53,12 @@ has 'resource_old' => (
     },
 );
 
-has 'resource_fs' => (
+has 'resource_new' => (
     is      => 'rw',
     isa     => 'HashRef',
     traits  => ['Hash'],
     lazy    => 1,
-    builder => '_build_fs_resource',
+    builder => '_build_new_resource',
     handles => {
         get_fs_res    => 'get',
         has_no_fs_res => 'is_empty',
@@ -135,7 +135,7 @@ sub _build_old_resource {
     return \%items;
 }
 
-sub _build_fs_resource {
+sub _build_new_resource {
     my $self = shift;
     my @items;
     try {
@@ -188,7 +188,7 @@ sub _build_compare {
     return \%comp;
 }
 
-sub execute {
+sub run {
     my ( $self ) = @_;
 
     my $proj = $self->project;
@@ -298,3 +298,86 @@ sub get_all_files {
 __PACKAGE__->meta->make_immutable;
 
 1;
+
+__END__
+
+=encoding utf8
+
+=head1 Synopsis
+
+    use App::PlannedCopy;
+
+    App::PlannedCopy->new_with_command->run;
+
+=head1 Description
+
+
+=head1 Interface
+
+=head2 Attributes
+
+=head3 project
+
+Required parameter attribute for the install command.  The name of the
+project - a directory name under C<repo_path>.
+
+=head3 resource_file
+
+A read only attributes that holds the resource files absolute path.
+
+=head3 resource_old
+
+Holds a hash reference with the contents of the resource file.
+
+=head3 resource_new
+
+Holds a hash reference with a new resource data structure with all the
+files from the project dir.
+
+=head3 _compare
+
+Build a data structure that contains the list of added, updated and
+deleted resource items.
+
+=head3 _kept
+
+Returns an array reference of updated items.
+
+=head3 _removed
+
+Returns an array reference of deleted items.
+
+=head3 _added
+
+Returns an array reference of added items.
+
+=head2 Instance Methods
+
+=head3 run
+
+The method to be called when the C<resu> command is run.
+
+Builds three lists, one for the deleted items, one for the kept items
+and one for the added items.  Print this lists in order, and then
+prints the summary.
+
+=head3 print_summary
+
+Prints the summary of the command execution.
+
+=head3 note
+
+Print a note for the user.
+
+=head3 write_resource
+
+Write the resource file into the project dir using the
+L<App::PlannedCopy::Resource::Write> module.
+
+=head3 get_all_files
+
+Recursively scan the project dir and get a list of the files,
+excepting the C<resource.yml> file if it exists and return it as an
+array reference.
+
+=cut
