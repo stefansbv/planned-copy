@@ -35,6 +35,7 @@ subtest 'No resource file' => sub {
     is uncolor ( capture_stdout { $check->run } ),
         " check-no-resu, job: 0 files to check (verbose):
 
+
 ---
 There is no resource file for the 'check-no-resu' project.
 Run the 'resu' command to create it.
