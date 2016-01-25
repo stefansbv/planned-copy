@@ -29,3 +29,5 @@ Custom types for the PlannedCopy app:
 A string with 0 (zero) as the first char, followed by 3 digits.
 
 =back
+
+=cut

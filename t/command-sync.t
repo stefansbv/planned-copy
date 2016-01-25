@@ -31,7 +31,7 @@ subtest 'No resource file' => sub {
 
     is $sync->project, 'sync-no-resu', 'project name';
 
-    is capture_stdout { $sync->execute },
+    is capture_stdout { $sync->run },
         "Job: 0 files to check and synchronize:
 
 ---
@@ -44,7 +44,7 @@ Summary:
  - skipped     : 0
  - synchronized: 0
 
-", 'execute should work';
+", 'run should work';
 
     is capture_stdout { $sync->print_summary }, '
 Summary:
@@ -67,9 +67,9 @@ subtest 'With a resource file' => sub {
         config  => $conf,
     ), 'command constructor';
 
-    like capture_stdout { $sync->execute },
+    like capture_stdout { $sync->run },
         qr/Job: 3 files to check and synchronize:/,
-        'execute should work';
+        'run should work';
 
     is capture_stdout { $sync->print_summary }, '
 Summary:

@@ -63,7 +63,7 @@ has 'file' => (
     }
 );
 
-sub execute {
+sub run {
     my ( $self ) = @_;
 
     # Set
@@ -138,8 +138,64 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
+__END__
+
+=encoding utf8
+
 =head1 Synopsis
 
     use App::PlannedCopy;
 
     App::PlannedCopy->new_with_command->run;
+
+=head1 Description
+
+
+=head1 Interface
+
+=head2 Attributes
+
+=head3 remote_url
+
+An attribute that holds the C<remote_url> configuration.  The remote
+URL of the C<configs> repository.
+
+=head3 diff_tool
+
+An attribute that holds the C<diff_tool> configuration.  The diff tool
+name.  Defaults to 'kompare'.
+
+=head3 local_path
+
+An attribute that holds the C<local_path> configuration.  The local
+path to the C<configs> repository.
+
+=head3 action
+
+A required parameter attribute that holds the action to be taken.  The
+available options are currently C<set> and C<dump>
+
+=head3 context
+
+Returns C<global> for the C<root> user or C<user> for normal users.
+
+=head3 file
+
+Returns the configuration file name for the current context.
+
+=head2 Instance Methods
+
+=head3 run
+
+Executes one of the required actions.
+
+=head3 create_config
+
+Creates a set of configurations for C<path>, C<URL> and C<tool> if the
+values are provided.
+
+=head3 _set
+
+Creates or modifies a key - value record in the configuration file.
+
+=cut

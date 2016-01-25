@@ -97,6 +97,10 @@ __END__
 
     with qw( App::PlannedCopy::Role::Base );
 
+    $self->inc_count_skip;
+
+    say ' - skipped  : ', $self->count_skip, ' items';
+
 =head1 Description
 
 A common role which encapsulates the counter and error_level

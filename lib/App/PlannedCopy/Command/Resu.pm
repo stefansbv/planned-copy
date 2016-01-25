@@ -311,6 +311,7 @@ __END__
 
 =head1 Description
 
+The implementation of the C<resu> command.  TODO: change the name.
 
 =head1 Interface
 
@@ -377,7 +378,7 @@ L<App::PlannedCopy::Resource::Write> module.
 =head3 get_all_files
 
 Recursively scan the project dir and get a list of the files,
-excepting the C<resource.yml> file if it exists and return it as an
-array reference.
+excepting the C<resource.yml> file if it exists and return the data as
+an array reference.
 
 =cut

@@ -53,4 +53,7 @@ A role for resource element validation - for the diff command.
 
 =head3 validate_element
 
+Overridden method that calls all the necessary validation methods for the C<diff>
+command.
+
 =cut

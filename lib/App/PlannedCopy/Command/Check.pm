@@ -39,7 +39,7 @@ has '_differences' => (
     },
 );
 
-sub execute {
+sub run {
     my ($self) = @_;
     if ( $self->project ) {
         $self->check_project;
@@ -56,7 +56,7 @@ sub execute {
         }
         print "\n" unless $self->verbose;
         $self->set_error_level('warn');
-        $self->print_summary;
+        $self->print_summary( 'batch' );
     }
     return;
 }
@@ -70,11 +70,14 @@ sub check_project {
     my $cnt  = $resu->count;
 
     if ( $self->verbose ) {
-        say " ", fg('green1', $self->project), ", job: ", $cnt, ' file',
+        say ' ', fg('green1', $self->project), ", job: ", $cnt, ' file',
             ( $cnt != 1 ? 's' : '' ),
             ' to check', ( $self->verbose ? ' (verbose)' : '' ),
             ( $batch ? '...' : ':' ),
             ( $batch ? '' : "\n" );
+    }
+    else {
+        say ' ';
     }
 
     $self->no_resource_message( $self->project )
@@ -111,7 +114,7 @@ sub check_project {
         $self->store_summary( $self->project );
     }
     else {
-        $self->print_project_summary;
+        $self->print_summary;
     }
 
     return;
@@ -119,7 +122,6 @@ sub check_project {
 
 sub check {
     my ( $self, $res ) = @_;
-
     my $src_path = $res->src->_abs_path;
     my $dst_path = $res->dst->_abs_path;
     if ( $self->is_selfsame( $src_path, $dst_path ) ) {
@@ -140,32 +142,19 @@ sub store_summary {
     return;
 }
 
-sub print_project_summary {
-    my $self = shift;
+sub print_summary {
+    my ( $self, $batch ) = @_;
     my $cnt_proc = $self->count_proc // 0;
+    if ($batch) {
+        say '';
+        $self->difference_printer( $self->get_diff );
+    }
     say '';
     say 'Summary:';
     say ' - processed: ', $cnt_proc, ' records';
     say ' - checked  : ', $self->count_inst;
     say ' - skipped  : ', $self->count_skip;
     say ' - different: ', $self->count_resu;
-    say '';
-    return;
-}
-
-sub print_summary {
-    my $self = shift;
-    my $cnt_proc = $self->count_proc // 0;
-
-    say '';
-    $self->difference_printer( $self->get_diff );
-
-    say '';
-    say 'Summary:';
-    say ' - processed: ', $cnt_proc, ' records';
-    say ' - checked  : ', $self->count_inst;
-    say ' - skipped  : ', $self->count_skip;
-    say ' - different: ', $self->count_diff;
     say '';
 
     return;
@@ -175,8 +164,63 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
+__END__
+
+=encoding utf8
+
 =head1 Synopsis
 
     use App::PlannedCopy;
 
     App::PlannedCopy->new_with_command->run;
+
+=head1 Description
+
+The implementation of the C<check> command.
+
+=head1 Interface
+
+=head2 Attributes
+
+=head3 project
+
+Required parameter attribute for the install command.  The name of the
+project - a directory name under C<repo_path>.
+
+=head3 _differences
+
+Holds an array reference of the items with different source and
+destination files.
+
+=head2 Instance Methods
+
+=head3 run
+
+The method to be called when the C<check> command is run.
+
+Builds an iterator for the resource items and iterates over them.  If
+the C<validate_element> method throws an exception, it is cached and
+the item is skipped.  If there is no fatal exception thrown, then the
+C<check> method is called on the item.
+
+=head3 check
+
+Check the source and destination files for differences.
+
+TODO: Revise the counters.
+
+=head3 check_project
+
+Builds an iterator for the resource items and iterates over them.  If
+the C<validate_element> method throws an exception, it is cached and
+the item is skipped.  If there is no fatal exception thrown, then the
+C<check> method is called on the item.
+
+=head3 print_summary
+
+Prints the summary of the command execution.  If in batch mode, prints
+all project items with differences.
+
+=head3 store_summary
+
+=cut

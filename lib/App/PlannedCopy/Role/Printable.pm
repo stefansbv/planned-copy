@@ -69,9 +69,9 @@ sub get_color {
 }
 
 sub item_printer {
-    my ( $self, $rec ) = @_;
+    my ( $self, $res ) = @_;
     my $color = $self->get_color;
-    $self->printer($color, $rec->src->_name, $rec->dst->short_path);
+    $self->printer($color, $res->src->_name, $res->dst->short_path);
     return;
 }
 
@@ -104,8 +104,7 @@ sub exception_printer {
             if $self->verbose;
     }
     else {
-        # Unknown exception
-        say "!Unknown exception!: ", $e;
+        die "Unchached exception: ", $e;
     }
 
     return;
@@ -174,9 +173,19 @@ __END__
 
 =head1 Synopsis
 
-TODO
+    with qw( App::PlannedCopy::Role::Printable );
+
+    $self->item_printer( $res );
+
+    $self->difference_printer( $array_ref );
+
+    $self->project_list_printer( @array );
+
+    $self->exception_printer( $e );
 
 =head1 Description
+
+A role for printing messages to the terminal.
 
 =head1 Interface
 
@@ -231,5 +240,3 @@ A colorized print for the directories under the C<repo_path> dir.
 Prints a list of items to the terminal using the C<printer> method.
 
 =cut
-
-

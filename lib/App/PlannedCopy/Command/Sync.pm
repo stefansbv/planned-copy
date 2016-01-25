@@ -35,7 +35,7 @@ parameter 'dst_name' => (
     documentation => q[Optional destination file name.],
 );
 
-sub execute {
+sub run {
     my ( $self ) = @_;
 
     my $file = $self->config->resource_file( $self->project );
@@ -147,8 +147,53 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
+__END__
+
+=encoding utf8
+
 =head1 Synopsis
 
     use App::PlannedCopy;
 
     App::PlannedCopy->new_with_command->run;
+
+=head1 Description
+
+The implementation of the C<sync> command.
+
+=head1 Interface
+
+=head2 Attributes
+
+=head3 project
+
+Required parameter attribute for the install command.  The name of the
+project - a directory name under C<repo_path>.
+
+=head3 dst_name
+
+Optional parameter attribute for the install command.  If provided
+only this file is installed.
+
+=head2 Instance Methods
+
+=head3 run
+
+The method to be called when the C<sync> command is run.
+
+Builds an iterator for the resource items and iterates over them.  If
+the C<validate_element> method throws an exception, it is cached and
+the item is skipped.  If there is no fatal exception thrown, then the
+C<synchronize> method is called on the item.
+
+=head3 synchronize
+
+The inverse of the install command.  Copies a destination item (file)
+to the source dir with the name from the resource file, changes the
+owner to the C<repo_owner> and sets the perms to C<0640>.
+
+=head3 print_summary
+
+Prints the summary of the command execution.
+
+=cut

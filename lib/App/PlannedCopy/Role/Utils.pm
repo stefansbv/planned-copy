@@ -225,33 +225,72 @@ __END__
 
 =head1 Description
 
-A common role which encapsulates the attributes and methods required by the
-command modules.  It is used by
+A common role which encapsulates the attributes and methods required
+by the command modules.
 
 =head1 Interface
 
-=head2 change_owner
+=head2 Instance Methods
 
-=head2 check_res_user
+=head3 change_owner
 
-=head2 check_user
+    $self->change_owner($file, $user);
 
-=head2 copy_file
+Changes the owner of the file.
 
-=head2 get_project_files
+Throws an C<Exception::IO::SystemCmd> if the operation fails.
 
-=head2 handle_exception
+=head3 check_res_user
 
-=head2 is_selfsame
+    $self->check_res_user( $res );
 
-=head2 kompare
+Return true if the current user is the same as the configured
+destination user, else throws an C<Exception::IO::WrongUser>.
 
-=head2 no_resource_message
+=head3 check_user
 
-=head2 quote_string
+    $self->check_user;
 
-=head2 set_perm
+Return true if the current user is the same as the repository owner,
+else throws an C<Exception::IO::WrongUser>.
+
+=head3 copy_file
+
+Tries to copy the source file to the destination dir.  Throws a
+C<Exception::IO::SystemCmd> if the operation fails.
+
+=head3 get_project_files
+
+Recursively scan the project dir and get a list of the files,
+excepting the C<resource.yml> file if it exists and return the data as
+an AoH.
+
+=head3 handle_exception
+
+Handle non fatal exceptions.  Sets the C<error_level> for each type of
+exception.
+
+=head3 is_selfsame
+
+Uses an MD5 digest to compare the source and the destination file and
+returns the result of the comparison.  Throws exceptions in
+exceptional cases ;)
+
+=head3 kompare
+
+Runs the C<diff_tool>.
+
+=head3 no_resource_message
+
+Prints a message if there is no resource file in the project dir.
+
+=head3 quote_string
+
+=head3 set_perm
+
+    $self->set_perm($file, $perm);
+
+Tries to set the perms for the file.  Throws a
+C<Exception::IO::SystemCmd> if the operation fails.
 
 =cut
-
-TODO: POD

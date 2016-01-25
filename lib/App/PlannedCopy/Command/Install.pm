@@ -200,7 +200,7 @@ __END__
 
 =head1 Description
 
-The install command.
+The implementation of the C<install> command.
 
 =head1 Interface
 

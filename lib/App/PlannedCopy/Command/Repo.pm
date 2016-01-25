@@ -103,8 +103,8 @@ C<repo_path>.
 
 =head3 action
 
-A required paramater attribute that holds the action to be taken.  The
-only defined option is currently C<clone>.
+A required parameter attribute that holds the action to be taken.  The
+only available option is currently C<clone>.
 
 =head2 Instance Methods
 

@@ -54,4 +54,7 @@ A role for resource element validation - for the check command.
 
 =head3 validate_element
 
+Overridden method that calls all the necessary validation methods for
+the C<check> command.
+
 =cut

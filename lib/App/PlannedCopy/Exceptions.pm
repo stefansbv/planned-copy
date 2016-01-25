@@ -1,6 +1,6 @@
 package App::PlannedCopy::Exceptions;
 
-# ABSTRACT: Config Manager Exceptions
+# ABSTRACT: PlannedCopy custom exceptions
 
 use strict;
 use warnings;

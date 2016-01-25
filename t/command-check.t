@@ -32,7 +32,7 @@ subtest 'No resource file' => sub {
 
     is $check->project, 'check-no-resu', 'project name';
 
-    is uncolor ( capture_stdout { $check->execute } ),
+    is uncolor ( capture_stdout { $check->run } ),
         " check-no-resu, job: 0 files to check (verbose):
 
 ---
@@ -46,9 +46,9 @@ Summary:
  - skipped  : 0
  - different: 0
 
-", 'execute should work';
+", 'run should work';
 
-    is capture_stdout { $check->print_project_summary }, '
+    is capture_stdout { $check->print_summary }, '
 Summary:
  - processed: 0 records
  - checked  : 0
@@ -71,11 +71,11 @@ subtest 'With a resource file' => sub {
         verbose => 1,
     ), 'command constructor';
 
-    like uncolor ( capture_stdout { $check->execute } ),
+    like uncolor ( capture_stdout { $check->run } ),
         qr/check, job: 3 files to check/,
-        'execute should work';
+        'run should work';
 
-    is capture_stdout { $check->print_project_summary }, '
+    is capture_stdout { $check->print_summary }, '
 Summary:
  - processed: 3 records
  - checked  : 2
