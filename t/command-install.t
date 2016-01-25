@@ -31,7 +31,7 @@ subtest 'No resource file' => sub {
 
     is $inst->project, 'install-no-resu', 'project name';
 
-    is capture_stdout { $inst->execute },
+    is capture_stdout { $inst->run },
         "Job: 0 files to check and install:
 
 ---
@@ -44,7 +44,7 @@ Summary:
  - skipped  : 0
  - installed: 0
 
-", 'execute should work';
+", 'run should work';
 
     is capture_stdout { $inst->print_summary }, '
 Summary:
@@ -66,8 +66,8 @@ subtest 'With a resource file' => sub {
         config  => $conf,
     ), 'command constructor';
 #BAIL_OUT('message');
-    like capture_stdout { $inst->execute }, qr/Job: 3 files to check and install:/,
-        'execute should work';
+    like capture_stdout { $inst->run }, qr/Job: 3 files to check and install:/,
+        'run should work';
 
     is capture_stdout { $inst->print_summary }, '
 Summary:
