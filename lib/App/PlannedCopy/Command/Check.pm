@@ -76,9 +76,7 @@ sub check_project {
             ( $batch ? '...' : ':' ),
             ( $batch ? '' : "\n" );
     }
-    else {
-        say ' ';
-    }
+    say ' ' unless $batch;
 
     $self->no_resource_message( $self->project )
         if $cnt == 0;
