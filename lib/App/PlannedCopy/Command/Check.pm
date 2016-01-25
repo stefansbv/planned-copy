@@ -54,7 +54,7 @@ sub run {
             $self->check_project( 'batch' );
             print "." unless $self->verbose;
         }
-        print "\n" unless $self->verbose;
+        print " .\n" unless $self->verbose;
         $self->set_error_level('warn');
         $self->print_summary( 'batch' );
     }
