@@ -151,12 +151,6 @@ __END__
 
 =encoding utf8
 
-=head1 Synopsis
-
-    use App::PlannedCopy;
-
-    App::PlannedCopy->new_with_command->run;
-
 =head1 Description
 
 The implementation of the C<sync> command.

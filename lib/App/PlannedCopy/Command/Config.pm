@@ -142,13 +142,21 @@ __END__
 
 =encoding utf8
 
-=head1 Synopsis
-
-    use App::PlannedCopy;
-
-    App::PlannedCopy->new_with_command->run;
-
 =head1 Description
+
+Creates the configuration files.
+
+There are two configuration files, the F</etc/plannedcopyrc> and the
+C<$HOMEF/.plannedcopyrc>.
+
+For example:
+
+    [local]
+        # diff-tool = kompare
+        diff-tool = diffuse
+        path = /home/username/configs/
+    [remote]
+        url = ssh://username@host/git-repos/configs.git
 
 
 =head1 Interface
