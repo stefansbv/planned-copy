@@ -99,14 +99,6 @@ __END__
 
 =encoding utf8
 
-=head1 Synopsis
-
-    use App::PlannedCopy;
-
-    my $cmd = App::PlannedCopy->new_with_command;
-
-    $cmd->execute;
-
 =head1 Description
 
 This is the main module of the PlannedCopy application.  It is built

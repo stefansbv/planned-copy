@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
-# PODNAME: cfg
-# ABSTRACT: A Configuration Management Application.
+# PODNAME: plcp
+# ABSTRACT: The Planned Copy Application.
 
 use App::PlannedCopy;
 
