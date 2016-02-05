@@ -9,6 +9,7 @@ use Path::Tiny;
 use Path::Iterator::Rule;
 use MooseX::App qw(Color Version);
 use App::PlannedCopy::Config;
+use App::PlannedCopy::Issue;
 
 with qw(App::PlannedCopy::Role::Base);
 
