@@ -10,46 +10,56 @@ use Exception::Base (
     'Exception::Config',
     'Exception::Config::Error' => {
         isa               => 'Exception::Config',
-        has               => [qw( usermsg logmsg )],
-        string_attributes => [qw( usermsg )],
+        has               => [qw( logmsg )],
+        string_attributes => [qw( message logmsg )],
     },
     'Exception::Config::NoConfig' => {
         isa               => 'Exception::Config',
-        has               => [qw( usermsg logmsg )],
-        string_attributes => [qw( usermsg )],
+        has               => [qw( logmsg )],
+        string_attributes => [qw( message logmsg )],
     },
     'Exception::Config::YAML' => {
         isa               => 'Exception::Config',
-        has               => [qw( usermsg logmsg )],
-        string_attributes => [qw( usermsg logmsg )],
+        has               => [qw( logmsg )],
+        string_attributes => [qw( message logmsg )],
     },
     'Exception::IO',
     'Exception::IO::Git' => {
         isa               => 'Exception::IO',
-        has               => [qw( usermsg logmsg )],
-        string_attributes => [qw( usermsg logmsg )],
+        has               => [qw( logmsg )],
+        string_attributes => [qw( message logmsg )],
     },
     'Exception::IO::SystemCmd' => {
         isa               => 'Exception::IO',
-        has               => [qw( usermsg logmsg )],
-        string_attributes => [qw( usermsg logmsg )],
+        has               => [qw( logmsg )],
+        string_attributes => [qw( message logmsg )],
+    },
+    'Exception::IO::Stat' => {
+        isa               => 'Exception::IO',
+        has               => [qw( logmsg )],
+        string_attributes => [qw( message logmsg )],
     },
     'Exception::IO::PathNotDefined' => {
         isa               => 'Exception::IO',
         has               => [qw( pathname )],
         string_attributes => [qw( message pathname )],
     },
-    'Exception::IO::PathNotFound' => {
+    'Exception::IO::SrcFileNotFound' => {
         isa               => 'Exception::IO',
         has               => [qw( pathname )],
         string_attributes => [qw( message pathname )],
     },
-    'Exception::IO::FileNotFound' => {
+    'Exception::IO::DstFileNotFound' => {
         isa               => 'Exception::IO',
         has               => [qw( pathname )],
         string_attributes => [qw( message pathname )],
     },
-    'Exception::IO::PermissionDenied' => {
+    'Exception::IO::SrcPermissionDenied' => {
+        isa               => 'Exception::IO',
+        has               => [qw( pathname )],
+        string_attributes => [qw( message pathname )],
+    },
+    'Exception::IO::DstPermissionDenied' => {
         isa               => 'Exception::IO',
         has               => [qw( pathname )],
         string_attributes => [qw( message pathname )],

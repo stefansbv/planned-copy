@@ -41,7 +41,7 @@ has 'repo_path' => (
         my $self = shift;
         return $self->get( key => 'local.path' )
             || Exception::Config::Error->throw(
-                usermsg => 'No local.path is set in config!',
+                message => 'No local.path is set in config!',
                 logmsg  => "Config error.\n",
             );
     },
@@ -55,7 +55,7 @@ has 'repo_url' => (
         my $self = shift;
         return $self->get( key => 'remote.url' )
             || Exception::Config::Error->throw(
-                usermsg => 'No remote.url is set in config!',
+                message => 'No remote.url is set in config!',
                 logmsg  => "Config error.\n",
             );
     },

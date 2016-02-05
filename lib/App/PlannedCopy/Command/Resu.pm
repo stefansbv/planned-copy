@@ -254,7 +254,7 @@ sub write_resource {
                 say "[EE] ", $e->message, ' (', $e->pathname, ').';
             }
             elsif ( $e->isa('Exception::Config::YAML') ) {
-                say "[EE] ", $e->usermsg, ' ', $e->logmsg;
+                say "[EE] ", $e->message, ' ', $e->logmsg;
             }
             else {
                 say "[EE] Unknown exception: $_";

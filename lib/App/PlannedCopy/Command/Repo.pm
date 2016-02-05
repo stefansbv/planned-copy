@@ -45,7 +45,7 @@ sub clone_repo {
     catch {
         if ( my $e = Exception::Base->catch($_) ) {
             if ( $e->isa('Exception::Config::NoConfig') ) {
-                say "[EE] ", $e->usermsg;
+                say "[EE] ", $e->message;
                 say "[II] Run the 'config' comand to create the config file.";
             }
             return;
@@ -66,7 +66,7 @@ sub clone_repo {
         try { git::clone $uri->as_string }
         catch {
             Exception::IO::Git->throw(
-                usermsg  => 'Git clone failed.',
+                message  => 'Git clone failed.',
                 logmsg   => $_,
             );
         };

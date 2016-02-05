@@ -32,7 +32,7 @@ sub create_yaml {
     try   { $yaml->write($file->stringify) }
     catch {
         Exception::Config::YAML->throw(
-            usermsg => "Failed to write resource file '$file'",
+            message => "Failed to write resource file '$file'",
             logmsg  => $_,
         );
     };

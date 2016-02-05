@@ -31,7 +31,7 @@ sub _build_contents {
     my $yaml = try { YAML::Tiny->read( $file->stringify ) }
     catch {
         Exception::Config::YAML->throw(
-            usermsg => 'Failed to load the resource file.',
+            message => 'Failed to load the resource file.',
             logmsg  => $_,
         );
     };
