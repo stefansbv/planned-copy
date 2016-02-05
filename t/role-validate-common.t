@@ -17,16 +17,14 @@ my @attributes = ( qw() );
 
 my @methods = (
     qw(
-       src_parentdir_readable
        src_file_readable
-       src_isfile
        src_file_writeable
        dst_file_defined
-       dst_parentdir_readable
        dst_file_readable
        dst_path_writeable
        dst_path_exists
-       dst_isfile
+       dst_file_mode
+       get_dst_file_perms
   ));
 
 my $instance;
@@ -56,17 +54,12 @@ subtest 'src and dst ok' => sub {
     isa_ok $elem->src, 'App::PlannedCopy::Resource::Element::Source';
     isa_ok $elem->dst, 'App::PlannedCopy::Resource::Element::Destination';
 
-    lives_ok { $instance->src_parentdir_readable($elem) } 'src path readable';
     lives_ok { $instance->src_file_readable($elem) } 'src file readable';
-    lives_ok { $instance->src_isfile($elem) } 'src path is valid';
     lives_ok { $instance->src_file_writeable($elem) } 'src file writeable';
-
     lives_ok { $instance->dst_file_defined($elem) } 'dst file defined';
-    lives_ok { $instance->dst_parentdir_readable($elem) } 'dst path readable';
     lives_ok { $instance->dst_file_readable($elem) } 'dst file readable';
     lives_ok { $instance->dst_path_writeable($elem) } 'dst path writeable';
     lives_ok { $instance->dst_path_exists($elem) } 'dst path exists';
-    lives_ok { $instance->dst_isfile($elem) } 'dst file exists';
 };
 
 subtest 'nonexistent src file' => sub {
@@ -87,16 +80,11 @@ subtest 'nonexistent src file' => sub {
     isa_ok $elem->src, 'App::PlannedCopy::Resource::Element::Source';
     isa_ok $elem->dst, 'App::PlannedCopy::Resource::Element::Destination';
 
-    lives_ok { $instance->src_parentdir_readable($elem) }
-        'src parent dir readable';
     throws_ok { $instance->src_file_readable($elem) }
         qr/The source file was not found/,
         'src_file_readable: src file not found caught';
-    throws_ok { $instance->src_isfile($elem) }
-        qr/The source file was not found/,
-        'src_isfile: src file not found caught';
     throws_ok { $instance->src_file_writeable($elem) }
-        qr/No such file or directory/,
+        qr/The source file was not found/,
         'src_file_writable: no such file or directory caught';
     lives_ok { $instance->dst_file_defined($elem) } 'dst file defined';
 };
@@ -119,16 +107,10 @@ subtest 'nonexistent dst file (res not installed yet)' => sub {
     isa_ok $elem->src, 'App::PlannedCopy::Resource::Element::Source';
     isa_ok $elem->dst, 'App::PlannedCopy::Resource::Element::Destination';
 
-    lives_ok { $instance->src_isfile($elem) } 'src path is valid';
-    lives_ok { $instance->src_parentdir_readable($elem) }
-        'src parent dir readable';
     lives_ok { $instance->src_file_readable($elem) } 'src file readable';
     lives_ok { $instance->src_file_writeable($elem) } 'src file writeable';
-
     lives_ok { $instance->dst_file_defined($elem) } 'dst file defined';
     lives_ok { $instance->dst_path_exists($elem) } 'dst path exists';
-    lives_ok { $instance->dst_parentdir_readable($elem) }
-        'dst parent dir readable';
     throws_ok { $instance->dst_file_readable($elem) }
         qr/Not installed/,
         'dst_file_readable: not installed caught';
@@ -153,26 +135,17 @@ subtest 'nonexistent dst path (res not installed yet)' => sub {
     isa_ok $elem->src, 'App::PlannedCopy::Resource::Element::Source';
     isa_ok $elem->dst, 'App::PlannedCopy::Resource::Element::Destination';
 
-    lives_ok { $instance->src_parentdir_readable($elem) }
-        'src parent dir readable';
     lives_ok { $instance->src_file_readable($elem) } 'src file readable';
-    lives_ok { $instance->src_isfile($elem) } 'src path is valid';
     lives_ok { $instance->src_file_writeable($elem) } 'src file writeable';
-
     lives_ok { $instance->dst_file_defined($elem) } 'dst file defined';
-    throws_ok { $instance->dst_parentdir_readable($elem) }
-        qr/No such file or directory/,
-        'dst_parentdir_readable: no such file or directory caught';
+
     throws_ok { $instance->dst_file_readable($elem) }
         qr/Not installed/,
         'dst_file_readable: not installed caught';
     throws_ok { $instance->dst_path_writeable($elem) }
-        qr/No such file or directory/,
+        qr/The destination path was not found/,
         'dst_path_writeable: no such file or directory caught';
     throws_ok { $instance->dst_path_exists($elem) }
-        qr/Not installed/,
-        'dst_path_exists: not installed scaught';
-    throws_ok { $instance->dst_isfile($elem) }
         qr/Not installed/,
         'dst_path_exists: not installed scaught';
 };
