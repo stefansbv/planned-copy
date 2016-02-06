@@ -21,6 +21,22 @@ has 'term_size' => (
     },
 );
 
+has '_issue_category_color_map' => (
+    traits  => ['Hash'],
+    is      => 'ro',
+    isa     => 'HashRef[Str]',
+    default => sub {
+        return {
+            info  => 'yellow2',
+            warn  => 'blue2',
+            error => 'red2',
+        };
+    },
+    handles => {
+        get_color => 'get',
+    },
+);
+
 sub points {
     my ($self, $msg_l, $msg_r) = @_;
     my $gap    = 2 + 2;
@@ -44,78 +60,55 @@ sub printer {
     return;
 }
 
-sub get_error_str {
-    my $self       = shift;
-    my $errorlevel = $self->get_error_level;
+sub get_issue_header {
+    my ($self, $categ) = @_;
     return
-          $errorlevel eq 'error' ? '[EE]'
-        : $errorlevel eq 'warn'  ? '[WW]'
-        : $errorlevel eq 'info'  ? '[II]'
-        : $errorlevel eq 'done'  ? ''
-        : $errorlevel eq 'none'  ? ''
-        :                          '';
+          $categ eq 'error' ? '[EE]'
+        : $categ eq 'warn'  ? '[WW]'
+        : $categ eq 'info'  ? '[II]'
+        :                         '';
 }
 
-sub get_color {
-    my $self       = shift;
-    my $errorlevel = $self->get_error_level;
-    return
-          $errorlevel eq 'error' ? 'red2'
-        : $errorlevel eq 'warn'  ? 'yellow1'
-        : $errorlevel eq 'info'  ? 'blue2'
-        : $errorlevel eq 'done'  ? 'green2'
-        : $errorlevel eq 'none'  ? 'reset'
-        :                          'reset';
+sub get_item_color {
+    my ( $self, $res ) = @_;
+    return $res->has_no_issues
+        ? 'green2'
+        : $self->get_color( $res->issues_category );
 }
 
 sub item_printer {
     my ( $self, $res ) = @_;
-    my $color = $self->get_color;
-    $self->printer($color, $res->src->_name, $res->dst->short_path);
+    die "Wrong parameter for 'item_printer', a resource object is expected!"
+        unless $res->isa('App::PlannedCopy::Resource::Element');
+    my $color = $self->get_item_color($res);
+    $self->printer( $color, $res->src->_name, $res->dst->short_path );
+    return unless $self->verbose;
+    foreach my $issue ( $res->all_issues ) {
+        my $issue_color = $self->get_color( $issue->category );
+        $self->issue_printer( $issue, $issue_color );
+    }
     return;
 }
 
-sub exception_printer {
+sub issue_printer {
     my ($self, $e) = @_;
-    if ( $e->isa('Exception::IO::PathNotDefined') ) {
-        $self->print_exeception_message( $e->message, $e->pathname )
-            if $self->verbose;
+    die "Wrong parameter for 'issue_printer', an Issue object is
+        expected!"  unless $e->isa('App::PlannedCopy::Issue');
+    if ( $e->isa('App::PlannedCopy::Issue') ) {
+        $self->print_exeception_message($e);
     }
-    elsif ( $e->isa('Exception::IO::PathNotFound') ) {
-        $self->print_exeception_message($e->message, $e->pathname);
-    }
-    elsif ( $e->isa('Exception::IO::FileNotFound') ) {
-        $self->print_exeception_message( $e->message, $e->pathname )
-            if $self->verbose;
-    }
-    elsif ( $e->isa('Exception::IO::PermissionDenied') ) {
-        $self->print_exeception_message($e->message, $e->pathname)
-            if $self->verbose;
-    }
-    elsif ( $e->isa('Exception::IO::SystemCmd') ) {
-        $self->print_exeception_message($e->usermsg, $e->logmsg);
-    }
-    elsif ( $e->isa('Exception::IO::WrongUser') ) {
-        $self->print_exeception_message( $e->message, $e->username )
-            if $self->verbose;
-    }
-    elsif ( $e->isa('Exception::IO::WrongPerms') ) {
-        $self->print_exeception_message( $e->message, $e->perm )
-            if $self->verbose;
-    }
-    else {
-        die "Unchached exception: ", $e;
-    }
-
     return;
 }
 
 sub print_exeception_message {
-    my ( $self, $message, $details ) = @_;
-    my $color = $self->get_color;
-    my $erstr = $self->get_error_str;
-    print fg($color, "  $erstr ");
-    print $message, ' ', $details;
+    my ( $self, $e ) = @_;
+    die "Wrong parameter for 'print_exeception_message', an Issue
+        object is expected!"  unless
+        $e->isa('App::PlannedCopy::Issue');
+    my $color = $self->get_color( $e->category );
+    my $categ = $self->get_issue_header( $e->category );
+    print fg($color, "  $categ ");
+    print $e->message, ' ', $e->details ? $e->details : '';
     print "\n";
     return;
 }
@@ -154,7 +147,7 @@ sub project_list_printer {
 
 sub difference_printer {
     my ( $self, @items ) = @_;
-    my $color = $self->get_color;
+    my $color = 'yellow2';
     foreach my $item (@items) {
         my $proj = $item->[0];
         my $resu = $item->[1];
@@ -214,7 +207,21 @@ A dispatch table that binds the C<error_level> with a color.
 
 =head3 item_printer
 
-Prints an item to the terminal using the C<printer> method.
+Prints a line to the terminal, corresponding to a record in the
+resource file, using the C<printer> method and if there are issues
+attached to the record, print them also.
+
+The source and the destination strings have an assigned color:
+
+=over
+
+=item blue2 if the destination is undefined
+
+=item green2 if all ok
+
+=item yellow if the record needs atention
+
+=back
 
 =head3 exception_printer
 
