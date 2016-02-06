@@ -13,14 +13,13 @@ use App::PlannedCopy::Exceptions;
 sub validate_element {
     my ($self, $res) = @_;
 
-    $self->src_isfile($res);
     $self->dst_file_defined($res);
-    $self->dst_path_exists($res);
+    $self->src_file_readable($res);
     $self->dst_file_readable($res);
-    $self->dst_isfile($res);
+    $self->check_for_differences($res);
     $self->dst_file_mode($res);
 
-    return 1;
+    return;
 }
 
 no Moose::Role;
