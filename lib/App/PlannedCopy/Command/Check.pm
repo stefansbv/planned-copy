@@ -34,8 +34,8 @@ has '_differences' => (
     lazy    => 1,
     default => sub { [] },
     handles => {
-        get_diff   => 'elements',
-        count_diff => 'count',
+        get_differences   => 'elements',
+        count_differences => 'count',
     },
 );
 
@@ -55,7 +55,6 @@ sub run {
             print "." unless $self->verbose;
         }
         print " .\n" unless $self->verbose;
-        $self->set_error_level('warn');
         $self->print_summary( 'batch' );
     }
     return;
@@ -81,29 +80,20 @@ sub check_project {
     $self->no_resource_message( $self->project )
         if $cnt == 0;
 
-    $self->reset_count_resu;
+    $self->reset_count_diff;
 
     while ( $iter->has_next ) {
-        $self->set_error_level('info');
         my $res = $iter->next;
-        my $cont = try { $self->validate_element($res) }
+        my $cont = try { $self->validate_element($res); 1; }
         catch {
-            my $e = $self->handle_exception($_);
+            my $exc = $_;
+            $self->handle_exception($exc, $res);
             $self->item_printer($res) unless $batch;
-            $self->exception_printer($e) if $e and not $batch;
             $self->inc_count_skip;
             return undef;    # required
         };
         if ($cont) {
-            try {
-                $self->check($res);
-                $self->item_printer($res) unless $batch;
-            }
-            catch {
-                my $e = $self->handle_exception($_);
-                $self->exception_printer($e) if $e and not $batch;
-                $self->inc_count_skip;
-            };
+            $self->item_printer($res) unless $batch;
         }
         $self->inc_count_proc;
     }
@@ -118,16 +108,17 @@ sub check_project {
     return;
 }
 
-sub check {
+sub check_for_differences {
     my ( $self, $res ) = @_;
     my $src_path = $res->src->_abs_path;
     my $dst_path = $res->dst->_abs_path;
-    if ( $self->is_selfsame( $src_path, $dst_path ) ) {
-        $self->set_error_level('done');
-    }
-    else {
-        $self->inc_count_resu;
-        $self->set_error_level('warn');
+    unless ( $self->is_selfsame( $src_path, $dst_path ) ) {
+        my $issue = App::PlannedCopy::Issue->new(
+            message  => 'The source and destination are different',
+            category => 'info',
+        );
+        $res->add_issue($issue);
+        $self->inc_count_diff;
     }
     $self->inc_count_inst;
     return;
@@ -135,24 +126,26 @@ sub check {
 
 sub store_summary {
     my ( $self, $project ) = @_;
-    push @{ $self->_differences }, [ $project, $self->count_resu ]
-        if $self->count_resu > 0;
+    push @{ $self->_differences }, [ $project, $self->count_diff ]
+        if $self->count_diff > 0;
     return;
 }
 
 sub print_summary {
     my ( $self, $batch ) = @_;
     my $cnt_proc = $self->count_proc // 0;
+    my $count_diff = $self->count_diff;
     if ($batch) {
+        $count_diff = $self->count_differences;
         say '';
-        $self->difference_printer( $self->get_diff );
+        $self->difference_printer( $self->get_differences );
     }
     say '';
     say 'Summary:';
     say ' - processed: ', $cnt_proc, ' records';
     say ' - checked  : ', $self->count_inst;
     say ' - skipped  : ', $self->count_skip;
-    say ' - different: ', $self->count_resu;
+    say ' - different: ', $count_diff;
     say '';
 
     return;
