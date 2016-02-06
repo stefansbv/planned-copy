@@ -44,22 +44,12 @@ use Exception::Base (
         has               => [qw( pathname )],
         string_attributes => [qw( message pathname )],
     },
-    'Exception::IO::SrcFileNotFound' => {
+    'Exception::IO::FileNotFound' => {
         isa               => 'Exception::IO',
         has               => [qw( pathname )],
         string_attributes => [qw( message pathname )],
     },
-    'Exception::IO::DstFileNotFound' => {
-        isa               => 'Exception::IO',
-        has               => [qw( pathname )],
-        string_attributes => [qw( message pathname )],
-    },
-    'Exception::IO::SrcPermissionDenied' => {
-        isa               => 'Exception::IO',
-        has               => [qw( pathname )],
-        string_attributes => [qw( message pathname )],
-    },
-    'Exception::IO::DstPermissionDenied' => {
+    'Exception::IO::PermissionDenied' => {
         isa               => 'Exception::IO',
         has               => [qw( pathname )],
         string_attributes => [qw( message pathname )],
