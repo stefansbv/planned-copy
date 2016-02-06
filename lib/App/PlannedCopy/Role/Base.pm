@@ -36,6 +36,17 @@ has count_inst => (
     },
 );
 
+has count_diff => (
+    traits  => ['Counter'],
+    is      => 'rw',
+    isa     => 'Int',
+    default => 0,
+    handles => {
+        inc_count_diff   => 'inc',
+        reset_count_diff => 'reset',
+    },
+);
+
 has count_skip => (
     traits  => ['Counter'],
     is      => 'rw',
