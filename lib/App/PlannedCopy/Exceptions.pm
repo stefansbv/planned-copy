@@ -34,12 +34,12 @@ use Exception::Base (
         has               => [qw( logmsg )],
         string_attributes => [qw( message logmsg )],
     },
-    'Exception::IO::Stat' => {
-        isa               => 'Exception::IO',
-        has               => [qw( logmsg )],
-        string_attributes => [qw( message logmsg )],
-    },
     'Exception::IO::PathNotDefined' => {
+        isa               => 'Exception::IO',
+        has               => [qw( pathname )],
+        string_attributes => [qw( message pathname )],
+    },
+    'Exception::IO::PathNotFound' => {
         isa               => 'Exception::IO',
         has               => [qw( pathname )],
         string_attributes => [qw( message pathname )],
