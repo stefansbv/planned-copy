@@ -14,6 +14,14 @@ has 'category' => (
     enum    => [qw/error info warn/],
 );
 
+has 'action' => (
+    traits   => ['Enumeration'],
+    is       => 'rw',
+    enum     => [qw/install sync chmod chown skip none/],
+    required => 1,
+    default  => sub {'none'},
+);
+
 has 'message' => (
     is       => 'rw',
     isa      => 'Str',
