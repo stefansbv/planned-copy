@@ -73,14 +73,14 @@ subtest 'With a resource file' => sub {
     ), 'command constructor';
 
     like uncolor ( capture_stdout { $check->run } ),
-        qr/check, job: 3 files to check/,
+        qr/check, job: 5 files to check/,
         'run should work';
 
     is capture_stdout { $check->print_summary }, '
 Summary:
- - processed: 3 records
+ - processed: 5 records
  - checked  : 2
- - skipped  : 1
+ - skipped  : 3
  - different: 1
 
 ', 'print_summary should work';

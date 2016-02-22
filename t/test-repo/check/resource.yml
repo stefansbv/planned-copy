@@ -24,3 +24,19 @@ resources:
     source:
       name: filename3
       path: check
+  -
+    destination:
+      name: filename4
+      path: t/test-dst/check
+      perm: '0444'
+    source:
+      name: filename4
+      path: check
+  -
+    destination:
+      name: filename5
+      path: ~
+      perm: '0644'
+    source:
+      name: filename5
+      path: check
