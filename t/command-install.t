@@ -11,7 +11,7 @@ use App::PlannedCopy::Command::Install;
 my $repo1_path = path( qw(t test-repo install-no-resu) );
 my $repo2_path = path( qw(t test-repo install) );
 my $dest_path  = path( qw(t test-dst install) );
-my @test_files = ( qw{filename1 filename2 filename3 } );
+my @test_files = ( qw{filename1 filename2 filename3 filename4} );
 
 local $ENV{APP_CM_USR_CONFIG} = path( qw(t user.conf) );
 
@@ -66,14 +66,14 @@ subtest 'With a resource file' => sub {
         config  => $conf,
     ), 'command constructor';
 #BAIL_OUT('message');
-    like capture_stdout { $inst->run }, qr/Job: 3 files to check and install:/,
+    like capture_stdout { $inst->run }, qr/Job: 5 files to check and install:/,
         'run should work';
 
     is capture_stdout { $inst->print_summary }, '
 Summary:
- - processed: 3 records
- - skipped  : 0
- - installed: 3
+ - processed: 5 records
+ - skipped  : 1
+ - installed: 4
 
 ', 'print_summary should work';
 };
