@@ -203,7 +203,7 @@ table.
 
 =head3 get_color
 
-A dispatch table that binds the C<error_level> with a color.
+TODO
 
 =head3 item_printer
 

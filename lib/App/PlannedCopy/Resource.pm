@@ -82,7 +82,6 @@ __END__
     my $res  = App::PlannedCopy::Resource->new( resource_file => $resource_file );
     my $iter = $res->resource_iter;
     while ( $iter->has_next ) {
-        $self->set_error_level('info');
         my $res = $iter->next;
         # Do something with $res ...
     }

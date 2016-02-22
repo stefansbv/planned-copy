@@ -10,13 +10,21 @@ with qw(App::PlannedCopy::Role::Validate::Common);
 
 use App::PlannedCopy::Exceptions;
 
+has 'command' => (
+    is      => 'ro',
+    isa     => 'Str',
+    default => sub {
+        'check';
+    },
+);
+
 sub validate_element {
     my ($self, $res) = @_;
 
     $self->dst_file_defined($res);
     $self->src_file_readable($res);
     $self->dst_file_readable($res);
-    $self->check_for_differences($res);
+    $self->is_src_and_dst_different($res);
     $self->dst_file_mode($res);
 
     return;
