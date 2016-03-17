@@ -60,7 +60,6 @@ sub run {
     $self->no_resource_message($self->project) if $res->count == 0;
 
     while ( $iter->has_next ) {
-        $self->set_error_level('info');
         my $res  = $iter->next;
         if ($name) {
 
@@ -77,9 +76,9 @@ sub run {
             1;                               # required
         }
         catch {
-            my $e = $self->handle_exception($_);
+            my $exc = $_;
+            $self->handle_exception($exc, $res);
             $self->item_printer($res);
-            $self->exception_printer($e) if $e;
             $self->inc_count_skip;
             return undef;       # required
         };
@@ -89,8 +88,9 @@ sub run {
                 $self->item_printer($res);
             }
             catch {
-                my $e = $self->handle_exception($_);
-                $self->exception_printer($e) if $e;
+                my $exc = $_;
+                $self->handle_exception($exc, $res);
+                $self->item_printer($res);
                 $self->inc_count_skip;
             };
         }
@@ -107,29 +107,13 @@ sub install_file {
 
     return if $self->dryrun;
 
-    my $src_path = $res->src->_abs_path;
-    my $dst_path = $res->dst->_abs_path;
+    my $src_path  = $res->src->_abs_path;
+    my $dst_path  = $res->dst->_abs_path;
+    my $copy_flag = $res->has_action('install');
+    my $mode_flag = $res->has_action('chmod');
 
-    my $copy_flag = 0;
-    my $mode_flag = 0;
-
-    # Compare files
-    if ( $self->is_selfsame( $src_path, $dst_path ) ) {
-        my $mode = $self->get_perms( $res->dst->_abs_path );
-        if ( $mode eq $res->dst->_perm ) {
-            $self->set_error_level('none');
-            $self->inc_count_skip;
-            return;
-        }
-        else {
-            $mode_flag = 1;
-        }
-    }
-    else {
-        $copy_flag = 1;
-    }
     my $parent_dir = $res->dst->_parent_dir;
-    unless ( $parent_dir->is_dir ) {
+    if ( $copy_flag && !$parent_dir->is_dir ) {
         unless ( $parent_dir->mkpath ) {
             Exception::IO::PathNotFound->throw(
                 message  => 'Failed to create the destination path.',
@@ -138,36 +122,82 @@ sub install_file {
         }
     }
 
-    $self->set_error_level('done');
-
     # Copy and set perms
-    $self->copy_file( $src_path, $dst_path )       if $copy_flag;
+    if ($copy_flag) {
+        $self->copy_file( $src_path, $dst_path );
+        $self->inc_count_inst;
+    }
+    else {
+        $self->inc_count_skip;
+    }
     $self->set_perm( $dst_path, $res->dst->_perm ) if $mode_flag || $copy_flag;
     $self->change_owner( $dst_path, $res->dst->_user )
         if $self->config->current_user eq 'root'
         && !$res->dst->_user_is_default;
-    $self->inc_count_inst;
 
     # Unpack archives
     if ( $res->src->type_is('archive') && $res->dst->verb_is('unpack') ) {
-        $self->extract_archive($dst_path);
+        $self->extract_archive($res);
     }
 
     return 1;                                # require for the test
 }
 
 sub extract_archive {
-    my ( $self, $archive_path ) = @_;
+    my ( $self, $res ) = @_;
+    my $archive_path = $res->dst->_abs_path;
     my $archive      = Archive::Any::Lite->new($archive_path);
+
+    # say "Archive:"; XXX any use for this?
+    # say " is_impolite = ", $archive->is_impolite;
+    # say " is_naughty  = ", $archive->is_naughty;
+
+    # Check if the top dir(s) exists in the destination
+    my ($top_dirs_found, $top_dir_exists);
+    foreach my $file ( $archive->files ) {
+        my $dir_name = $file =~ m{[^/]+/$} ? $file : '';
+        if ($dir_name) {
+            $top_dirs_found++;
+            my $path = path($archive_path->parent, $dir_name);
+            $top_dir_exists++ if $path->is_dir;
+        }
+    }
     my $into_dir     = $archive_path->parent->stringify;
     my $archive_file = $archive_path->basename;
-    my $extracted    = try { $archive->extract($into_dir); }
-    catch {
-        say "  [EE] Unpacking '$archive_file' failed: $_";
+    if ( $top_dirs_found == $top_dir_exists ) {
+        $res->add_issue(
+            App::PlannedCopy::Issue->new(
+                message  => 'Skipping unpack, destination dirs exists',
+                category => 'info',
+            ),
+        );
+        return;
+    }
+    else {
+        $res->add_issue(
+            App::PlannedCopy::Issue->new(
+                message  => 'Skipping unpack, some of the destination dirs exists',
+                category => 'info',
+            ),
+        );
+        return;
+    }
+    my $extracted = try { $archive->extract($into_dir); }
+        catch {
+            Exception::IO::SystemCmd->throw(
+            message => "Unpacking '$archive_file' failed",
+            logmsg  => $_,
+        );
         return undef;       # required
     };
     if ($extracted) {
-        say "  [II] Unpacked '$archive_file'" if $self->verbose;
+        $res->add_issue(
+            App::PlannedCopy::Issue->new(
+                message  => 'Unpacked',
+                details  => $archive_file,
+                category => 'info',
+            ),
+        );
     }
     return;
 }

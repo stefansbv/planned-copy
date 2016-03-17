@@ -94,6 +94,7 @@ sub check_project {
         };
         if ($cont) {
             $self->item_printer($res) unless $batch;
+            $self->inc_count_inst;
         }
         $self->inc_count_proc;
     }
@@ -105,22 +106,6 @@ sub check_project {
         $self->print_summary;
     }
 
-    return;
-}
-
-sub check_for_differences {
-    my ( $self, $res ) = @_;
-    my $src_path = $res->src->_abs_path;
-    my $dst_path = $res->dst->_abs_path;
-    unless ( $self->is_selfsame( $src_path, $dst_path ) ) {
-        my $issue = App::PlannedCopy::Issue->new(
-            message  => 'The source and destination are different',
-            category => 'info',
-        );
-        $res->add_issue($issue);
-        $self->inc_count_diff;
-    }
-    $self->inc_count_inst;
     return;
 }
 

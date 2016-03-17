@@ -55,9 +55,17 @@ sub copy_file {
     my ($self, $src, $dst) = @_;
     try   { $src->copy($dst) }
     catch {
+        my $err = $_;
+        my $logmsg = '';
+        if ( $err =~ m{Permission denied}i ) {
+            $logmsg = 'Permission denied';
+        }
+        else {
+            $logmsg = $err;
+        }
         Exception::IO::SystemCmd->throw(
-            usermsg => 'The copy command failed.',
-            logmsg  => $_,
+            message => 'The copy command failed.',
+            logmsg  => $logmsg,
         );
     };
     return;
@@ -69,7 +77,7 @@ sub set_perm {
     try   { $file->chmod($perm) }
     catch {
         Exception::IO::SystemCmd->throw(
-            usermsg => 'The perm command failed.',
+            message => 'The perm command failed.',
             logmsg  => $_,
         );
     };
@@ -82,10 +90,11 @@ sub change_owner {
         unless $file->is_file;
     my ( $login, $pass, $uid, $gid ) = getpwnam($user)
         or die "$user not in passwd file";
+    say "$uid:$gid";
     try   { chown $uid, $gid, $file->stringify }
     catch {
         Exception::IO::SystemCmd->throw(
-            usermsg => 'The chown command failed.',
+            message => 'The chown command failed.',
             logmsg  => $_,
         );
     };
@@ -93,33 +102,78 @@ sub change_owner {
 }
 
 sub handle_exception {
-    my ($self, $ex) = @_;
-    if ( my $e = Exception::Base->catch($ex) ) {
-        if ( $e->isa('Exception::IO::PathNotFound') ) {
-            $self->set_error_level('reset');
-        }
-        elsif ( $e->isa('Exception::IO::PathNotDefined') ) {
-            $self->set_error_level('info');
-        }
-        elsif ( $e->isa('Exception::IO::FileNotFound') ) {
-            $self->set_error_level('info');
-        }
-        elsif ( $e->isa('Exception::IO::PermissionDenied') ) {
-            $self->set_error_level('info');
-        }
-        elsif ( $e->isa('Exception::IO::WrongUser') ) {
-            $self->set_error_level('warn');
-        }
-        elsif ( $e->isa('Exception::IO::WrongPerms') ) {
-            $self->set_error_level('warn');
+    my ( $self, $exc, $res ) = @_;
+    if ( my $e = Exception::Base->catch($exc) ) {
+        if ( $e->isa('Exception::IO') ) {
+            $self->exception_to_issue($e, $res);
         }
         else {
-            $self->set_error_level('error');
+            die "[EE] Unhandled exception:", $exc;
         }
-        return $e;
     }
     else {
-        die "Unhandled exception:", $ex;
+        die "[EE] Unknown exception:", $exc;
+    }
+    return;
+}
+
+sub exception_to_issue {
+    my ( $self, $e, $res ) = @_;
+    if ( $e->isa('Exception::IO::SystemCmd') ) {
+        $res->add_issue(
+            App::PlannedCopy::Issue->new(
+                message => $e->message,
+                details => $e->logmsg,
+                category => 'error',
+            ),
+        );
+    }
+    elsif ( $e->isa('Exception::IO::WrongPerms') ) {
+        $res->add_issue(
+            App::PlannedCopy::Issue->new(
+                message => $e->message,
+                details => $e->perm,
+                category => 'info',
+            ),
+        );
+    }
+    elsif ( $e->isa('Exception::IO::PathNotDefined') ) {
+        $res->add_issue(
+            App::PlannedCopy::Issue->new(
+                message  => $e->message,
+                category => 'warn',
+            ),
+        );
+    }
+    elsif ( $e->isa('Exception::IO::PermissionDenied') ) {
+        $res->add_issue(
+            App::PlannedCopy::Issue->new(
+                message  => $e->message,
+                details  => $e->pathname->stringify,
+                category => 'warn',
+            ),
+        );
+    }
+    elsif ( $e->isa('Exception::IO::WrongUser') ) {
+        $res->add_issue(
+            App::PlannedCopy::Issue->new(
+                message  => $e->message,
+                details  => $e->username,
+                category => 'warn',
+            ),
+        );
+    }
+    elsif ( $e->isa('Exception::IO::FileNotFound') ) {
+        $res->add_issue(
+            App::PlannedCopy::Issue->new(
+                message  => $e->message,
+                details  => $e->pathname->stringify,
+                category => 'warn',
+            ),
+        );
+    }
+    else {
+        $e->throw;
     }
     return;
 }
@@ -145,11 +199,11 @@ sub kompare {
     my @args;
     push @args, quote_string($src_path);
     push @args, quote_string($dst_path);
-    say "# $cmd @args" if $self->verbose;
+    # say "# $cmd @args" if $self->verbose;
     my ( $stdout, $stderr, $exit ) = capture { system( $cmd, @args ) };
     if ($stderr) {
         Exception::IO::SystemCmd->throw(
-            usermsg => 'The diff command failed.',
+            message => 'The diff command failed.',
             logmsg  => $stderr,
         );
     }
@@ -213,6 +267,23 @@ sub check_user {
     return 1;
 }
 
+sub is_src_and_dst_different {
+    my ( $self, $res ) = @_;
+    my $src_path = $res->src->_abs_path;
+    my $dst_path = $res->dst->_abs_path;
+    if ( !$self->is_selfsame( $src_path, $dst_path ) ) {
+        $res->add_issue(
+            App::PlannedCopy::Issue->new(
+                message  => 'Different source and destination',
+                category => 'info',
+                action   => 'install',
+            ),
+        );
+        $self->inc_count_diff;
+    }
+    return;
+}
+
 no Moose::Role;
 
 1;
@@ -267,8 +338,7 @@ an AoH.
 
 =head3 handle_exception
 
-Handle non fatal exceptions.  Sets the C<error_level> for each type of
-exception.
+TODO
 
 =head3 is_selfsame
 

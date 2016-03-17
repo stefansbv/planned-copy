@@ -10,8 +10,8 @@ use File::HomeDir;
 
 use App::PlannedCopy::Role::Base;
 
-my @attributes = ( qw(count_proc count_inst count_skip error_level) );
-my @methods    = ( qw(is_error_level is_not_error_level) );
+my @attributes = ( qw(count_proc count_inst count_skip) );
+my @methods    = ();
 
 my $instance;
 my $class = MooseX::ClassCompositor->new( { class_basename => 'Test', } )
@@ -22,9 +22,4 @@ lives_ok{ $instance = $class->new(
     project => 'test',
 )} 'Test creation of an instance';
 
-is $instance->is_error_level('info'), 1, 'error level is info';
-is $instance->is_not_error_level('test'), 1, 'error level is not test';
-
 done_testing();
-
-# end

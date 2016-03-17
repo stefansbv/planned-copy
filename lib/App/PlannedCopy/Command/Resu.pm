@@ -216,9 +216,7 @@ sub run {
     $self->project_changes_list_printer( 'added',   @add );
 
     $self->print_summary;
-    $self->note
-        if $self->count_added > 0
-        and not $self->is_error_level('error');
+    $self->note if $self->count_added > 0;
 
     return;
 }
@@ -249,15 +247,14 @@ sub write_resource {
     try   { $rw->create_yaml( { resources => $data } ) }
     catch {
         if ( my $e = Exception::Base->catch($_) ) {
-            $self->set_error_level('error');
             if ( $e->isa('Exception::IO') ) {
-                say "[EE] ", $e->message, ' (', $e->pathname, ').';
+                die "[EE] ", $e->message, ' (', $e->pathname, ').';
             }
             elsif ( $e->isa('Exception::Config::YAML') ) {
-                say "[EE] ", $e->message, ' ', $e->logmsg;
+                die "[EE] ", $e->message, ' ', $e->logmsg;
             }
             else {
-                say "[EE] Unknown exception: $_";
+                die "[EE] Unknown exception: $_";
             }
         }
     };

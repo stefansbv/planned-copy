@@ -60,24 +60,23 @@ sub run {
     $self->no_resource_message( $self->project ) if $res->count == 0;
 
     while ( $iter->has_next ) {
-        $self->set_error_level('info');
-        my $rec = $iter->next;
-        my $cont = try { $self->validate_element($rec) }
+        my $res = $iter->next;
+        my $cont = try { $self->validate_element($res); 1; }
         catch {
-            my $e = $self->handle_exception($_);
-            $self->item_printer($rec);
-            $self->exception_printer($e) if $e;
+            my $exc = $_;
+            $self->handle_exception($exc, $res);
+            $self->item_printer($res);
             $self->inc_count_skip;
             return undef;    # required
         };
         if ($cont) {
             try {
-                $self->diff_files($rec);
-                $self->item_printer($rec);
+                $self->diff_files($res);
+                $self->item_printer($res);
             }
             catch {
-                my $e = $self->handle_exception($_);
-                $self->exception_printer($e) if $e;
+                my $exc = $_;
+                $self->handle_exception($exc, $res);
                 $self->inc_count_skip;
             };
         }
@@ -90,36 +89,32 @@ sub run {
 }
 
 sub diff_files {
-    my ( $self, $rec ) = @_;
+    my ( $self, $res ) = @_;
 
     # Skip archives
-    if ( $rec->src->type_is('archive') ) {
-        $self->set_error_level('none');
+    if ( $res->src->type_is('archive') ) {
         $self->inc_count_skip;
         return;
     }
 
-    my $src_path = $rec->src->_abs_path;
-    my $dst_path = $rec->dst->_abs_path;
+    return unless $res->has_action('install');
 
-    if ( $self->is_selfsame( $src_path, $dst_path ) ) {
-        $self->set_error_level('done');
-    }
-    else {
-        if ( $self->prompting ) {
-            $self->set_error_level('warn');
-            my $cmd = $self->diff_cmd;
-            say "# diff $src_path $dst_path";
-            my $answer = prompt( "Run $cmd? (Y/n/q)", "y" );
-            if ( $answer =~ m{[yY]} ) {
-                $self->kompare( $src_path, $dst_path );
-                $self->inc_count_resu;
-            }
-            elsif ( $answer =~ m{[qQ]} ) {
-                $self->prompting(0);
-            }
+    my $src_path = $res->src->_abs_path;
+    my $dst_path = $res->dst->_abs_path;
+
+    if ( $self->prompting ) {
+        my $cmd = $self->diff_cmd;
+        say "# diff $src_path $dst_path";
+        my $answer = prompt( "Run $cmd? (Y/n/q)", "y" );
+        if ( $answer =~ m{[yY]} ) {
+            $self->kompare( $src_path, $dst_path );
+            $self->inc_count_resu;
+        }
+        elsif ( $answer =~ m{[qQ]} ) {
+            $self->prompting(0);
         }
     }
+
     $self->inc_count_inst;
     return;
 }

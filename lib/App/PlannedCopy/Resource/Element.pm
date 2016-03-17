@@ -68,6 +68,14 @@ has '_issue' => (
     },
 );
 
+sub has_action {
+    my ($self, $action) = @_;
+    foreach my $issue ( $self->all_issues ) {
+        return 1 if $issue->action eq $action;
+    }
+    return 0;
+}
+
 sub _new_issue_category {
     my $self = shift;
     my @issues;
