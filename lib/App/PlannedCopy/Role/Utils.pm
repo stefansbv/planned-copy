@@ -90,7 +90,6 @@ sub change_owner {
         unless $file->is_file;
     my ( $login, $pass, $uid, $gid ) = getpwnam($user)
         or die "$user not in passwd file";
-    say "$uid:$gid";
     try   { chown $uid, $gid, $file->stringify }
     catch {
         Exception::IO::SystemCmd->throw(

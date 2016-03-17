@@ -102,8 +102,7 @@ __END__
 
 =head1 Description
 
-This is the main module of the PlannedCopy application.  It is built
-using the L<MooseX::App> module.
+Planned Copy - a smarter copy application for your Linux box.
 
 =head1 Interface
 
