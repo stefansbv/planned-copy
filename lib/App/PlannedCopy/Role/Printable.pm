@@ -170,12 +170,6 @@ __END__
 
     $self->item_printer( $res );
 
-    $self->difference_printer( $array_ref );
-
-    $self->project_list_printer( @array );
-
-    $self->exception_printer( $e );
-
 =head1 Description
 
 A role for printing messages to the terminal.
@@ -184,11 +178,23 @@ A role for printing messages to the terminal.
 
 =head2 Attributes
 
+=item3 term_size
+
+Returns the width of the terminal in characters.
+
+=item3 _issue_category_color_map
+
+Holds the mapping between a category and a color name.
+
 =head2 Instance Methods
+
+=head3 get_color
+
+Returns the mapped color name for the category given as parameter.
 
 =head3 points
 
-Returns a string of dot chars used for displaying the ...
+Returns a string of dot chars used for displaying the C<...>.
 
 =head3 printer
 
@@ -196,20 +202,21 @@ A colorized print for items, consisting of a line that starts with the
 name of the source file, followed by a number of dot chars, followed
 by the name of the destination file.
 
-=head3 get_error_str
+=item3 get_issue_header
 
-Returns a string that identifies the exception type using a dispatch
-table.
+Returns a string corresponding to an issue category.
 
-=head3 get_color
+=item3 get_item_color
 
-TODO
+Return C<green2> or another color as returned by the C<get_color>
+method, if the item has issues.
 
 =head3 item_printer
 
-Prints a line to the terminal, corresponding to a record in the
-resource file, using the C<printer> method and if there are issues
-attached to the record, print them also.
+Prints a colorized line to the terminal, corresponding to a record in
+the resource file, using the C<printer> method and if there are issues
+attached to the record, print them also using the C<issue_printer>
+method.
 
 The source and the destination strings have an assigned color:
 
@@ -223,26 +230,22 @@ The source and the destination strings have an assigned color:
 
 =back
 
-=head3 exception_printer
+=item3 issue_printer
 
-Uses the C<print_exeception_message> method to print exceptions.
+=item3 print_exeception_message
 
-=head3 print_exeception_message
+Prints a colorized line to the terminal, corresponding to an issue.
 
-A colorized print for exception messages, consisting of a string
-returned by the C<get_error_str> method and the exception message and
-details.
-
-=head3 project_changes_list_printer
+=item3 project_changes_list_printer
 
 A colorized print for items added, kept and removed from the resource
 file.
 
-=head3 project_list_printer
+=item3 project_list_printer
 
 A colorized print for the directories under the C<repo_path> dir.
 
-=head3 difference_printer
+=item3 difference_printer
 
 Prints a list of items to the terminal using the C<printer> method.
 
