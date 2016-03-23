@@ -13,7 +13,7 @@ my $repo2_path = path( qw(t test-repo install) );
 my $dest_path  = path( qw(t test-dst install) );
 my @test_files = ( qw{filename1 filename2 filename3 filename4} );
 
-local $ENV{APP_CM_USR_CONFIG} = path( qw(t user.conf) );
+local $ENV{PLCP_USR_CONFIG} = path( qw(t user.conf) );
 
 ok my $conf = App::PlannedCopy::Config->new, 'config constructor';
 
@@ -66,13 +66,13 @@ subtest 'With a resource file' => sub {
         config  => $conf,
     ), 'command constructor';
 #BAIL_OUT('message');
-    like capture_stdout { $inst->run }, qr/Job: 5 files to check and install:/,
+    like capture_stdout { $inst->run }, qr/Job: 11 files to check and install:/,
         'run should work';
 
     is capture_stdout { $inst->print_summary }, '
 Summary:
- - processed: 5 records
- - skipped  : 1
+ - processed: 11 records
+ - skipped  : 7
  - installed: 4
 
 ', 'print_summary should work';

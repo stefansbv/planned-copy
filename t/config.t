@@ -11,8 +11,8 @@ use App::PlannedCopy::Config;
 
 subtest 'Test with no config files' => sub {
 
-    local $ENV{APP_CM_SYS_CONFIG} = path(qw(t nonexistent.conf));
-    local $ENV{APP_CM_USR_CONFIG} = path(qw(t nonexistent.conf));
+    local $ENV{PLCP_SYS_CONFIG} = path(qw(t nonexistent.conf));
+    local $ENV{PLCP_USR_CONFIG} = path(qw(t nonexistent.conf));
 
     ok my $conf = App::PlannedCopy::Config->new, 'constructor';
 
@@ -34,8 +34,8 @@ subtest 'Test with the test config files' => sub {
 
     my $repo_path = path(qw(t test-repo));
 
-    local $ENV{APP_CM_SYS_CONFIG} = path(qw(t system.conf));
-    local $ENV{APP_CM_USR_CONFIG} = path(qw(t user.conf));
+    local $ENV{PLCP_SYS_CONFIG} = path(qw(t system.conf));
+    local $ENV{PLCP_USR_CONFIG} = path(qw(t user.conf));
 
     ok $conf = App::PlannedCopy::Config->new, 'constructor';
 

@@ -11,8 +11,8 @@ use App::PlannedCopy::Resource::Element::Source;
 
 my $repo_path = path( qw(t test-repo check) );
 
-local $ENV{APP_CM_SYS_CONFIG} = path( qw(t system.conf) );
-local $ENV{APP_CM_USR_CONFIG} = path( qw(t user.conf) );
+local $ENV{PLCP_SYS_CONFIG} = path( qw(t system.conf) );
+local $ENV{PLCP_USR_CONFIG} = path( qw(t user.conf) );
 
 subtest 'minimum valid config' => sub {
     my $args = {

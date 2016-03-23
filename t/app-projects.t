@@ -7,12 +7,10 @@ use Test::Exception;
 use Path::Tiny;
 use App::PlannedCopy;
 
-use Data::Printer;
-
 subtest 'Test with no config files' => sub {
 
-    local $ENV{APP_CM_SYS_CONFIG} = path(qw(t nonexistent.conf));
-    local $ENV{APP_CM_USR_CONFIG} = path(qw(t nonexistent.conf));
+    local $ENV{PLCP_SYS_CONFIG} = path(qw(t nonexistent.conf));
+    local $ENV{PLCP_USR_CONFIG} = path(qw(t nonexistent.conf));
 
     throws_ok { $app = App::PlannedCopy->new }
         qr/No local.path is set/,
@@ -21,8 +19,8 @@ subtest 'Test with no config files' => sub {
 
 subtest 'Test with the test config files' => sub {
 
-    local $ENV{APP_CM_SYS_CONFIG} = path(qw(t system.conf));
-    local $ENV{APP_CM_USR_CONFIG} = path(qw(t user.conf));
+    local $ENV{PLCP_SYS_CONFIG} = path(qw(t system.conf));
+    local $ENV{PLCP_USR_CONFIG} = path(qw(t user.conf));
 
     ok $app = App::PlannedCopy->new, 'constructor';
 

@@ -12,7 +12,7 @@ my $repo1_path = path( qw(t test-repo sync-no-resu) );
 my $repo2_path = path( qw(t test-repo sync) );
 my $dest_path  = path( qw(t test-dst sync) );
 
-local $ENV{APP_CM_USR_CONFIG} = path( qw(t user.conf) );
+local $ENV{PLCP_USR_CONFIG} = path( qw(t user.conf) );
 
 ok my $conf = App::PlannedCopy::Config->new, 'config constructor';
 

@@ -12,7 +12,7 @@ my $repo_path  = path( qw( resu ) );
 my $resu_file  = path( qw(t test-repo), $repo_path, 'resource.yml' );
 my @test_files = ( qw{filename1 filename2 filename3 } );
 
-local $ENV{APP_CM_USR_CONFIG} = path( qw(t user.conf) );
+local $ENV{PLCP_USR_CONFIG} = path( qw(t user.conf) );
 
 ok my $conf = App::PlannedCopy::Config->new, 'config constructor';
 

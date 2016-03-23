@@ -23,13 +23,13 @@ sub dir_file { undef }
 
 override global_file => sub {
     my $self = shift;
-    return path $ENV{APP_CM_SYS_CONFIG}
+    return path $ENV{PLCP_SYS_CONFIG}
         || $self->SUPER::global_file(@_);
 };
 
 override user_file => sub {
     my $self = shift;
-    return path $ENV{APP_CM_USR_CONFIG}
+    return path $ENV{PLCP_USR_CONFIG}
         || $self->SUPER::user_file(@_);
 };
 
