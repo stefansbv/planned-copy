@@ -268,6 +268,7 @@ sub check_user {
 
 sub is_src_and_dst_different {
     my ( $self, $res ) = @_;
+    return if $res->src->type_is('archive');
     my $src_path = $res->src->_abs_path;
     my $dst_path = $res->dst->_abs_path;
     if ( !$self->is_selfsame( $src_path, $dst_path ) ) {

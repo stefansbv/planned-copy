@@ -10,8 +10,8 @@ use App::PlannedCopy::Role::Validate::Install;
 use App::PlannedCopy::Resource::Element;
 
 # Test with the test config files
-local $ENV{APP_CM_SYS_CONFIG} = path( qw(t system.conf) );
-local $ENV{APP_CM_USR_CONFIG} = path( qw(t user.conf) );
+local $ENV{PLCP_SYS_CONFIG} = path( qw(t system.conf) );
+local $ENV{PLCP_USR_CONFIG} = path( qw(t user.conf) );
 
 my @attributes = ( qw() );
 
@@ -49,9 +49,9 @@ subtest 'source and destination ok - instaled' => sub {
     };
     ok my $elem = App::PlannedCopy::Resource::Element->new($args),
         'constructor';
-    isa_ok $elem, 'App::PlannedCopy::Resource::Element';
-    isa_ok $elem->src, 'App::PlannedCopy::Resource::Element::Source';
-    isa_ok $elem->dst, 'App::PlannedCopy::Resource::Element::Destination';
+    isa_ok $elem, 'App::PlannedCopy::Resource::Element', 'element';
+    isa_ok $elem->src, 'App::PlannedCopy::Resource::Element::Source', 'src';
+    isa_ok $elem->dst, 'App::PlannedCopy::Resource::Element::Destination', 'dst';
 
     lives_ok { $instance->src_file_readable($elem) } 'src file readable';
     lives_ok { $instance->src_file_writeable($elem) } 'src file writeable';
@@ -75,9 +75,9 @@ subtest 'nonexistent src file - not installed' => sub {
     };
     ok my $elem = App::PlannedCopy::Resource::Element->new($args),
         'constructor';
-    isa_ok $elem, 'App::PlannedCopy::Resource::Element';
-    isa_ok $elem->src, 'App::PlannedCopy::Resource::Element::Source';
-    isa_ok $elem->dst, 'App::PlannedCopy::Resource::Element::Destination';
+    isa_ok $elem, 'App::PlannedCopy::Resource::Element', 'element';
+    isa_ok $elem->src, 'App::PlannedCopy::Resource::Element::Source', 'src';
+    isa_ok $elem->dst, 'App::PlannedCopy::Resource::Element::Destination', 'dst';
 
     throws_ok { $instance->src_file_readable($elem) }
         qr/Exception::IO::FileNotFound/,
@@ -113,9 +113,9 @@ subtest 'nonexistent dst file - not installed' => sub {
 
     ok my $elem = App::PlannedCopy::Resource::Element->new($args),
         'constructor';
-    isa_ok $elem, 'App::PlannedCopy::Resource::Element';
-    isa_ok $elem->src, 'App::PlannedCopy::Resource::Element::Source';
-    isa_ok $elem->dst, 'App::PlannedCopy::Resource::Element::Destination';
+    isa_ok $elem, 'App::PlannedCopy::Resource::Element', 'element';
+    isa_ok $elem->src, 'App::PlannedCopy::Resource::Element::Source', 'src';
+    isa_ok $elem->dst, 'App::PlannedCopy::Resource::Element::Destination', 'dst';
 
     lives_ok { $instance->src_file_readable($elem) } 'src_file_readable';
     lives_ok { $instance->src_file_writeable($elem) } 'src_file_writable';
@@ -146,9 +146,9 @@ subtest 'nonexistent dst path - not installed' => sub {
     };
     ok my $elem = App::PlannedCopy::Resource::Element->new($args),
         'constructor';
-    isa_ok $elem, 'App::PlannedCopy::Resource::Element';
-    isa_ok $elem->src, 'App::PlannedCopy::Resource::Element::Source';
-    isa_ok $elem->dst, 'App::PlannedCopy::Resource::Element::Destination';
+    isa_ok $elem, 'App::PlannedCopy::Resource::Element', 'element';
+    isa_ok $elem->src, 'App::PlannedCopy::Resource::Element::Source', 'src';
+    isa_ok $elem->dst, 'App::PlannedCopy::Resource::Element::Destination', 'dst';
 
     lives_ok { $instance->src_file_readable($elem) } 'src file readable';
     lives_ok { $instance->src_file_writeable($elem) } 'src file writeable';
@@ -162,6 +162,197 @@ subtest 'nonexistent dst path - not installed' => sub {
     throws_ok { $instance->dst_path_exists($elem) }
         qr/Exception::IO::PathNotFound/,
         'dst path exists';
+    throws_ok { $instance->dst_file_mode($elem) }
+        qr/Exception::IO::FileNotFound/,
+        'dst file mode: No such file or directory caught';
+};
+
+# Archive files
+
+subtest 'source and destination ok - instaled - archive1' => sub {
+    my $args = {
+        destination => {
+            name => 'archive1.tar.gz',
+            path => 't/test-dst/role/install',
+            perm => '0644',
+            verb => 'unpack',
+        },
+        source => {
+            name => 'archive1.tar.gz',
+            path => 'install',
+            type => 'archive',
+        },
+    };
+    ok my $elem = App::PlannedCopy::Resource::Element->new($args),
+        'constructor';
+
+    isa_ok $elem, 'App::PlannedCopy::Resource::Element', 'element';
+    isa_ok $elem->src, 'App::PlannedCopy::Resource::Element::Source', 'src';
+    isa_ok $elem->dst, 'App::PlannedCopy::Resource::Element::Destination', 'dst';
+
+    lives_ok { $instance->src_file_readable($elem) } 'src file readable';
+    lives_ok { $instance->src_file_writeable($elem) } 'src file writeable';
+    lives_ok { $instance->dst_file_defined($elem) } 'dst file defined';
+
+    # If command is 'install', adds an issue, doesn't throw an exception
+    lives_ok { $instance->dst_file_readable($elem) } 'dst_file_readable';
+    is $elem->count_issues, 1, 'has an issue';
+    like $elem->get_issue(0)->message, qr/Not installed/, 'has a "Not installed" issue';
+
+    lives_ok { $instance->dst_path_exists($elem) } 'dst path exists';
+    throws_ok { $instance->dst_file_mode($elem) }
+        qr/Exception::IO::FileNotFound/,
+        'dst file mode: No such file or directory caught';
+};
+
+subtest 'nonexistent dst path - not installed - archive2' => sub {
+    my $args = {
+        destination => {
+            name => 'archive2.tar.gz',
+            path => 't/test-dst/role/install2',
+            perm => '0644',
+            verb => 'unpack',
+        },
+        source => {
+            name => 'archive2.tar.gz',
+            path => 'install',
+            type => 'archive',
+        },
+    };
+    ok my $elem = App::PlannedCopy::Resource::Element->new($args),
+        'constructor';
+
+    isa_ok $elem, 'App::PlannedCopy::Resource::Element', 'element';
+    isa_ok $elem->src, 'App::PlannedCopy::Resource::Element::Source', 'src';
+    isa_ok $elem->dst, 'App::PlannedCopy::Resource::Element::Destination', 'dst';
+
+    lives_ok { $instance->src_file_readable($elem) } 'src file readable';
+    lives_ok { $instance->src_file_writeable($elem) } 'src file writeable';
+    lives_ok { $instance->dst_file_defined($elem) } 'dst file defined';
+
+    # If command is 'install', adds an issue, doesn't throw an exception
+    lives_ok { $instance->dst_file_readable($elem) } 'dst_file_readable';
+    is $elem->count_issues, 1, 'has an issue';
+    like $elem->get_issue(0)->message, qr/Not installed/, 'has a "Not installed" issue';
+
+    throws_ok { $instance->dst_path_exists($elem) }
+        qr/Exception::IO::PathNotFound/,
+        'dst path exists';
+    throws_ok { $instance->dst_file_mode($elem) }
+        qr/Exception::IO::FileNotFound/,
+        'dst file mode: No such file or directory caught';
+};
+
+subtest 'nonexistent dst path - not installed - impolite archive' => sub {
+    my $args = {
+        destination => {
+            name => 'impolite.tar.gz',
+            path => 't/test-dst/role/install2',
+            perm => '0644',
+            verb => 'unpack',
+        },
+        source => {
+            name => 'impolite.tar.gz',
+            path => 'install',
+            type => 'archive',
+        },
+    };
+    ok my $elem = App::PlannedCopy::Resource::Element->new($args),
+        'constructor';
+
+    isa_ok $elem, 'App::PlannedCopy::Resource::Element', 'element';
+    isa_ok $elem->src, 'App::PlannedCopy::Resource::Element::Source', 'src';
+    isa_ok $elem->dst, 'App::PlannedCopy::Resource::Element::Destination', 'dst';
+
+    lives_ok { $instance->src_file_readable($elem) } 'src file readable';
+    lives_ok { $instance->src_file_writeable($elem) } 'src file writeable';
+    lives_ok { $instance->dst_file_defined($elem) } 'dst file defined';
+
+    # If command is 'install', adds an issue, doesn't throw an exception
+    lives_ok { $instance->dst_file_readable($elem) } 'dst_file_readable';
+    is $elem->count_issues, 1, 'has an issue';
+    like $elem->get_issue(0)->message, qr/The archive is impolite/,
+        'has a "The archive is impolite" issue';
+    throws_ok { $instance->dst_path_exists($elem) }
+        qr/Exception::IO::PathNotFound/,
+        'dst path exists';
+    throws_ok { $instance->dst_file_mode($elem) }
+        qr/Exception::IO::FileNotFound/,
+        'dst file mode: No such file or directory caught';
+};
+
+subtest 'nonexistent dst path - not installed - naughty archive' => sub {
+    my $args = {
+        destination => {
+            name => 'naughty.tar',
+            path => 't/test-dst/role/install2',
+            perm => '0644',
+            verb => 'unpack',
+        },
+        source => {
+            name => 'naughty.tar',
+            path => 'install',
+            type => 'archive',
+        },
+    };
+    ok my $elem = App::PlannedCopy::Resource::Element->new($args),
+        'constructor';
+
+    isa_ok $elem, 'App::PlannedCopy::Resource::Element', 'element';
+    isa_ok $elem->src, 'App::PlannedCopy::Resource::Element::Source', 'src';
+    isa_ok $elem->dst, 'App::PlannedCopy::Resource::Element::Destination', 'dst';
+
+    lives_ok { $instance->src_file_readable($elem) } 'src file readable';
+    lives_ok { $instance->src_file_writeable($elem) } 'src file writeable';
+    lives_ok { $instance->dst_file_defined($elem) } 'dst file defined';
+
+    # If command is 'install', adds an issue, doesn't throw an exception
+    lives_ok { $instance->dst_file_readable($elem) } 'dst_file_readable';
+    is $elem->count_issues, 1, 'has an issue';
+    like $elem->get_issue(0)->message, qr/The archive is naughty/,
+        'has a "The archive is naughty" issue';
+    throws_ok { $instance->dst_path_exists($elem) }
+        qr/Exception::IO::PathNotFound/,
+        'dst path exists';
+    throws_ok { $instance->dst_file_mode($elem) }
+        qr/Exception::IO::FileNotFound/,
+        'dst file mode: No such file or directory caught';
+};
+
+subtest 'nonexistent dst path - not installed - fake archive' => sub {
+    my $args = {
+        destination => {
+            name => 'filename3',
+            path => 't/test-dst/role/install2',
+            perm => '0644',
+            verb => 'unpack',
+        },
+        source => {
+            name => 'filename3',
+            path => 'install',
+            type => 'archive',
+        },
+    };
+    ok my $elem = App::PlannedCopy::Resource::Element->new($args),
+        'constructor';
+
+    isa_ok $elem, 'App::PlannedCopy::Resource::Element', 'element';
+    isa_ok $elem->src, 'App::PlannedCopy::Resource::Element::Source', 'src';
+    isa_ok $elem->dst, 'App::PlannedCopy::Resource::Element::Destination', 'dst';
+
+    lives_ok { $instance->src_file_readable($elem) } 'src file readable';
+    lives_ok { $instance->src_file_writeable($elem) } 'src file writeable';
+    lives_ok { $instance->dst_file_defined($elem) } 'dst file defined';
+
+    # If command is 'install', adds an issue, doesn't throw an exception
+    throws_ok { $instance->dst_file_readable($elem) }
+        qr/Exception::IO::FileNotArchive/,
+        'dst file readable: The file is not an archive caught';
+    is $elem->count_issues, 0, 'has no issue';
+
+    throws_ok { $instance->dst_path_exists($elem) }
+        qr/Exception::IO::PathNotFound/,
+        'dst path exists: No such file or directory caught';
     throws_ok { $instance->dst_file_mode($elem) }
         qr/Exception::IO::FileNotFound/,
         'dst file mode: No such file or directory caught';

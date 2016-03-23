@@ -19,14 +19,16 @@ has 'command' => (
 );
 
 sub validate_element {
-    my ($self, $res) = @_;
+    my ( $self, $res ) = @_;
 
     $self->dst_file_defined($res);
     $self->src_file_readable($res);
     $self->dst_file_readable($res);
-    if (!$res->has_action('install')) {
-        $self->is_src_and_dst_different($res);
-        $self->dst_file_mode($res);
+    if ( !$res->has_action('install') ) {
+        unless ( $res->src->type_is('archive') ) {
+            $self->is_src_and_dst_different($res);
+            $self->dst_file_mode($res);
+        }
     }
 
     return 1;

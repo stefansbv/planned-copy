@@ -137,7 +137,7 @@ sub install_file {
 
     # Unpack archives
     if ( $res->src->type_is('archive') && $res->dst->verb_is('unpack') ) {
-        $self->extract_archive($res);
+        $self->extract_archive($res) unless $self->archive_is_unpacked($res);
     }
 
     return 1;                                # require for the test
@@ -147,41 +147,8 @@ sub extract_archive {
     my ( $self, $res ) = @_;
     my $archive_path = $res->dst->_abs_path;
     my $archive      = Archive::Any::Lite->new($archive_path);
-
-    # say "Archive:"; XXX any use for this?
-    # say " is_impolite = ", $archive->is_impolite;
-    # say " is_naughty  = ", $archive->is_naughty;
-
-    # Check if the top dir(s) exists in the destination
-    my ($top_dirs_found, $top_dir_exists);
-    foreach my $file ( $archive->files ) {
-        my $dir_name = $file =~ m{[^/]+/$} ? $file : '';
-        if ($dir_name) {
-            $top_dirs_found++;
-            my $path = path($archive_path->parent, $dir_name);
-            $top_dir_exists++ if $path->is_dir;
-        }
-    }
     my $into_dir     = $archive_path->parent->stringify;
     my $archive_file = $archive_path->basename;
-    if ( $top_dirs_found == $top_dir_exists ) {
-        $res->add_issue(
-            App::PlannedCopy::Issue->new(
-                message  => 'Skipping unpack, destination dirs exists',
-                category => 'info',
-            ),
-        );
-        return;
-    }
-    else {
-        $res->add_issue(
-            App::PlannedCopy::Issue->new(
-                message  => 'Skipping unpack, some of the destination dirs exists',
-                category => 'info',
-            ),
-        );
-        return;
-    }
     my $extracted = try { $archive->extract($into_dir); }
         catch {
             Exception::IO::SystemCmd->throw(

@@ -64,6 +64,11 @@ use Exception::Base (
         has               => [qw( perm type )],
         string_attributes => [qw( message perm )],
     },
+    'Exception::IO::FileNotArchive' => {
+        isa               => 'Exception::IO',
+        has               => [qw( pathname )],
+        string_attributes => [qw( message pathname )],
+    },
 );
 
 1;

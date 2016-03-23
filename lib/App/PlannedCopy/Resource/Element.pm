@@ -22,7 +22,7 @@ has '_destination' => (
     init_arg => 'destination',
 );
 
-has '_issue_weight_map' => (
+has '_issue_categ_weight_map' => (
     traits  => ['Hash'],
     is      => 'ro',
     isa     => 'HashRef[Str]',
@@ -34,8 +34,8 @@ has '_issue_weight_map' => (
         };
     },
     handles => {
-        get_weight   => 'get',
-        weight_pairs => 'kv',
+        get_categ_weight   => 'get',
+        categ_weight_pairs => 'kv',
     },
 );
 
@@ -80,10 +80,10 @@ sub _new_issue_category {
     my $self = shift;
     my @issues;
     foreach my $issue ( $self->all_issues ) {
-        push @issues, $self->get_weight( $issue->category );
+        push @issues, $self->get_categ_weight( $issue->category );
     }
     my $weight = max @issues;
-    for my $pair ( $self->weight_pairs ) {
+    for my $pair ( $self->categ_weight_pairs ) {
         $self->issues_category( $pair->[0] ) if $weight == $pair->[1];
     }
     return;
@@ -162,15 +162,17 @@ When the C<handle_exception> method is invoked by the current command,
 the cathed exceptions are also added as C<App::PlannedCopy::Issue>
 objects.
 
-=head3 _issue_weight_map
+=head3 _issue_categ_weight_map
 
-Maps issue names with a weight integer.
+Maps issue category names with a weight integer.
+
+TODO: Move it out of the way...
 
 =head3 issues_category
 
 Holds the issue category with the greatest weight acording to the
-C<_issue_weight_map>.  It is used by the printer methods to assign
-colors to the resource items.
+C<_issue_categ_weight_map>.  It is used by the printer methods to
+assign colors to the resource items.
 
 =head2 Instance Methods
 

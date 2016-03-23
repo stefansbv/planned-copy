@@ -5,6 +5,8 @@ package App::PlannedCopy::Role::Validate::Common;
 use 5.0100;
 use utf8;
 use Fcntl qw(S_IRUSR S_IWUSR);
+use Path::Tiny;
+use Archive::Any::Lite;
 use Try::Tiny;
 use Moose::Role;
 
@@ -83,6 +85,13 @@ sub dst_file_defined {
 
 sub dst_file_readable {
     my ( $self, $res ) = @_;
+
+    # Handle archives
+    if ( $res->src->type_is('archive') && $res->dst->verb_is('unpack') ) {
+        return 1 if $self->archive_is_unpacked($res);
+        return 0;
+    }
+
     my $readable = try { $res->dst->_abs_path->stat->cando( S_IRUSR, 1 ) }
     catch  {
         my $err = $_;
@@ -181,6 +190,91 @@ sub get_perms {
     };
     my $perms = sprintf "%04o", $mode & 07777;
     return $perms;
+}
+
+sub archive_is_unpacked {
+    my ($self, $res) = @_;
+    my $dst_path = $res->dst->_abs_path;
+    my $src_path = $res->src->_abs_path;
+
+    my $archive;
+    {
+        local $SIG{__WARN__} = sub {
+            my $err = shift;
+            die $err;
+        };
+        try {
+            $archive = Archive::Any::Lite->new($src_path)
+        }
+        catch {
+            my $err = $_;
+            if ( $err =~ m/No handler available for/i ) {
+                Exception::IO::FileNotArchive->throw(
+                    message  => $err,
+                    pathname => $src_path,
+                );
+            }
+        };
+    }
+    return unless $archive;
+
+    if ( $archive->is_impolite ) {
+        $res->add_issue(
+            App::PlannedCopy::Issue->new(
+                message  => 'The archive is impolite',
+                category => 'info',
+                action   => 'install',
+            ),
+        );
+        return 1;       # don't know if is unpacked, but assume yes...
+    }
+
+    if ( $archive->is_naughty ) {
+        $res->add_issue(
+            App::PlannedCopy::Issue->new(
+                message  => 'The archive is naughty',
+                category => 'info',
+                action   => 'install',
+            ),
+        );
+        return 1;       # don't know if is unpacked, but assume yes...
+    }
+
+    # Check if the top dir(s) exists in the destination path
+    my $top_dirs_found = 0;
+    my $top_dir_exists = 0;
+    foreach my $file ( $archive->files ) {
+        my $dir_name = $file =~ m{[^/]+/$} ? $file : '';
+        if ($dir_name) {
+            $top_dirs_found++;
+            my $path = path($dst_path->parent, $dir_name);
+            $top_dir_exists++ if $path->is_dir;
+        }
+    }
+    if ( $top_dirs_found == $top_dir_exists ) {
+        return 1;
+    }
+    elsif ( $top_dir_exists > 1 ) {
+        $res->add_issue(
+            App::PlannedCopy::Issue->new(
+                message  => 'Some of the destination dirs exists',
+                category => 'info',
+                action   => 'install',
+            ),
+        );
+        return 1;
+    }
+    else {
+        $res->add_issue(
+            App::PlannedCopy::Issue->new(
+                message  => 'Not installed:',
+                details  => $res->src->short_path->stringify,
+                category => 'info',
+                action   => 'install',
+            ),
+        );
+        return 0;
+    }
 }
 
 no Moose::Role;
