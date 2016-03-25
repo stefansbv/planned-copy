@@ -20,12 +20,12 @@ has 'command' => (
 
 sub validate_element {
     my ($self, $res) = @_;
-
-    $self->dst_file_defined($res);
-    $self->dst_file_readable($res);
-    $self->src_file_writeable($res);
-    $self->is_src_and_dst_different($res);
-
+    if ( !$res->src->type_is('archive') ) {
+        $self->dst_file_defined($res);
+        $self->dst_file_readable($res);
+        $self->src_file_writeable($res);
+        $self->is_src_and_dst_different($res);
+    }
     return 1;
 }
 

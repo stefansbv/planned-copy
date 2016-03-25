@@ -273,6 +273,32 @@ sub check_user {
     return 1;
 }
 
+sub exceptions {
+    my ($self, $exc, $res) = @_;
+    $self->handle_exception($exc, $res);
+    $self->item_printer($res);
+    return;
+}
+
+sub prevalidate_element {
+    my ($self, $res) = @_;
+    my $cont = try {
+        $self->check_res_user($res);
+        $self->validate_element($res);
+        1;                               # required
+    }
+    catch {
+        my $exc = $_;
+        $self->handle_exception($exc, $res);
+        return undef;       # required
+    };
+    if ( $res->has_no_issues ) {
+        $self->item_printer($res);
+        return;
+    }
+    return;
+}
+
 no Moose::Role;
 
 1;

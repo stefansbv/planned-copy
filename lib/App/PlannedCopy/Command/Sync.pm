@@ -45,15 +45,13 @@ sub run {
     my $name = $self->dst_name;
     if ($name) {
         say 'Job: 1 file',
-            ' to check and synchronize',
-            ( $self->verbose ? ' (verbose)' : '' ),
+            ' to check and syncronize', ( $self->verbose ? ' (verbose)' : '' ),
             ':',
             "\n";
     }
     else {
         say 'Job: ', $res->count, ' file', ( $res->count != 1 ? 's' : '' ),
-            ' to check and synchronize',
-            ( $self->verbose ? ' (verbose)' : '' ),
+            ' to check and syncronize', ( $self->verbose ? ' (verbose)' : '' ),
             ':',
             "\n";
     }
@@ -61,43 +59,34 @@ sub run {
     $self->no_resource_message($self->project) if $res->count == 0;
 
     while ( $iter->has_next ) {
-        my $res  = $iter->next;
+        my $res = $iter->next;
         if ($name) {
 
             # Skip until found; not efficient but simple to implement ;)
             next unless $res->dst->_name eq $name;
         }
-        my $cont = try {
-            $self->validate_element($res);
 
-            # Check the user if is not root, and is explicitly set
-            unless ( $self->config->current_user eq 'root' ) {
-                $self->check_res_user($res) if !$res->dst->_user_is_default;
-            }
-            1;                               # required
-        }
-        catch {
-            my $exc = $_;
-            my $e = $self->handle_exception($exc, $res);
+        $self->prevalidate_element($res);
+        if ( $res->has_action('skip') ) {
             $self->item_printer($res);
             $self->inc_count_skip;
-            return undef;       # required
-        };
-        if ($cont) {
-            try {
-                $self->synchronize($res);
-                $self->item_printer($res);
+        }
+        else {
+
+            # syncronize
+            if ( $res->has_action('sync') ) {
+                try {
+                    $self->synchronize($res);
+                    $self->item_printer($res)
+                }
+                catch {
+                    $self->exceptions($_, $res);
+                    $self->inc_count_skip;
+                };
             }
-            catch {
-                my $exc = $_;
-                $self->handle_exception($exc, $res);
-                $self->item_printer($res);
-                $self->inc_count_skip;
-            };
         }
         $self->inc_count_proc;
     }
-
     $self->print_summary;
 
     return;
@@ -105,26 +94,16 @@ sub run {
 
 sub synchronize {
     my ( $self, $res ) = @_;
-
     return if $self->dryrun;
-
-    my $src_path  = $res->src->_abs_path;
-    my $dst_path  = $res->dst->_abs_path;
-    my $copy_flag = $res->has_action('install');
-
-    # Copy and set perm
-    if ($copy_flag) {
-        $self->copy_file( $dst_path, $src_path );
-        $self->inc_count_inst;
-    }
-    else {
-        $self->inc_count_skip;
-    }
-    $self->set_perm($src_path, 0644);
+    my $src_path = $res->src->_abs_path;
+    $self->copy_file( $res->dst->_abs_path, $src_path );
+    $self->set_perm( $src_path, 0644 );
+    $self->inc_count_inst;
+    $res->remove_issue_by_action($res, 'sync');
     $self->change_owner( $src_path, $self->repo_owner )
         if $self->config->current_user eq 'root';
-
-    return;
+    $res->issues_category('done');
+    return 1;                                # require for the test
 }
 
 sub print_summary {
@@ -156,13 +135,13 @@ The implementation of the C<sync> command.
 
 =head3 project
 
-Required parameter attribute for the install command.  The name of the
+Required parameter attribute for the syncronize command.  The name of the
 project - a directory name under C<repo_path>.
 
 =head3 dst_name
 
-Optional parameter attribute for the install command.  If provided
-only this file is installed.
+Optional parameter attribute for the syncronize command.  If provided
+only this file is syncronizeed.
 
 =head2 Instance Methods
 

@@ -282,7 +282,7 @@ sub is_src_and_dst_different {
             App::PlannedCopy::Issue->new(
                 message  => 'Different source and destination',
                 category => 'info',
-                action   => 'install',
+                action   => $self->command,
             ),
         );
         $self->inc_count_diff;
