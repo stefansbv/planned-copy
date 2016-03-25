@@ -84,7 +84,7 @@ sub set_perm {
     return;
 }
 
-sub change_owner {
+sub set_owner {
     my ( $self, $file, $user ) = @_;
     die "The 'change_owner' method works only with files.\n"
         unless $file->is_file;
@@ -124,56 +124,60 @@ sub exception_to_issue {
                 message => $e->message,
                 details => $e->logmsg,
                 category => 'error',
+                action   => 'skip',
             ),
         );
     }
-    elsif ( $e->isa('Exception::IO::WrongPerms') ) {
+    if ( $e->isa('Exception::IO::WrongPerms') ) {
         $res->add_issue(
             App::PlannedCopy::Issue->new(
                 message => $e->message,
                 details => $e->perm,
                 category => 'info',
+                action   => 'chmod',
             ),
         );
     }
-    elsif ( $e->isa('Exception::IO::PathNotDefined') ) {
+    if ( $e->isa('Exception::IO::PathNotDefined') ) {
         $res->add_issue(
             App::PlannedCopy::Issue->new(
                 message  => $e->message,
                 category => 'warn',
+                action   => 'skip',
             ),
         );
     }
-    elsif ( $e->isa('Exception::IO::PermissionDenied') ) {
+    if ( $e->isa('Exception::IO::PermissionDenied') ) {
         $res->add_issue(
             App::PlannedCopy::Issue->new(
                 message  => $e->message,
                 details  => $e->pathname->stringify,
                 category => 'warn',
+                action   => 'skip',
             ),
         );
     }
-    elsif ( $e->isa('Exception::IO::WrongUser') ) {
+    if ( $e->isa('Exception::IO::WrongUser') ) {
         $res->add_issue(
             App::PlannedCopy::Issue->new(
                 message  => $e->message,
                 details  => $e->username,
                 category => 'warn',
+                action   => 'skip',
             ),
         );
     }
-    elsif ( $e->isa('Exception::IO::FileNotFound') ) {
+    if ( $e->isa('Exception::IO::FileNotFound') ) {
         $res->add_issue(
             App::PlannedCopy::Issue->new(
                 message  => $e->message,
                 details  => $e->pathname->stringify,
                 category => 'warn',
+                action   => 'skip',
             ),
         );
     }
-    else {
-        $e->throw;
-    }
+
     return;
 }
 
@@ -245,7 +249,10 @@ sub get_project_files {
 
 sub check_res_user {
     my ( $self, $res ) = @_;
-    if ( $self->config->current_user ne $res->dst->_user ) {
+    die "The 'check_res_user' method requires a resource param.\n"
+        unless ref $res;
+    my $user = $self->config->current_user;
+    if ( $user ne 'root' && $res->dst->_user_isnot_default ) {
         Exception::IO::WrongUser->throw(
             message  => "Skipping, you're not",
             username => $res->dst->_user,
@@ -264,24 +271,6 @@ sub check_user {
         );
     }
     return 1;
-}
-
-sub is_src_and_dst_different {
-    my ( $self, $res ) = @_;
-    return if $res->src->type_is('archive');
-    my $src_path = $res->src->_abs_path;
-    my $dst_path = $res->dst->_abs_path;
-    if ( !$self->is_selfsame( $src_path, $dst_path ) ) {
-        $res->add_issue(
-            App::PlannedCopy::Issue->new(
-                message  => 'Different source and destination',
-                category => 'info',
-                action   => 'install',
-            ),
-        );
-        $self->inc_count_diff;
-    }
-    return;
 }
 
 no Moose::Role;
