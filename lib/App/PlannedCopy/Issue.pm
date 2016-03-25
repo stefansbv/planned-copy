@@ -17,7 +17,7 @@ has 'category' => (
 has 'action' => (
     traits   => ['Enumeration'],
     is       => 'rw',
-    enum     => [qw/install sync chmod chown skip none/],
+    enum     => [qw/install sync chmod chown skip unpack none/],
     required => 1,
     default  => sub {'none'},
 );
