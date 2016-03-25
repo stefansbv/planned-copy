@@ -30,6 +30,8 @@ has '_issue_category_color_map' => (
             info  => 'yellow2',
             warn  => 'blue2',
             error => 'red2',
+            done  => 'green2',
+            none  => 'clear',
         };
     },
     handles => {
@@ -69,18 +71,11 @@ sub get_issue_header {
         :                         '';
 }
 
-sub get_item_color {
-    my ( $self, $res ) = @_;
-    return $res->has_no_issues
-        ? 'green2'
-        : $self->get_color( $res->issues_category );
-}
-
 sub item_printer {
     my ( $self, $res ) = @_;
     die "Wrong parameter for 'item_printer', a resource object is expected!"
         unless $res->isa('App::PlannedCopy::Resource::Element');
-    my $color = $self->get_item_color($res);
+    my $color = $self->get_color( $res->issues_category );
     $self->printer( $color, $res->src->_name, $res->dst->short_path );
     return unless $self->verbose;
     foreach my $issue ( $res->all_issues ) {
@@ -205,11 +200,6 @@ by the name of the destination file.
 =item3 get_issue_header
 
 Returns a string corresponding to an issue category.
-
-=item3 get_item_color
-
-Return C<green2> or another color as returned by the C<get_color>
-method, if the item has issues.
 
 =head3 item_printer
 
