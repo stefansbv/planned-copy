@@ -44,13 +44,13 @@ has '_parent_dir' => (
     },
 );
 
-has '_user_is_default' => (
+has '_user_isnot_default' => (
     is       => 'rw',
     isa      => 'Str',
     required => 0,
     init_arg => undef,
     default => sub {
-        return 1;
+        return 0;
     },
 );
 
@@ -64,7 +64,7 @@ has '_user' => (
     },
     trigger => sub {
         my ( $self, $new, $old ) = @_;
-        $self->_user_is_default(0);          # reset attribute
+        $self->_user_isnot_default(1);          # reset attribute
     },
 );
 
@@ -106,7 +106,7 @@ instance method of the L<Path::Tiny> object.
 The parent dir of the C<_abs_path> as returned by the C<parent>
 instance method of the L<Path::Tiny> object.
 
-=head2 _user_is_default
+=head2 _user_isnot_default
 
 =head2 _user
 
