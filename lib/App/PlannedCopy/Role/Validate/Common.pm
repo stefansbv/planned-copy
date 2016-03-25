@@ -39,7 +39,7 @@ sub src_file_readable {
             pathname => $res->src->short_path,
         );
     }
-    return 1;
+    return;
 }
 
 sub src_file_writeable {
@@ -69,7 +69,7 @@ sub src_file_writeable {
             pathname => $res->src->short_path,
         );
     }
-    return 1;
+    return;
 }
 
 sub dst_file_defined {
@@ -80,20 +80,13 @@ sub dst_file_defined {
             pathname => '',
         );
     }
-    return 1;
+    return;
 }
 
 sub dst_file_readable {
     my ( $self, $res ) = @_;
-
-    # Handle archives
-    if ( $res->src->type_is('archive') && $res->dst->verb_is('unpack') ) {
-        return 1 if $self->archive_is_unpacked($res);
-        return 0;
-    }
-
     my $readable = try { $res->dst->_abs_path->stat->cando( S_IRUSR, 1 ) }
-    catch  {
+    catch {
         my $err = $_;
         if ( $err =~ m/Permission denied/i ) {
             Exception::IO::PermissionDenied->throw(
@@ -129,7 +122,7 @@ sub dst_file_readable {
             pathname => $res->dst->short_path,
         );
     }
-    return 1;
+    return;
 }
 
 sub dst_path_exists {
@@ -140,7 +133,7 @@ sub dst_path_exists {
             pathname => $res->dst->_parent_dir,
         );
     }
-    return 1;
+    return;
 }
 
 sub dst_file_mode {
@@ -159,12 +152,12 @@ sub dst_file_mode {
         }
         else {
             Exception::IO::WrongPerms->throw(
-                message => 'Wrong permissions:',
-                perm    => $perms,
+                message  => 'Wrong permissions:',
+                perm     => $perms,
             );
         }
     }
-    return 1;
+    return;
 }
 
 sub get_perms {
@@ -219,25 +212,27 @@ sub archive_is_unpacked {
     return unless $archive;
 
     if ( $archive->is_impolite ) {
+        # No top dir in archive
         $res->add_issue(
             App::PlannedCopy::Issue->new(
                 message  => 'The archive is impolite',
-                category => 'info',
-                action   => 'install',
+                category => 'warn',
+                action   => 'unpack',
             ),
         );
-        return 1;       # don't know if is unpacked, but assume yes...
+        return; # don't know if is unpacked, but assume yes for now...
+                # TODO: unpack in tmp and check compare each file
     }
 
     if ( $archive->is_naughty ) {
         $res->add_issue(
             App::PlannedCopy::Issue->new(
                 message  => 'The archive is naughty',
-                category => 'info',
-                action   => 'install',
+                category => 'warn',
+                action   => 'unpack',
             ),
         );
-        return 1;       # don't know if is unpacked, but assume yes...
+        return; # don't know if is unpacked, but assume yes!, and skip
     }
 
     # Check if the top dir(s) exists in the destination path
@@ -252,17 +247,17 @@ sub archive_is_unpacked {
         }
     }
     if ( $top_dirs_found == $top_dir_exists ) {
-        return 1;
+        return;
     }
     elsif ( $top_dir_exists > 1 ) {
         $res->add_issue(
             App::PlannedCopy::Issue->new(
                 message  => 'Some of the destination dirs exists',
                 category => 'info',
-                action   => 'install',
+                action   => 'unpack',
             ),
         );
-        return 1;
+        return;
     }
     else {
         $res->add_issue(
@@ -270,11 +265,57 @@ sub archive_is_unpacked {
                 message  => 'Not installed:',
                 details  => $res->src->short_path->stringify,
                 category => 'info',
+                action   => 'unpack',
+            ),
+        );
+        return;
+    }
+}
+
+sub is_src_and_dst_different {
+    my ( $self, $res ) = @_;
+    return if $res->src->type_is('archive');
+    my $src_path = $res->src->_abs_path;
+    my $dst_path = $res->dst->_abs_path;
+    if ( !$self->is_selfsame( $src_path, $dst_path ) ) {
+        $res->add_issue(
+            App::PlannedCopy::Issue->new(
+                message  => 'Different source and destination',
+                category => 'info',
                 action   => 'install',
             ),
         );
-        return 0;
+        $self->inc_count_diff;
     }
+    return;
+}
+
+sub is_owner_different {
+    my ($self, $res) = @_;
+    if ( $res->dst->_user_isnot_default ) {
+        $res->add_issue(
+            App::PlannedCopy::Issue->new(
+                message  => 'Different owner (chown is required)',
+                category => 'info',
+                action   => 'chown',
+            ),
+        );
+    }
+    return;
+}
+
+sub is_mode_different {
+    my ($self, $res) = @_;
+    if ($res->dst->_perm ne '0644') {
+        $res->add_issue(
+            App::PlannedCopy::Issue->new(
+                message  => 'Different perms',
+                category => 'info',
+                action   => 'chmod',
+            ),
+        );
+    }
+    return;
 }
 
 no Moose::Role;
