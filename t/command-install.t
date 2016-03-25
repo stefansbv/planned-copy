@@ -8,10 +8,11 @@ use Path::Tiny;
 use App::PlannedCopy::Config;
 use App::PlannedCopy::Command::Install;
 
-my $repo1_path = path( qw(t test-repo install-no-resu) );
-my $repo2_path = path( qw(t test-repo install) );
-my $dest_path  = path( qw(t test-dst install) );
-my @test_files = ( qw{filename1 filename2 filename3 filename4} );
+my $repo1_path = path(qw(t test-repo install-no-resu));
+my $repo2_path = path(qw(t test-repo install));
+my $dest_path  = path(qw(t test-dst install));
+my @test_files = ( qw{filename1 filename2 filename3 filename4
+					  topdir1/filename6 topdir1/filename7 topdir1/filename8} );
 
 local $ENV{PLCP_USR_CONFIG} = path( qw(t user.conf) );
 
@@ -66,14 +67,14 @@ subtest 'With a resource file' => sub {
         config  => $conf,
     ), 'command constructor';
 #BAIL_OUT('message');
-    like capture_stdout { $inst->run }, qr/Job: 11 files to check and install:/,
+    like capture_stdout { $inst->run }, qr/Job: 8 files to check and install:/,
         'run should work';
 
     is capture_stdout { $inst->print_summary }, '
 Summary:
- - processed: 11 records
- - skipped  : 7
- - installed: 4
+ - processed: 8 records
+ - skipped  : 1
+ - installed: 7
 
 ', 'print_summary should work';
 };
@@ -84,7 +85,8 @@ foreach my $name (@test_files) {
     my $file = path($dest_path, $name);
     unlink $file or warn "Could not unlink $file: $!";
 }
-
-rmdir $dest_path or warn "Could not rmdir $dest_path: $!";;
+my $subdir = path($dest_path, 'topdir1');
+#rmdir $subdir    or warn "Could not rmdir $subdir: $!";;
+#rmdir $dest_path or warn "Could not rmdir $dest_path: $!";
 
 done_testing;

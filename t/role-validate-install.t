@@ -17,14 +17,31 @@ my @attributes = ( qw() );
 
 my @methods = (
     qw(
-       src_file_readable
-       src_file_writeable
-       dst_file_defined
-       dst_file_readable
-       dst_path_exists
-       dst_file_mode
-       get_perms
-  ));
+        is_selfsame
+        copy_file
+        set_perm
+        set_owner
+        handle_exception
+        exception_to_issue
+        no_resource_message
+        quote_string
+        kompare
+        get_project_files
+        check_res_user
+        check_user
+        src_file_readable
+        src_file_writeable
+        dst_file_defined
+        dst_file_readable
+        dst_path_exists
+        dst_file_mode
+        get_perms
+        archive_is_unpacked
+        is_src_and_dst_different
+        is_owner_different
+        is_mode_different
+        )
+);
 
 my $instance;
 my $class = MooseX::ClassCompositor->new( { class_basename => 'Test', } )
@@ -53,12 +70,7 @@ subtest 'source and destination ok - instaled' => sub {
     isa_ok $elem->src, 'App::PlannedCopy::Resource::Element::Source', 'src';
     isa_ok $elem->dst, 'App::PlannedCopy::Resource::Element::Destination', 'dst';
 
-    lives_ok { $instance->src_file_readable($elem) } 'src file readable';
-    lives_ok { $instance->src_file_writeable($elem) } 'src file writeable';
-    lives_ok { $instance->dst_file_defined($elem) } 'dst file defined';
-    lives_ok { $instance->dst_file_readable($elem) } 'dst file readable';
-    lives_ok { $instance->dst_path_exists($elem) } 'dst path exists';
-    lives_ok { $instance->dst_file_mode($elem) } 'dst file mode ok';
+    lives_ok { $instance->validate_element($elem) } 'validate element';
 };
 
 subtest 'nonexistent src file - not installed' => sub {
@@ -79,23 +91,8 @@ subtest 'nonexistent src file - not installed' => sub {
     isa_ok $elem->src, 'App::PlannedCopy::Resource::Element::Source', 'src';
     isa_ok $elem->dst, 'App::PlannedCopy::Resource::Element::Destination', 'dst';
 
-    throws_ok { $instance->src_file_readable($elem) }
-        qr/Exception::IO::FileNotFound/,
-        'src_file_readable: src file not found caught';
-    throws_ok { $instance->src_file_writeable($elem) }
-        qr/Exception::IO::FileNotFound/,
-        'src_file_writable: no such file or directory caught';
-    lives_ok { $instance->dst_file_defined($elem) } 'dst file defined';
-
-    # If command is 'install', adds an issue, doesn't throw an exception
-    lives_ok { $instance->dst_file_readable($elem) } 'dst_file_readable';
-    is $elem->count_issues, 1, 'has an issue';
-    like $elem->get_issue(0)->message, qr/Not installed/, 'has a "Not installed" issue';
-
-    lives_ok { $instance->dst_path_exists($elem) } 'dst path exists';
-    throws_ok { $instance->dst_file_mode($elem) }
-        qr/Exception::IO::FileNotFound/,
-        'dst file mode: No such file or directory';
+    throws_ok { $instance->validate_element($elem) }
+        qr/The source file was not found/, 'validate element';
 };
 
 subtest 'nonexistent dst file - not installed' => sub {
@@ -117,19 +114,11 @@ subtest 'nonexistent dst file - not installed' => sub {
     isa_ok $elem->src, 'App::PlannedCopy::Resource::Element::Source', 'src';
     isa_ok $elem->dst, 'App::PlannedCopy::Resource::Element::Destination', 'dst';
 
-    lives_ok { $instance->src_file_readable($elem) } 'src_file_readable';
-    lives_ok { $instance->src_file_writeable($elem) } 'src_file_writable';
-    lives_ok { $instance->dst_file_defined($elem) } 'dst file defined';
+    lives_ok { $instance->validate_element($elem) } 'validate element';
 
-    # If command is 'install', adds an issue, doesn't throw an exception
-    lives_ok { $instance->dst_file_readable($elem) } 'dst_file_readable';
     is $elem->count_issues, 1, 'has an issue';
     like $elem->get_issue(0)->message, qr/Not installed/, 'has a "Not installed" issue';
 
-    lives_ok { $instance->dst_path_exists($elem) } 'dst path exists';
-    throws_ok { $instance->dst_file_mode($elem) }
-        qr/Exception::IO::FileNotFound/,
-        'dst file mode: No such file or directory caught';
 };
 
 subtest 'nonexistent dst path - not installed' => sub {
@@ -150,21 +139,10 @@ subtest 'nonexistent dst path - not installed' => sub {
     isa_ok $elem->src, 'App::PlannedCopy::Resource::Element::Source', 'src';
     isa_ok $elem->dst, 'App::PlannedCopy::Resource::Element::Destination', 'dst';
 
-    lives_ok { $instance->src_file_readable($elem) } 'src file readable';
-    lives_ok { $instance->src_file_writeable($elem) } 'src file writeable';
-    lives_ok { $instance->dst_file_defined($elem) } 'dst file defined';
+    lives_ok { $instance->validate_element($elem) } 'validate element';
 
-    # If command is 'install', adds an issue, doesn't throw an exception
-    lives_ok { $instance->dst_file_readable($elem) } 'dst_file_readable';
     is $elem->count_issues, 1, 'has an issue';
     like $elem->get_issue(0)->message, qr/Not installed/, 'has a "Not installed" issue';
-
-    throws_ok { $instance->dst_path_exists($elem) }
-        qr/Exception::IO::PathNotFound/,
-        'dst path exists';
-    throws_ok { $instance->dst_file_mode($elem) }
-        qr/Exception::IO::FileNotFound/,
-        'dst file mode: No such file or directory caught';
 };
 
 # Archive files
@@ -190,19 +168,10 @@ subtest 'source and destination ok - instaled - archive1' => sub {
     isa_ok $elem->src, 'App::PlannedCopy::Resource::Element::Source', 'src';
     isa_ok $elem->dst, 'App::PlannedCopy::Resource::Element::Destination', 'dst';
 
-    lives_ok { $instance->src_file_readable($elem) } 'src file readable';
-    lives_ok { $instance->src_file_writeable($elem) } 'src file writeable';
-    lives_ok { $instance->dst_file_defined($elem) } 'dst file defined';
+    lives_ok { $instance->validate_element($elem) } 'validate element';
 
-    # If command is 'install', adds an issue, doesn't throw an exception
-    lives_ok { $instance->dst_file_readable($elem) } 'dst_file_readable';
     is $elem->count_issues, 1, 'has an issue';
     like $elem->get_issue(0)->message, qr/Not installed/, 'has a "Not installed" issue';
-
-    lives_ok { $instance->dst_path_exists($elem) } 'dst path exists';
-    throws_ok { $instance->dst_file_mode($elem) }
-        qr/Exception::IO::FileNotFound/,
-        'dst file mode: No such file or directory caught';
 };
 
 subtest 'nonexistent dst path - not installed - archive2' => sub {
@@ -226,21 +195,10 @@ subtest 'nonexistent dst path - not installed - archive2' => sub {
     isa_ok $elem->src, 'App::PlannedCopy::Resource::Element::Source', 'src';
     isa_ok $elem->dst, 'App::PlannedCopy::Resource::Element::Destination', 'dst';
 
-    lives_ok { $instance->src_file_readable($elem) } 'src file readable';
-    lives_ok { $instance->src_file_writeable($elem) } 'src file writeable';
-    lives_ok { $instance->dst_file_defined($elem) } 'dst file defined';
+    lives_ok { $instance->validate_element($elem) } 'validate element';
 
-    # If command is 'install', adds an issue, doesn't throw an exception
-    lives_ok { $instance->dst_file_readable($elem) } 'dst_file_readable';
     is $elem->count_issues, 1, 'has an issue';
     like $elem->get_issue(0)->message, qr/Not installed/, 'has a "Not installed" issue';
-
-    throws_ok { $instance->dst_path_exists($elem) }
-        qr/Exception::IO::PathNotFound/,
-        'dst path exists';
-    throws_ok { $instance->dst_file_mode($elem) }
-        qr/Exception::IO::FileNotFound/,
-        'dst file mode: No such file or directory caught';
 };
 
 subtest 'nonexistent dst path - not installed - impolite archive' => sub {
@@ -264,33 +222,23 @@ subtest 'nonexistent dst path - not installed - impolite archive' => sub {
     isa_ok $elem->src, 'App::PlannedCopy::Resource::Element::Source', 'src';
     isa_ok $elem->dst, 'App::PlannedCopy::Resource::Element::Destination', 'dst';
 
-    lives_ok { $instance->src_file_readable($elem) } 'src file readable';
-    lives_ok { $instance->src_file_writeable($elem) } 'src file writeable';
-    lives_ok { $instance->dst_file_defined($elem) } 'dst file defined';
+    lives_ok { $instance->validate_element($elem) } 'validate element';
 
-    # If command is 'install', adds an issue, doesn't throw an exception
-    lives_ok { $instance->dst_file_readable($elem) } 'dst_file_readable';
     is $elem->count_issues, 1, 'has an issue';
     like $elem->get_issue(0)->message, qr/The archive is impolite/,
         'has a "The archive is impolite" issue';
-    throws_ok { $instance->dst_path_exists($elem) }
-        qr/Exception::IO::PathNotFound/,
-        'dst path exists';
-    throws_ok { $instance->dst_file_mode($elem) }
-        qr/Exception::IO::FileNotFound/,
-        'dst file mode: No such file or directory caught';
 };
 
 subtest 'nonexistent dst path - not installed - naughty archive' => sub {
     my $args = {
         destination => {
-            name => 'naughty.tar',
+            name => 'naughty.tar.gz',
             path => 't/test-dst/role/install2',
             perm => '0644',
             verb => 'unpack',
         },
         source => {
-            name => 'naughty.tar',
+            name => 'naughty.tar.gz',
             path => 'install',
             type => 'archive',
         },
@@ -302,21 +250,11 @@ subtest 'nonexistent dst path - not installed - naughty archive' => sub {
     isa_ok $elem->src, 'App::PlannedCopy::Resource::Element::Source', 'src';
     isa_ok $elem->dst, 'App::PlannedCopy::Resource::Element::Destination', 'dst';
 
-    lives_ok { $instance->src_file_readable($elem) } 'src file readable';
-    lives_ok { $instance->src_file_writeable($elem) } 'src file writeable';
-    lives_ok { $instance->dst_file_defined($elem) } 'dst file defined';
+    lives_ok { $instance->validate_element($elem) } 'validate element';
 
-    # If command is 'install', adds an issue, doesn't throw an exception
-    lives_ok { $instance->dst_file_readable($elem) } 'dst_file_readable';
     is $elem->count_issues, 1, 'has an issue';
     like $elem->get_issue(0)->message, qr/The archive is naughty/,
         'has a "The archive is naughty" issue';
-    throws_ok { $instance->dst_path_exists($elem) }
-        qr/Exception::IO::PathNotFound/,
-        'dst path exists';
-    throws_ok { $instance->dst_file_mode($elem) }
-        qr/Exception::IO::FileNotFound/,
-        'dst file mode: No such file or directory caught';
 };
 
 subtest 'nonexistent dst path - not installed - fake archive' => sub {
@@ -340,22 +278,10 @@ subtest 'nonexistent dst path - not installed - fake archive' => sub {
     isa_ok $elem->src, 'App::PlannedCopy::Resource::Element::Source', 'src';
     isa_ok $elem->dst, 'App::PlannedCopy::Resource::Element::Destination', 'dst';
 
-    lives_ok { $instance->src_file_readable($elem) } 'src file readable';
-    lives_ok { $instance->src_file_writeable($elem) } 'src file writeable';
-    lives_ok { $instance->dst_file_defined($elem) } 'dst file defined';
-
-    # If command is 'install', adds an issue, doesn't throw an exception
-    throws_ok { $instance->dst_file_readable($elem) }
+    throws_ok { $instance->validate_element($elem) }
         qr/Exception::IO::FileNotArchive/,
-        'dst file readable: The file is not an archive caught';
+        'validate_element: The file is not an archive caught';
     is $elem->count_issues, 0, 'has no issue';
-
-    throws_ok { $instance->dst_path_exists($elem) }
-        qr/Exception::IO::PathNotFound/,
-        'dst path exists: No such file or directory caught';
-    throws_ok { $instance->dst_file_mode($elem) }
-        qr/Exception::IO::FileNotFound/,
-        'dst file mode: No such file or directory caught';
 };
 
 done_testing();

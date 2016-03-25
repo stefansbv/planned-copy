@@ -36,6 +36,25 @@ parameter 'dst_name' => (
     documentation => q[Optional destination file name.],
 );
 
+sub prevalidate_element {
+    my ($self, $res) = @_;
+    my $cont = try {
+        $self->check_res_user($res);
+        $self->validate_element($res);
+        1;                               # required
+    }
+    catch {
+        my $exc = $_;
+        $self->handle_exception($exc, $res);
+        return undef;       # required
+    };
+    if ( $res->has_no_issues ) {
+        $self->item_printer($res);
+        return;
+    }
+    return;
+}
+
 sub run {
     my ( $self ) = @_;
 
@@ -60,39 +79,63 @@ sub run {
     $self->no_resource_message($self->project) if $res->count == 0;
 
     while ( $iter->has_next ) {
-        my $res  = $iter->next;
+        my $res = $iter->next;
         if ($name) {
 
             # Skip until found; not efficient but simple to implement ;)
             next unless $res->dst->_name eq $name;
         }
-        my $cont = try {
-            $self->validate_element($res);
 
-            # Check the user if is not root, and is explicitly set
-            unless ( $self->config->current_user eq 'root' ) {
-                $self->check_res_user($res) if !$res->dst->_user_is_default;
-            }
-            1;                               # required
-        }
-        catch {
-            my $exc = $_;
-            $self->handle_exception($exc, $res);
+        $self->prevalidate_element($res);
+
+        if ( $res->has_action('skip') ) {
             $self->item_printer($res);
             $self->inc_count_skip;
-            return undef;       # required
-        };
-        if ($cont) {
-            try {
-                $self->install_file($res);
-                $self->item_printer($res);
+        }
+        else {
+
+            # install
+            if ( $res->has_action('install') || $res->has_action('unpack') ) {
+                try {
+                    $self->install_file($res);
+                    $self->item_printer($res)
+                        unless $res->has_action('unpack')
+                        || $res->has_action('chmod')
+                        || $res->has_action('chown');
+                }
+                catch {
+                    $self->exceptions($_, $res);
+                    $self->inc_count_skip;
+                };
             }
-            catch {
-                my $exc = $_;
-                $self->handle_exception($exc, $res);
-                $self->item_printer($res);
-                $self->inc_count_skip;
-            };
+
+            # chmod
+            if ( $res->has_action('chmod') ) {
+                try {
+                    $self->change_perms($res);
+                    $self->item_printer($res);
+                }
+                catch { $self->exceptions($_, $res) };
+            }
+
+            # chown
+            if ( $res->has_action('chown') ) {
+                try {
+                    $self->change_owner($res);
+                    $self->item_printer($res);
+                }
+                catch { $self->exceptions($_, $res) };
+            }
+
+            # unpack
+            if ( $res->has_action('unpack') ) {
+                try {
+                    $self->extract_archive($res);
+                    $self->item_printer($res);
+                    $self->remove_archive($res);
+                }
+                catch { $self->exceptions($_, $res) };
+            }
         }
         $self->inc_count_proc;
     }
@@ -102,18 +145,18 @@ sub run {
     return;
 }
 
+sub exceptions {
+    my ($self, $exc, $res) = @_;
+    $self->handle_exception($exc, $res);
+    $self->item_printer($res);
+    return;
+}
+
 sub install_file {
     my ( $self, $res ) = @_;
-
     return if $self->dryrun;
-
-    my $src_path  = $res->src->_abs_path;
-    my $dst_path  = $res->dst->_abs_path;
-    my $copy_flag = $res->has_action('install');
-    my $mode_flag = $res->has_action('chmod');
-
     my $parent_dir = $res->dst->_parent_dir;
-    if ( $copy_flag && !$parent_dir->is_dir ) {
+    if ( !$parent_dir->is_dir ) {
         unless ( $parent_dir->mkpath ) {
             Exception::IO::PathNotFound->throw(
                 message  => 'Failed to create the destination path.',
@@ -121,30 +164,47 @@ sub install_file {
             );
         }
     }
-
-    # Copy and set perms
-    if ($copy_flag) {
-        $self->copy_file( $src_path, $dst_path );
-        $self->inc_count_inst;
-    }
-    else {
-        $self->inc_count_skip;
-    }
-    $self->set_perm( $dst_path, $res->dst->_perm ) if $mode_flag || $copy_flag;
-    $self->change_owner( $dst_path, $res->dst->_user )
-        if $self->config->current_user eq 'root'
-        && !$res->dst->_user_is_default;
-
-    # Unpack archives
-    if ( $res->src->type_is('archive') && $res->dst->verb_is('unpack') ) {
-        $self->extract_archive($res) unless $self->archive_is_unpacked($res);
-    }
-
+    $self->copy_file( $res->src->_abs_path, $res->dst->_abs_path );
+    $self->inc_count_inst;
+    $res->remove_issue_by_action($res, 'install');
+    $res->issues_category('done');
     return 1;                                # require for the test
+}
+
+sub change_perms {
+    my ($self, $res) = @_;
+    return if $self->dryrun;
+    $self->set_perm( $res->dst->_abs_path, $res->dst->_perm );
+    $res->remove_issue_by_action($res, 'chmod');
+    $res->add_issue(
+        App::PlannedCopy::Issue->new(
+            message  => 'Perms changed to',
+            details  => $res->dst->_perm,
+            category => 'info',
+        ),
+    );
+    $res->issues_category('done');
+    return 1;
+}
+
+sub change_owner {
+    my ( $self, $res ) = @_;
+    return if $self->dryrun;
+    $self->set_owner( $res->dst->_abs_path, $res->dst->_user );
+    $res->remove_issue_by_action( $res, 'chown' );
+    $res->add_issue(
+        App::PlannedCopy::Issue->new(
+            message  => 'Owner changed',
+            category => 'info',
+        ),
+    );
+    $res->issues_category('done');
+    return 1;
 }
 
 sub extract_archive {
     my ( $self, $res ) = @_;
+    return if $self->dryrun;
     my $archive_path = $res->dst->_abs_path;
     my $archive      = Archive::Any::Lite->new($archive_path);
     my $into_dir     = $archive_path->parent->stringify;
@@ -158,6 +218,7 @@ sub extract_archive {
         return undef;       # required
     };
     if ($extracted) {
+        $res->remove_issue_by_action($res, 'unpack');
         $res->add_issue(
             App::PlannedCopy::Issue->new(
                 message  => 'Unpacked',
@@ -165,7 +226,24 @@ sub extract_archive {
                 category => 'info',
             ),
         );
+        $res->issues_category('done');
     }
+    return 1;
+}
+
+sub remove_archive {
+    my ( $self, $res ) = @_;
+    return if $self->dryrun;
+    my $archive_path = $res->dst->_abs_path;
+    my $archive_file = $archive_path->basename;
+    unlink $archive_path
+        || $res->add_issue(
+        App::PlannedCopy::Issue->new(
+            message  => 'Could not unlink',
+            details  => $archive_file,
+            category => 'warn',
+        ),
+        );
     return;
 }
 

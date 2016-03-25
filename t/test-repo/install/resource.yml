@@ -3,62 +3,32 @@ resources:
   -
     destination:
       name: archive1.tar.gz
-      path: ~
+      path: t/test-dst/install
       perm: '0644'
       verb: unpack
     source:
       name: archive1.tar.gz
-      path: test2
+      path: install
       type: archive
   -
     destination:
-      name: archive1.zip
-      path: ~
+      name: impolite.tar.gz
+      path: t/test-dst/install
       perm: '0644'
       verb: unpack
     source:
-      name: archive1.zip
-      path: test2
+      name: impolite.tar.gz
+      path: install
       type: archive
   -
     destination:
-      name: archive2.tar.gz
-      path: ~
+      name: naughty.tar.gz
+      path: t/test-dst/install
       perm: '0644'
       verb: unpack
     source:
-      name: archive2.tar.gz
-      path: test2
-      type: archive
-  -
-    destination:
-      name: archive2.zip
-      path: ~
-      perm: '0644'
-      verb: unpack
-    source:
-      name: archive2.zip
-      path: test2
-      type: archive
-  -
-    destination:
-      name: archive3.tar.gz
-      path: ~
-      perm: '0644'
-      verb: unpack
-    source:
-      name: archive3.tar.gz
-      path: test2
-      type: archive
-  -
-    destination:
-      name: archive3.zip
-      path: ~
-      perm: '0644'
-      verb: unpack
-    source:
-      name: archive3.zip
-      path: test2
+      name: naughty.tar.gz
+      path: install
       type: archive
   -
     destination:

@@ -12,10 +12,22 @@ use App::PlannedCopy::Role::Utils;
 
 my @attributes = ( qw() );
 
-my @methods = ( qw( is_selfsame copy_file set_perm change_owner
-                   handle_exception no_resource_message quote_string
-                   kompare get_project_files check_res_user
-                   check_user ) );
+my @methods = (
+    qw(
+        is_selfsame
+        copy_file
+        set_perm
+        set_owner
+        handle_exception
+        exception_to_issue
+        no_resource_message
+        quote_string
+        kompare
+        get_project_files
+        check_res_user
+        check_user
+        )
+);
 
 my $instance;
 my $class = MooseX::ClassCompositor->new( { class_basename => 'Test', } )
@@ -53,5 +65,3 @@ throws_ok { $instance->set_perm( $dst1, 0644 ) }
 lives_ok { $instance->set_perm( $dst2, 0644 ) } 'file set perm';
 
 done_testing();
-
-# end

@@ -45,7 +45,7 @@ has 'issues_category' => (
     required => 0,
     init_arg => undef,
     default  => sub {
-        return '';
+        return 'none';
     },
 );
 
@@ -61,6 +61,7 @@ has '_issue' => (
         get_issue     => 'get',
         count_issues  => 'count',
         has_no_issues => 'is_empty',
+        remove_issue  => 'delete',
     },
     trigger => sub {
         my ( $self, $new, $old ) = @_;
@@ -68,16 +69,12 @@ has '_issue' => (
     },
 );
 
-sub has_action {
-    my ($self, $action) = @_;
-    foreach my $issue ( $self->all_issues ) {
-        return 1 if $issue->action eq $action;
-    }
-    return 0;
-}
-
 sub _new_issue_category {
     my $self = shift;
+    if ($self->has_no_issues) {
+        $self->issues_category('none');
+        return;
+    }
     my @issues;
     foreach my $issue ( $self->all_issues ) {
         push @issues, $self->get_categ_weight( $issue->category );
@@ -87,6 +84,14 @@ sub _new_issue_category {
         $self->issues_category( $pair->[0] ) if $weight == $pair->[1];
     }
     return;
+}
+
+sub has_action {
+    my ($self, $action) = @_;
+    foreach my $issue ( $self->all_issues ) {
+        return 1 if $issue->action eq $action;
+    }
+    return 0;
 }
 
 sub src {
@@ -99,6 +104,18 @@ sub dst {
     my $self = shift;
     return App::PlannedCopy::Resource::Element::Destination->new(
         $self->_destination );
+}
+
+sub remove_issue_by_action {
+    my ($self, $res, $action) = @_;
+    my $index = 0;
+    foreach my $issue ( $res->all_issues ) {
+        if ( $issue->action eq $action ) {
+            $res->remove_issue($index);
+        }
+        $index++;
+    }
+    return;
 }
 
 __PACKAGE__->meta->make_immutable;
