@@ -45,13 +45,13 @@ sub run {
     my $name = $self->dst_name;
     if ($name) {
         say 'Job: 1 file',
-            ' to check and syncronize', ( $self->verbose ? ' (verbose)' : '' ),
+            ' to check and synchronize', ( $self->verbose ? ' (verbose)' : '' ),
             ':',
             "\n";
     }
     else {
         say 'Job: ', $res->count, ' file', ( $res->count != 1 ? 's' : '' ),
-            ' to check and syncronize', ( $self->verbose ? ' (verbose)' : '' ),
+            ' to check and synchronize', ( $self->verbose ? ' (verbose)' : '' ),
             ':',
             "\n";
     }
@@ -67,13 +67,16 @@ sub run {
         }
 
         $self->prevalidate_element($res);
+
+        my @i = $res->all_issues;
+
         if ( $res->has_action('skip') ) {
             $self->item_printer($res);
             $self->inc_count_skip;
         }
         else {
 
-            # syncronize
+            # synchronize
             if ( $res->has_action('sync') ) {
                 try {
                     $self->synchronize($res);
@@ -97,7 +100,7 @@ sub synchronize {
     return if $self->dryrun;
     my $src_path = $res->src->_abs_path;
     $self->copy_file( $res->dst->_abs_path, $src_path );
-    $self->set_perm( $src_path, 0644 );
+    $self->set_perm( $src_path, oct(644) );
     $self->inc_count_inst;
     $res->remove_issue_by_action($res, 'sync');
     $self->change_owner( $src_path, $self->repo_owner )
@@ -135,13 +138,13 @@ The implementation of the C<sync> command.
 
 =head3 project
 
-Required parameter attribute for the syncronize command.  The name of the
+Required parameter attribute for the synchronize command.  The name of the
 project - a directory name under C<repo_path>.
 
 =head3 dst_name
 
-Optional parameter attribute for the syncronize command.  If provided
-only this file is syncronizeed.
+Optional parameter attribute for the synchronize command.  If provided
+only this file is synchronized.
 
 =head2 Instance Methods
 

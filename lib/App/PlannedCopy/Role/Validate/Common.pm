@@ -76,7 +76,7 @@ sub dst_file_defined {
     my ( $self, $res ) = @_;
     if ( $res->dst->_path =~ m/^{\s?undef\s?}/ ) {
         Exception::IO::PathNotDefined->throw(
-            message  => 'The destination path is not set',
+            message  => 'Skipping, the destination path is not set',
             pathname => '',
         );
     }
@@ -102,6 +102,16 @@ sub dst_file_readable {
                         details  => $res->src->short_path->stringify,
                         category => 'info',
                         action   => 'install',
+                    ),
+                );
+            }
+            elsif ( $self->command eq 'sync' ) {
+                $res->add_issue(
+                    App::PlannedCopy::Issue->new(
+                        message  => 'Not installed:',
+                        details  => $res->src->short_path->stringify,
+                        category => 'info',
+                        action   => 'skip',
                     ),
                 );
             }
@@ -278,15 +288,30 @@ sub is_src_and_dst_different {
     my $src_path = $res->src->_abs_path;
     my $dst_path = $res->dst->_abs_path;
     if ( !$self->is_selfsame( $src_path, $dst_path ) ) {
+        my $action = 'none';
+        $action = $self->command
+            if ( $self->command eq 'install' )
+            || ( $self->command eq 'sync'    );
         $res->add_issue(
             App::PlannedCopy::Issue->new(
                 message  => 'Different source and destination',
+                #details  => $res->dst->short_path->stringify,
                 category => 'info',
-                action   => $self->command,
+                action   => $action,
             ),
         );
-        $self->inc_count_diff;
     }
+    else {
+        # $res->add_issue(
+        #     App::PlannedCopy::Issue->new(
+        #         message  => 'Same source and destination',
+        #         details  => $res->dst->short_path->stringify,
+        #         category => 'info',
+        #         action   => 'skip',
+        #     ),
+        # );
+    }
+
     return;
 }
 
