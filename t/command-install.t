@@ -12,7 +12,10 @@ my $repo1_path = path(qw(t test-repo install-no-resu));
 my $repo2_path = path(qw(t test-repo install));
 my $dest_path  = path(qw(t test-dst install));
 my @test_files = ( qw{filename1 filename2 filename3 filename4
-					  topdir1/filename6 topdir1/filename7 topdir1/filename8} );
+                      filename6 filename7 filename8
+                      topdir1/filename6 topdir1/filename7 topdir1/filename8
+                      tmp/topdir1/filename6 tmp/topdir1/filename7
+                      tmp/topdir1/filename8} );
 
 local $ENV{PLCP_USR_CONFIG} = path( qw(t user.conf) );
 
@@ -82,11 +85,15 @@ Summary:
 # Cleanup
 
 foreach my $name (@test_files) {
-    my $file = path($dest_path, $name);
+    my $file = path($dest_path, $name)->stringify;
     unlink $file or warn "Could not unlink $file: $!";
 }
-my $subdir = path($dest_path, 'topdir1');
-#rmdir $subdir    or warn "Could not rmdir $subdir: $!";;
-#rmdir $dest_path or warn "Could not rmdir $dest_path: $!";
+my $subdir1 = path($dest_path, 'topdir1')->stringify;
+my $subdir2 = path($dest_path, 'tmp', 'topdir1')->stringify;
+my $subdir3 = path($dest_path, 'tmp')->stringify;
+rmdir $subdir1   or warn "Could not rmdir $subdir: $!";
+rmdir $subdir2   or warn "Could not rmdir $subdir: $!";
+rmdir $subdir3   or warn "Could not rmdir $subdir: $!";
+rmdir $dest_path or warn "Could not rmdir $dest_path: $!";
 
 done_testing;
