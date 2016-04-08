@@ -5,8 +5,10 @@ package App::PlannedCopy::Role::Validate::Check;
 use 5.0100;
 use utf8;
 use Moose::Role;
+use Try::Tiny;
 
-with qw(App::PlannedCopy::Role::Validate::Common);
+with qw(App::PlannedCopy::Role::Utils
+        App::PlannedCopy::Role::Validate::Common);
 
 use App::PlannedCopy::Exceptions;
 
@@ -19,15 +21,25 @@ has 'command' => (
 );
 
 sub validate_element {
-    my ($self, $res) = @_;
-
+    my ( $self, $res ) = @_;
     $self->dst_file_defined($res);
     $self->src_file_readable($res);
-    $self->dst_file_readable($res);
-    $self->is_src_and_dst_different($res);
-    $self->dst_file_mode($res);
-
-    return;
+    if ( $res->src->type_is('archive') ) {
+        $self->archive_is_unpacked($res);
+        return 1;
+    }
+    else {
+        $self->dst_file_readable($res);
+        if ( $res->has_action('install') ) {
+            $self->is_owner_different($res);
+            $self->is_mode_different($res);
+        }
+        else {
+            $self->is_src_and_dst_different($res);
+            $self->dst_file_mode($res);
+        }
+        return 1;
+    }
 }
 
 no Moose::Role;
