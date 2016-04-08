@@ -79,9 +79,9 @@ subtest 'With a resource file' => sub {
     is capture_stdout { $check->print_summary }, '
 Summary:
  - processed: 5 records
- - checked  : 2
- - skipped  : 3
- - different: 1
+ - checked  : 4
+ - skipped  : 1
+ - different: 3
 
 ', 'print_summary should work';
 };
