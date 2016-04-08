@@ -48,12 +48,6 @@ Summary:
 
 ', 'print_summary should work';
 
-    is capture_stdout { $resu->note }, "---
- Remember to EDIT the destination paths
-  in '$resu_file'.
----
-", 'note should work';
-
 };
 
 done_testing;
