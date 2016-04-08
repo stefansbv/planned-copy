@@ -216,7 +216,10 @@ sub run {
     $self->project_changes_list_printer( 'added',   @add );
 
     $self->print_summary;
-    $self->note if $self->count_added > 0;
+
+    if ( $self->count_added > 0 && $self->open_editor ) {
+        $self->shell( $self->editor . ' ' . $self->resource_file );
+    }
 
     return;
 }
@@ -230,14 +233,6 @@ sub print_summary {
     say ' - added  : ', $self->dryrun ? '0 (dry-run)' : $self->count_added;
     say '';
     return;
-}
-
-sub note {
-    my $self = shift;
-    my $resource = $self->resource_file;
-    say "---";
-    say " Remember to EDIT the destination paths\n  in '$resource'.";
-    say "---";
 }
 
 sub write_resource {
@@ -291,6 +286,19 @@ sub get_all_files {
     }
     return \@files;
 }
+
+has open_editor => (
+    is       => 'ro',
+    isa      => 'Bool',
+    lazy     => 1,
+    default  => sub {
+        my $self = shift;
+        $self->config->get(
+            key => 'resu.open_editor',
+            as  => 'bool',
+        ) // 0;
+    },
+);
 
 __PACKAGE__->meta->make_immutable;
 

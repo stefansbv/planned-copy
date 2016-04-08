@@ -7,6 +7,7 @@ use utf8;
 use Moose;
 use Path::Tiny;
 use Path::Iterator::Rule;
+use IPC::System::Simple 1.17 qw(run);
 use MooseX::App qw(Color Version);
 use App::PlannedCopy::Config;
 use App::PlannedCopy::Issue;
@@ -91,6 +92,27 @@ sub _build_projects {
     }
     return \@dirs;
 }
+
+has editor => (
+    is      => 'ro',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return
+            $self->config->get( key => 'core.editor' ) || $ENV{EDITOR};
+    }
+);
+
+sub shell {
+    my ($self, $cmd) = @_;
+    local $SIG{__DIE__} = sub {
+        ( my $msg = shift ) =~ s/\s+at\s+.+/\n/ms;
+        die $msg;
+    };
+    run $cmd;
+    return $self;
+}
+
 
 __PACKAGE__->meta->make_immutable;
 
