@@ -40,9 +40,8 @@ sub run {
     my ( $self ) = @_;
 
     my $file = $self->config->resource_file( $self->project );
-    my $res  = App::PlannedCopy::Resource->new( resource_file => $file);
+    my $res  = App::PlannedCopy::Resource->new( resource_file => $file );
     my $iter = $res->resource_iter;
-
     my $name = $self->dst_name;
     if ($name) {
         say 'Job: 1 file',
@@ -82,7 +81,7 @@ sub run {
                     $self->item_printer($res)
                         unless $res->has_action('unpack')
                         || $res->has_action('chmod')
-                        || $res->has_action('chown');
+                        || $res->has_action('chown'); # print it later
                 }
                 catch {
                     $self->exceptions($_, $res);
@@ -192,7 +191,6 @@ sub extract_archive {
         return undef;       # required
     };
     if ($extracted) {
-        $res->remove_issue_by_action($res, 'unpack');
         $res->add_issue(
             App::PlannedCopy::Issue->new(
                 message  => 'Unpacked',
