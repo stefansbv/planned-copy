@@ -293,7 +293,12 @@ sub prevalidate_element {
         return undef;       # required
     };
     if ( $res->has_no_issues ) {
-        $self->item_printer($res);
+        if ($self->verbose) {
+            $self->item_printer($res) unless $self->command eq 'check';
+        }
+        else {
+            $self->inc_count_skip;
+        }
         return;
     }
     return;
