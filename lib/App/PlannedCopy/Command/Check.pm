@@ -84,16 +84,20 @@ sub check_project {
 
     while ( $iter->has_next ) {
         my $res = $iter->next;
-        my $cont = try { $self->validate_element($res); 1; }
-        catch {
-            my $exc = $_;
-            $self->handle_exception($exc, $res);
+        $self->prevalidate_element($res);
+
+        if ( $res->has_action('skip') ) {
             $self->item_printer($res) unless $batch;
             $self->inc_count_skip;
-            return undef;    # required
-        };
-        if ($cont) {
-            $self->item_printer($res) unless $batch;
+        }
+        else {
+            if (   $res->has_action('install')
+                || $res->has_action('unpack')
+                || $res->has_action('chmod')
+                || $res->has_action('chown') ) {
+                $self->item_printer($res) unless $batch;
+                $self->inc_count_diff;
+            }
             $self->inc_count_inst;
         }
         $self->inc_count_proc;
@@ -122,6 +126,7 @@ sub print_summary {
     my $count_diff = $self->count_diff;
     if ($batch) {
         $count_diff = $self->count_differences;
+        $count_diff .= ' projects';
         say '';
         $self->difference_printer( $self->get_differences );
     }
