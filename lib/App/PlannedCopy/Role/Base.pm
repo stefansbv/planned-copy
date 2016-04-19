@@ -77,6 +77,16 @@ has count_dirs => (
     },
 );
 
+has count_same => (
+    traits  => ['Counter'],
+    is      => 'rw',
+    isa     => 'Int',
+    default => 0,
+    handles => {
+        inc_count_same => 'inc',
+    },
+);
+
 no Moose::Role;
 
 1;

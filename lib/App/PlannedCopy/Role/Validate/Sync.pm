@@ -21,27 +21,25 @@ has 'command' => (
 
 sub validate_element {
     my ($self, $res) = @_;
+    $self->dst_file_defined($res);
+    $self->src_file_readable($res);
     if ( $res->src->type_is('archive') ) {
         $res->add_issue(
             App::PlannedCopy::Issue->new(
-                message  => 'The source is an archive',
-                details  => $res->src->short_path->stringify,
-                category => 'info',
+                message  => 'Skipping, the source is an archive',
+                category => 'warn',
                 action   => 'skip',
             ),
         );
-        return 1;
     }
     else {
-        $self->dst_file_defined($res);
-        $self->src_file_readable($res);
         $self->dst_file_readable($res);
+        $self->src_file_writeable($res);
         if ( !$res->has_action('skip') ) {
-            $self->src_file_writeable($res);
             $self->is_src_and_dst_different($res);
         }
-        return 1;
     }
+    return;
 }
 
 no Moose::Role;

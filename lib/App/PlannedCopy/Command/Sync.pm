@@ -68,24 +68,31 @@ sub run {
 
         $self->prevalidate_element($res);
 
-        my @i = $res->all_issues;
-
-        if ( $res->has_action('skip') ) {
-            $self->item_printer($res);
+        if ( $res->has_no_issues ) {
+            $self->item_printer($res) if $self->verbose;
             $self->inc_count_skip;
         }
         else {
+            if ( $res->has_action('skip') ) {
+                $self->item_printer($res);
+                $self->inc_count_skip;
+            }
+            else {
 
-            # synchronize
-            if ( $res->has_action('sync') ) {
-                try {
-                    $self->synchronize($res);
-                    $self->item_printer($res)
+                # synchronize
+                if (   $res->has_action('update') ) {
+                    try {
+                        $self->synchronize($res);
+                        $self->inc_count_inst;
+                    }
+                    catch {
+                        $self->exceptions( $_, $res );
+                        $self->inc_count_skip;
+                    };
                 }
-                catch {
-                    $self->exceptions($_, $res);
-                    $self->inc_count_skip;
-                };
+
+                # print
+                $self->item_printer($res);
             }
         }
         $self->inc_count_proc;
@@ -101,7 +108,6 @@ sub synchronize {
     my $src_path = $res->src->_abs_path;
     $self->copy_file( $res->dst->_abs_path, $src_path );
     $self->set_perm( $src_path, oct(644) );
-    $self->inc_count_inst;
     $res->remove_issue_by_action($res, 'sync');
     $self->change_owner( $src_path, $self->repo_owner )
         if $self->config->current_user eq 'root';

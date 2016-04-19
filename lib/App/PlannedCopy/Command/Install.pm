@@ -68,53 +68,70 @@ sub run {
 
         $self->prevalidate_element($res);
 
-        if ( $res->has_action('skip') ) {
-            $self->item_printer($res);
+        if ( $res->has_no_issues ) {
+            $self->item_printer($res) if $self->verbose;
             $self->inc_count_skip;
         }
         else {
-
-            # install
-            if ( $res->has_action('install') || $res->has_action('unpack') ) {
-                try {
-                    $self->install_file($res);
-                    $self->item_printer($res)
-                        unless $res->has_action('unpack')
-                        || $res->has_action('chmod')
-                        || $res->has_action('chown'); # print it later
-                }
-                catch {
-                    $self->exceptions($_, $res);
-                    $self->inc_count_skip;
-                };
+            if ( $res->has_action('skip') ) {
+                $self->item_printer($res);
+                $self->inc_count_skip;
             }
+            else {
 
-            # chmod
-            if ( $res->has_action('chmod') ) {
-                try {
-                    $self->change_perms($res);
-                    $self->item_printer($res);
+                # install
+                if (   $res->has_action('install')
+                    || $res->has_action('unpack') )
+                {
+                    try {
+                        $self->install_file($res);
+                        $self->inc_count_inst;
+                    }
+                    catch {
+                        $self->exceptions( $_, $res );
+                        $self->inc_count_skip;
+                    };
                 }
-                catch { $self->exceptions($_, $res) };
-            }
 
-            # chown
-            if ( $res->has_action('chown') ) {
-                try {
-                    $self->change_owner($res);
-                    $self->item_printer($res);
+                # update
+                if ( $res->has_action('update') ) {
+                    try {
+                        $self->install_file($res);
+                        $self->inc_count_inst;
+                    }
+                    catch {
+                        $self->exceptions( $_, $res );
+                        $self->inc_count_skip;
+                    };
                 }
-                catch { $self->exceptions($_, $res) };
-            }
 
-            # unpack
-            if ( $res->has_action('unpack') ) {
-                try {
-                    $self->extract_archive($res);
-                    $self->item_printer($res);
-                    $self->remove_archive($res);
+                # chmod
+                if ( $res->has_action('chmod') ) {
+                    try {
+                        $self->change_perms($res);
+                    }
+                    catch { $self->exceptions( $_, $res ) };
                 }
-                catch { $self->exceptions($_, $res) };
+
+                # chown
+                if ( $res->has_action('chown') ) {
+                    try {
+                        $self->change_owner($res);
+                    }
+                    catch { $self->exceptions( $_, $res ) };
+                }
+
+                # unpack
+                if ( $res->has_action('unpack') ) {
+                    try {
+                        $self->extract_archive($res);
+                        $self->remove_archive($res);
+                    }
+                    catch { $self->exceptions( $_, $res ) };
+                }
+
+                # print
+                $self->item_printer($res);
             }
         }
         $self->inc_count_proc;
@@ -138,10 +155,10 @@ sub install_file {
         }
     }
     $self->copy_file( $res->src->_abs_path, $res->dst->_abs_path );
-    $self->inc_count_inst;
     $res->remove_issue_by_action($res, 'install');
+    $res->remove_issue_by_action($res, 'update');
     $res->issues_category('done');
-    return 1;                                # require for the test
+    return;
 }
 
 sub change_perms {
@@ -157,7 +174,7 @@ sub change_perms {
         ),
     );
     $res->issues_category('done');
-    return 1;
+    return;
 }
 
 sub change_owner {
@@ -172,7 +189,7 @@ sub change_owner {
         ),
     );
     $res->issues_category('done');
-    return 1;
+    return;
 }
 
 sub extract_archive {
@@ -191,6 +208,7 @@ sub extract_archive {
         return undef;       # required
     };
     if ($extracted) {
+        $res->remove_issue_by_action( $res, 'unpack' );
         $res->add_issue(
             App::PlannedCopy::Issue->new(
                 message  => 'Unpacked',
@@ -200,7 +218,7 @@ sub extract_archive {
         );
         $res->issues_category('done');
     }
-    return 1;
+    return;
 }
 
 sub remove_archive {

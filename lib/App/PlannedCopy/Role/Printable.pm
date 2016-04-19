@@ -76,7 +76,10 @@ sub item_printer {
     die "Wrong parameter for 'item_printer', a resource object is expected!"
         unless $res->isa('App::PlannedCopy::Resource::Element');
     my $color = $self->get_color( $res->issues_category );
-    $self->printer( $color, $res->src->_name, $res->dst->short_path );
+    unless ( $res->is_printed ) {
+        $self->printer( $color, $res->src->_name, $res->dst->short_path );
+        $res->inc_printed;
+    }
     return unless $self->verbose;
     foreach my $issue ( $res->all_issues ) {
         my $issue_color = $self->get_color( $issue->category );

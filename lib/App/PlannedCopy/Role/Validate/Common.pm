@@ -95,11 +95,12 @@ sub dst_file_readable {
             );
         }
         elsif ( $err =~ m/No such file or directory/i ) {
-            if ( $self->command eq 'install' ) {
+            if (   ( $self->command eq 'install' )
+                || ( $self->command eq 'check' )
+                || ( $self->command eq 'diff' ) ) {
                 $res->add_issue(
                     App::PlannedCopy::Issue->new(
-                        message  => 'Not installed:',
-                        details  => $res->src->short_path->stringify,
+                        message  => 'Not installed',
                         category => 'info',
                         action   => 'install',
                     ),
@@ -108,8 +109,7 @@ sub dst_file_readable {
             elsif ( $self->command eq 'sync' ) {
                 $res->add_issue(
                     App::PlannedCopy::Issue->new(
-                        message  => 'Not installed:',
-                        details  => $res->src->short_path->stringify,
+                        message  => 'Not installed',
                         category => 'info',
                         action   => 'skip',
                     ),
@@ -142,30 +142,6 @@ sub dst_path_exists {
             message  => 'Not installed, path not found',
             pathname => $res->dst->_parent_dir,
         );
-    }
-    return;
-}
-
-sub dst_file_mode {
-    my ( $self, $res ) = @_;
-    my $perms = $self->get_perms( $res->dst->_abs_path );
-    if ( $perms ne $res->dst->_perm ) {
-        if ( $self->command eq 'install' ) {
-            $res->add_issue(
-                App::PlannedCopy::Issue->new(
-                    message  => 'Wrong permissions:',
-                    details  => $perms,
-                    category => 'info',
-                    action   => 'chmod',
-                ),
-            );
-        }
-        else {
-            Exception::IO::WrongPerms->throw(
-                message  => 'Wrong permissions:',
-                perm     => $perms,
-            );
-        }
     }
     return;
 }
@@ -221,24 +197,25 @@ sub archive_is_unpacked {
     }
     return unless $archive;
 
+    my $categ = $self->command eq 'install' ? 'warn' : 'info';
     if ( $archive->is_impolite ) {
+
         # No top dir in archive
         $res->add_issue(
             App::PlannedCopy::Issue->new(
                 message  => 'The archive is impolite',
-                category => 'warn',
+                category => $categ,
                 action   => 'unpack',
             ),
         );
         return; # don't know if is unpacked, but assume yes for now...
                 # TODO: unpack in tmp and check compare each file
     }
-
     if ( $archive->is_naughty ) {
         $res->add_issue(
             App::PlannedCopy::Issue->new(
                 message  => 'The archive is naughty',
-                category => 'warn',
+                category => $categ,
                 action   => 'unpack',
             ),
         );
@@ -272,8 +249,7 @@ sub archive_is_unpacked {
     else {
         $res->add_issue(
             App::PlannedCopy::Issue->new(
-                message  => 'Not installed:',
-                details  => $res->src->short_path->stringify,
+                message  => 'Not installed',
                 category => 'info',
                 action   => 'unpack',
             ),
@@ -284,38 +260,24 @@ sub archive_is_unpacked {
 
 sub is_src_and_dst_different {
     my ( $self, $res ) = @_;
-    return if $res->src->type_is('archive');
+    die "The 'is_src_and_dst_different' method, does not work on archives"
+        if $res->src->type_is('archive');
     my $src_path = $res->src->_abs_path;
     my $dst_path = $res->dst->_abs_path;
     if ( !$self->is_selfsame( $src_path, $dst_path ) ) {
-        my $action = 'none';
-        $action = $self->command
-            if ( $self->command eq 'install' )
-            || ( $self->command eq 'sync'    );
+        my $action = 'update';
         $res->add_issue(
             App::PlannedCopy::Issue->new(
                 message  => 'Different source and destination',
-                #details  => $res->dst->short_path->stringify,
                 category => 'info',
                 action   => $action,
             ),
         );
     }
-    else {
-        # $res->add_issue(
-        #     App::PlannedCopy::Issue->new(
-        #         message  => 'Same source and destination',
-        #         details  => $res->dst->short_path->stringify,
-        #         category => 'info',
-        #         action   => 'skip',
-        #     ),
-        # );
-    }
-
     return;
 }
 
-sub is_owner_different {
+sub is_owner_default {
     my ($self, $res) = @_;
     if ( $res->dst->_user_isnot_default ) {
         $res->add_issue(
@@ -330,6 +292,30 @@ sub is_owner_different {
 }
 
 sub is_mode_different {
+    my ( $self, $res ) = @_;
+    my $perms = $self->get_perms( $res->dst->_abs_path );
+    if ( $perms ne $res->dst->_perm ) {
+        if ( $self->command eq 'install' ) {
+            $res->add_issue(
+                App::PlannedCopy::Issue->new(
+                    message  => 'Wrong permissions:',
+                    details  => $perms,
+                    category => 'info',
+                    action   => 'chmod',
+                ),
+            );
+        }
+        else {
+            Exception::IO::WrongPerms->throw(
+                message  => 'Wrong permissions:',
+                perm     => $perms,
+            );
+        }
+    }
+    return;
+}
+
+sub is_mode_default {
     my ($self, $res) = @_;
     if ($res->dst->_perm ne '0644') {
         $res->add_issue(
@@ -421,10 +407,10 @@ C<Exception::IO::PathNotFound> if it is not.
 
 Used by the C<check>, C<diff> and C<sync> commands.
 
-=head3 dst_file_mode
+=head3 is_mode_different
 
-Returns true if the actual C<perms> of the destination file with match
-the C<perms> defined in the resource file.  Otherwise throws an
+Returns true if the actual C<perms> of the destination file match the
+C<perms> defined in the resource file.  Otherwise throws an
 C<Exception::IO::WrongPerms> exception.
 
 =head3 get_perms

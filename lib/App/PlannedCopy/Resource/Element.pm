@@ -22,6 +22,16 @@ has '_destination' => (
     init_arg => 'destination',
 );
 
+has 'is_printed' => (
+    traits  => ['Counter'],
+    is      => 'rw',
+    isa     => 'Int',
+    default => 0,
+    handles => {
+        inc_printed => 'inc',
+    },
+);
+
 has '_issue_categ_weight_map' => (
     traits  => ['Hash'],
     is      => 'ro',

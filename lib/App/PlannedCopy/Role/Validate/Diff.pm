@@ -19,14 +19,26 @@ has 'command' => (
 );
 
 sub validate_element {
-    my ($self, $res) = @_;
-
+    my ( $self, $res ) = @_;
     $self->dst_file_defined($res);
-    $self->dst_file_readable($res);
     $self->src_file_readable($res);
-    $self->is_src_and_dst_different($res);
-
-    return 1;
+    if ( $res->src->type_is('archive') ) {
+        $self->archive_is_unpacked($res);
+        return;
+    }
+    else {
+        $self->dst_file_readable($res);
+        if ( $res->has_action('install') ) {
+            $self->is_owner_default($res);
+            $self->is_mode_default($res);
+        }
+        else {
+            $self->is_src_and_dst_different($res);
+            $self->is_owner_default($res);
+            $self->is_mode_different($res);
+        }
+        return;
+    }
 }
 
 no Moose::Role;

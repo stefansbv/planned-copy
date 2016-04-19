@@ -196,13 +196,14 @@ sub quote_string {
     return $str;
 }
 
-sub kompare {
-    my ($self, $src_path, $dst_path) = @_;
-    my $cmd = $self->diff_cmd;
+sub compare {
+    my ($self, $src_path, $dst_path, $binary) = @_;
+    my $cmd = $binary ? 'cmp' : $self->diff_cmd;
     my @args;
+    push @args, '-l' if $binary;
     push @args, quote_string($src_path);
     push @args, quote_string($dst_path);
-    # say "# $cmd @args" if $self->verbose;
+    say "# $cmd @args" if $self->verbose;
     my ( $stdout, $stderr, $exit ) = capture { system( $cmd, @args ) };
     if ($stderr) {
         Exception::IO::SystemCmd->throw(
@@ -210,7 +211,13 @@ sub kompare {
             logmsg  => $stderr,
         );
     }
-    say $stdout if $stdout;
+    if ($stdout) {
+        say $stdout;
+    }
+    else {
+        say 'The files are identical' if $binary;
+    }
+
     return;
 }
 
@@ -285,22 +292,13 @@ sub prevalidate_element {
     my $cont = try {
         $self->check_res_user($res);
         $self->validate_element($res);
-        1;                               # required
+        1;                                   # required
     }
     catch {
         my $exc = $_;
         $self->handle_exception($exc, $res);
-        return undef;       # required
+        return undef;                        # required
     };
-    if ( $res->has_no_issues ) {
-        if ($self->verbose) {
-            $self->item_printer($res) unless $self->command eq 'check';
-        }
-        else {
-            $self->inc_count_skip;
-        }
-        return;
-    }
     return;
 }
 

@@ -27,6 +27,14 @@ parameter 'project' => (
     documentation => q[Project name.],
 );
 
+parameter 'dst_name' => (
+    is            => 'rw',
+    isa           => 'Str',
+    required      => 0,
+    cmd_flag      => 'file',
+    documentation => q[Optional destination file name.],
+);
+
 has '_differences' => (
     is      => 'rw',
     isa     => 'ArrayRef',
@@ -68,12 +76,18 @@ sub check_project {
     my $iter = $resu->resource_iter;
     my $cnt  = $resu->count;
 
-    if ( $self->verbose ) {
-        say ' ', fg('green1', $self->project), ", job: ", $cnt, ' file',
-            ( $cnt != 1 ? 's' : '' ),
-            ' to check', ( $self->verbose ? ' (verbose)' : '' ),
-            ( $batch ? '...' : ':' ),
-            ( $batch ? '' : "\n" );
+    my $name = $self->dst_name;
+    if ($name) {
+        say "Job: 1 file to check:";
+        $self->verbose(1);
+    }
+    else {
+        if ( $self->verbose ) {
+            say '[', fg('green1', $self->project), "], Job: ", $cnt, ' file',
+                ( $cnt != 1 ? 's' : '' ),
+                ' to check',
+                ( $batch ? '...' : ':' );
+        }
     }
     print "\n" unless $batch;
 
@@ -84,21 +98,29 @@ sub check_project {
 
     while ( $iter->has_next ) {
         my $res = $iter->next;
+        if ($name) {
+
+            # Skip until found; not efficient but simple to implement ;)
+            next unless $res->dst->_name eq $name;
+        }
+
         $self->prevalidate_element($res);
 
-        if ( $res->has_action('skip') ) {
-            $self->item_printer($res) unless $batch;
-            $self->inc_count_skip;
+        if ( $res->has_no_issues ) {
+            $self->item_printer($res) if $self->verbose and !$batch;
+            $self->inc_count_same;
         }
         else {
-            if (   $res->has_action('install')
-                || $res->has_action('unpack')
-                || $res->has_action('chmod')
-                || $res->has_action('chown') ) {
+            if ( $res->has_action('skip') ) {
+                $self->item_printer($res) unless $batch;
+                $self->inc_count_skip;
+            }
+            else {
+
+                # print
                 $self->item_printer($res) unless $batch;
                 $self->inc_count_diff;
             }
-            $self->inc_count_inst;
         }
         $self->inc_count_proc;
     }
@@ -133,8 +155,8 @@ sub print_summary {
     say '';
     say 'Summary:';
     say ' - processed: ', $cnt_proc, ' records';
-    say ' - checked  : ', $self->count_inst;
     say ' - skipped  : ', $self->count_skip;
+    say ' - same     : ', $self->count_same;
     say ' - different: ', $count_diff;
     say '';
 

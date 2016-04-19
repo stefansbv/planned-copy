@@ -86,7 +86,7 @@ has 'diff_tool' => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return $self->get( key => 'local.diff-tool' )
+        return $self->get( key => 'core.diff-tool' )
             || ( ( $self->current_user eq 'root' ) ? 'diff' : 'kompare' );
     },
 );
