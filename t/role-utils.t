@@ -22,7 +22,7 @@ my @methods = (
         exception_to_issue
         no_resource_message
         quote_string
-        kompare
+        compare
         get_project_files
         check_res_user
         check_user

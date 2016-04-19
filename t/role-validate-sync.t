@@ -25,7 +25,7 @@ my @methods = (
         exception_to_issue
         no_resource_message
         quote_string
-        kompare
+        compare
         get_project_files
         check_res_user
         check_user
@@ -34,11 +34,11 @@ my @methods = (
         dst_file_defined
         dst_file_readable
         dst_path_exists
-        dst_file_mode
+		is_mode_default
         get_perms
         archive_is_unpacked
         is_src_and_dst_different
-        is_owner_different
+        is_owner_default
         is_mode_different
         )
 );
@@ -170,7 +170,7 @@ subtest 'archive source file' => sub {
     lives_ok { $instance->validate_element($elem) } 'validate element';
 
     is $elem->count_issues, 1, 'has an issue';
-    like $elem->get_issue(0)->message, qr/The source is an archive/,
+    like $elem->get_issue(0)->message, qr/source is an archive/,
         'has a "The source is an archive" issue';
 };
 

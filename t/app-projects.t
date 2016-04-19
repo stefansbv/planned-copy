@@ -25,8 +25,8 @@ subtest 'Test with the test config files' => sub {
     ok $app = App::PlannedCopy->new, 'constructor';
 
     ok my @dirs = $app->projects, 'get project dirs';
-    is scalar @dirs, 7, 'we have 7 dirs';
-    is $app->count_projects, 7, 'we have 7 dirs, indeed';
+    is scalar @dirs, 8, 'we have 8 dirs';
+    is $app->count_projects, 8, 'we have 8 dirs, indeed';
     ok my $p = $app->find_project( sub { $_->{path} eq 'sync' } ), 'we have a sync dir';
     is $p->{path}, 'sync', 'it has a name';
     is $p->{resource}, 1, 'it has a resource file';
