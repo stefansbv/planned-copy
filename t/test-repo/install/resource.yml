@@ -2,36 +2,6 @@
 resources:
   -
     destination:
-      name: archive1.tar.gz
-      path: t/test-dst/install
-      perm: '0644'
-      verb: unpack
-    source:
-      name: archive1.tar.gz
-      path: install
-      type: archive
-  -
-    destination:
-      name: impolite.tar.gz
-      path: t/test-dst/install
-      perm: '0644'
-      verb: unpack
-    source:
-      name: impolite.tar.gz
-      path: install
-      type: archive
-  -
-    destination:
-      name: naughty.tar.gz
-      path: t/test-dst/install
-      perm: '0644'
-      verb: unpack
-    source:
-      name: naughty.tar.gz
-      path: install
-      type: archive
-  -
-    destination:
       name: filename1
       path: t/test-dst/install
       perm: '0644'
@@ -70,3 +40,68 @@ resources:
     source:
       name: filename5
       path: install
+  -
+    destination:
+      name: filename9
+      path: t/test-dst/install
+      perm: '0444'
+    source:
+      name: filename9
+      path: install
+  -
+    destination:
+      name: filename10
+      path: t/test-dst/install
+      perm: '0444'
+      user: nobody
+    source:
+      name: filename10
+      path: install
+  -
+    destination:
+      name: filename11 with spaces
+      path: t/test-dst/install
+      perm: '0644'
+    source:
+      name: filename11 with spaces
+      path: install
+  -
+    destination:
+      name: archive1.tar.gz
+      path: t/test-dst/install
+      perm: '0644'
+      verb: unpack
+    source:
+      name: archive1.tar.gz
+      path: install
+      type: archive
+  -
+    destination:
+      name: archive2.tar.gz
+      path: t/test-dst/install
+      perm: '0644'
+      verb: unpack
+    source:
+      name: archive2.tar.gz
+      path: install
+      type: archive
+  -
+    destination:
+      name: impolite.tar.gz
+      path: t/test-dst/install
+      perm: '0644'
+      verb: unpack
+    source:
+      name: impolite.tar.gz
+      path: install
+      type: archive
+  -
+    destination:
+      name: naughty.tar.gz
+      path: t/test-dst/install
+      perm: '0644'
+      verb: unpack
+    source:
+      name: naughty.tar.gz
+      path: install
+      type: archive
