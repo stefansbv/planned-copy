@@ -34,7 +34,7 @@ my @methods = (
         dst_file_defined
         dst_file_readable
         dst_path_exists
-		is_mode_default
+        is_mode_default
         get_perms
         archive_is_unpacked
         is_src_and_dst_different

@@ -71,6 +71,8 @@ subtest 'source and destination ok - instaled' => sub {
     isa_ok $elem->dst, 'App::PlannedCopy::Resource::Element::Destination', 'dst';
 
     lives_ok { $instance->validate_element($elem) } 'validate element';
+
+    ok $elem->has_no_issues, 'has no issues';
 };
 
 subtest 'nonexistent src file - not installed' => sub {
@@ -118,7 +120,6 @@ subtest 'nonexistent dst file - not installed' => sub {
 
     is $elem->count_issues, 1, 'has an issue';
     like $elem->get_issue(0)->message, qr/Not installed/, 'has a "Not installed" issue';
-
 };
 
 subtest 'nonexistent dst path - not installed' => sub {
