@@ -302,6 +302,58 @@ sub prevalidate_element {
     return;
 }
 
+sub get_perms {
+    my ( $self, $file ) = @_;
+    my $mode = try { $file->stat->mode }
+    catch  {
+        my $err = $_;
+        if ( $err =~ m/Permission denied/i ) {
+            Exception::IO::PermissionDenied->throw(
+                message  => 'Permision denied for path:',
+                pathname => $file,
+            );
+        }
+        elsif ( $err =~ m/No such file or directory/i ) {
+            Exception::IO::FileNotFound->throw(
+                message  => 'No such file or directory',
+                pathname => $file,
+            );
+        }
+        else {
+            die "Unknown stat ERROR: $err";
+        }
+    };
+    # my $perms = sprintf "%04o", $mode & 07777;
+    return sprintf "%04o", $mode & 07777;
+    # return $perms;
+}
+
+sub get_owner {
+    my ( $self, $file ) = @_;
+    my $uid = try { $file->stat->uid }
+        catch  {
+        my $err = $_;
+        if ( $err =~ m/Permission denied/i ) {
+            Exception::IO::PermissionDenied->throw(
+                message  => 'Permision denied for path:',
+                pathname => $file,
+            );
+        }
+        elsif ( $err =~ m/No such file or directory/i ) {
+            Exception::IO::FileNotFound->throw(
+                message  => 'No such file or directory',
+                pathname => $file,
+            );
+        }
+        else {
+            die "Unknown stat ERROR: $err";
+        }
+    };
+    # my $user = ( getpwuid $uid )[0];
+    return ( getpwuid $uid )[0];
+    # return $user;
+}
+
 no Moose::Role;
 
 1;

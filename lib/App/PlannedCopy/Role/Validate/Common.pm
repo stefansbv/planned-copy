@@ -146,31 +146,6 @@ sub dst_path_exists {
     return;
 }
 
-sub get_perms {
-    my ( $self, $file ) = @_;
-    my $mode = try { $file->stat->mode }
-    catch  {
-        my $err = $_;
-        if ( $err =~ m/Permission denied/i ) {
-            Exception::IO::PermissionDenied->throw(
-                message  => 'Permision denied for path:',
-                pathname => $file,
-            );
-        }
-        elsif ( $err =~ m/No such file or directory/i ) {
-            Exception::IO::FileNotFound->throw(
-                message  => 'No such file or directory',
-                pathname => $file,
-            );
-        }
-        else {
-            die "Unknown stat ERROR: $err";
-        }
-    };
-    my $perms = sprintf "%04o", $mode & 07777;
-    return $perms;
-}
-
 sub archive_is_unpacked {
     my ($self, $res) = @_;
     my $dst_path = $res->dst->_abs_path;
@@ -287,6 +262,22 @@ sub is_owner_default {
                 action   => 'chown',
             ),
         );
+    }
+    return;
+}
+
+sub is_owner_different {
+    my ( $self, $res ) = @_;
+    if ( $res->dst->_user_isnot_default ) {
+        if ( $self->get_owner( $res->dst->_abs_path ) ne $res->dst->_user ) {
+            $res->add_issue(
+                App::PlannedCopy::Issue->new(
+                    message  => 'Different owner (chown is required)',
+                    category => 'info',
+                    action   => 'chown',
+                ),
+            );
+        }
     }
     return;
 }

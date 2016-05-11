@@ -34,7 +34,7 @@ sub validate_element {
         }
         else {
             $self->is_src_and_dst_different($res);
-            $self->is_owner_default($res);
+            $self->is_owner_different($res);
             $self->is_mode_different($res);
         }
         return;

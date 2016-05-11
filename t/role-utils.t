@@ -22,6 +22,8 @@ my @methods    = (
         get_project_files
         check_res_user
         check_user
+		get_perms
+		get_owner
         )
 );
 
@@ -50,9 +52,18 @@ lives_ok { $cmd->is_selfsame( $src1, $dst1 ) } 'is selfsame 1';
 is $cmd->is_selfsame( $src1, $dst1 ), 0, 'not the same';
 lives_ok { $cmd->is_selfsame($src2, $dst2  ) } 'is selfsame 2';
 
-# Set perm
-throws_ok { $cmd->set_perm( $dst1, 0644 ) }
+# Perms
+throws_ok { $cmd->get_perms($dst1) }
+    qr/No such file or directory/, 'no such file or directory caught okay';
+is $cmd->get_perms($dst2), '0644', 'the perms of the file';
+throws_ok { $cmd->set_perm( $dst1, oct(644) ) }
     qr/works only with files/, 'works only with files caught';
-lives_ok { $cmd->set_perm( $dst2, 0644 ) } 'file set perm';
+lives_ok { $cmd->set_perm( $dst2, oct(644) ) } 'file set perm';
+
+# Owner
+throws_ok { $cmd->get_owner($dst1) }
+    qr/No such file or directory/, 'no such file or directory caught okay';
+ok $cmd->get_owner($dst2), 'the owner of the file';
+# TODO: test set_owner (how?)
 
 done_testing();
