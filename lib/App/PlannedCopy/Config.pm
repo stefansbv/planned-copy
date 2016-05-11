@@ -91,6 +91,27 @@ has 'diff_tool' => (
     },
 );
 
+# From Sqlitch ;)
+sub get_section {
+    my ( $self, %p ) = @_;
+    $self->load unless $self->is_loaded;
+    my $section = lc $p{section} // '';
+    my $data    = $self->data;
+    return {
+        map  {
+            ( split /[.]/ => $self->initial_key("$section.$_") )[-1],
+            $data->{"$section.$_"}
+        }
+        grep { s{^\Q$section.\E([^.]+)$}{$1} } keys %{$data}
+    };
+}
+
+# Idem
+sub initial_key {
+    my $key = shift->original_key(shift);
+    return ref $key ? $key->[0] : $key;
+}
+
 sub resource_file {
     my ($self, $project) = @_;
     return unless $self->repo_path and $project;

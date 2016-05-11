@@ -7,10 +7,11 @@ use utf8;
 use Moose::Role;
 use Term::ReadKey;
 use Term::ExtendedColor qw(fg);
-use Perl6::Form;
 use IO::Handle;
 
 STDOUT->autoflush(1);
+
+requires 'config';
 
 has 'term_size' => (
     is      => 'ro',
@@ -26,7 +27,9 @@ has '_issue_category_color_map' => (
     is      => 'ro',
     isa     => 'HashRef[Str]',
     default => sub {
-        return {
+        my $self = shift;
+        return $self->config->get_section( section => 'color' )
+            || {
             info  => 'yellow2',
             warn  => 'blue2',
             error => 'red2',
@@ -34,9 +37,7 @@ has '_issue_category_color_map' => (
             none  => 'clear',
         };
     },
-    handles => {
-        get_color => 'get',
-    },
+    handles => { get_color => 'get', },
 );
 
 sub points {
@@ -114,8 +115,8 @@ sub print_exeception_message {
 sub project_changes_list_printer {
     my ( $self, $errorlevel, @array ) = @_;
     my $color
-        = $errorlevel eq 'removed' ? 'yellow2'
-        : $errorlevel eq 'added'   ? 'green2'
+        = $errorlevel eq 'removed' ? $self->get_color('info')
+        : $errorlevel eq 'added'   ? $self->get_color('done')
         : $errorlevel eq 'kept'    ? 'reset'
         :                            'reset';
     foreach my $item (@array) {
@@ -131,11 +132,11 @@ sub project_list_printer {
         my $resu = $item->{resource};
         my ($color, $mesg);
         if ($resu == 1) {
-            $color = 'green2';
-            $mesg  = 'resource';
+            $color = $self->get_color('done');
+            $mesg  = 'has resource';
         }
         else {
-            $color = 'yellow2';
+            $color = $self->get_color('info');
             $mesg  = 'no resource';
         }
         $self->printer($color, $path, $mesg);
@@ -145,7 +146,7 @@ sub project_list_printer {
 
 sub difference_printer {
     my ( $self, @items ) = @_;
-    my $color = 'yellow2';
+    my $color = $self->get_color('info');
     foreach my $item (@items) {
         my $proj = $item->[0];
         my $resu = $item->[1];
