@@ -1,6 +1,6 @@
-package App::PlannedCopy::Role::Base;
+package App::PlannedCopy::Role::Counters;
 
-# ABSTRACT: Base role for the application
+# ABSTRACT: Counters role for the application
 
 use Moose::Role;
 use MooseX::App::Role;
@@ -97,7 +97,7 @@ __END__
 
 =head1 Synopsis
 
-    with qw( App::PlannedCopy::Role::Base );
+    with qw( App::PlannedCopy::Role::Counters );
 
     $self->inc_count_skip;
 
@@ -122,8 +122,12 @@ A counter attribute for the resouce elemnents.
 
 =head3 count_inst
 
-A counter attribute for the installed, diffed, checked or synchronized
+A counter attribute for the installed, checked or synchronized
 records.
+
+=head3 count_diff
+
+A counter attribute for the diff-ed records.
 
 =head3 count_skip
 
@@ -136,5 +140,10 @@ A counter attribute for the projects.
 =head3 count_dirs
 
 A counter attribute for the directories.
+
+=item3 count_same
+
+A counter attribute for the records with no difference between the
+source and destination files.
 
 =cut
