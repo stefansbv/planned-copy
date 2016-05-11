@@ -11,8 +11,6 @@ use File::HomeDir;
 use namespace::autoclean;
 use Carp;
 
-with qw(App::PlannedCopy::Role::Base);
-
 has '_name' => (
     is       => 'ro',
     isa      => 'Str',
