@@ -108,11 +108,11 @@ sub synchronize {
     my $src_path = $res->src->_abs_path;
     $self->copy_file( $res->dst->_abs_path, $src_path );
     $self->set_perm( $src_path, oct(644) );
-    $res->remove_issue_by_action($res, 'sync');
-    $self->change_owner( $src_path, $self->repo_owner )
+    $res->remove_issue_by_action( $res, 'sync' );
+    $self->set_owner( $res->src->_abs_path, $self->repo_owner )
         if $self->config->current_user eq 'root';
     $res->issues_category('done');
-    return 1;                                # require for the test
+    return;
 }
 
 sub print_summary {
