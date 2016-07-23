@@ -72,7 +72,7 @@ sub _build_projects {
     my $self = shift;
 
     die
-        "Not configured!\n  Please, use the config command to configure the planned-copy.\n"
+        "Not configured!\n  Please, use the config command to configure planned-copy.\n"
         unless defined $self->config->repo_path;
 
     my $rule = Path::Iterator::Rule->new;
