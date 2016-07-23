@@ -12,22 +12,32 @@ use App::PlannedCopy::Exceptions;
 use namespace::autoclean;
 
 has 'resource_file' => (
-    is     => 'ro',
-    isa    => Path,
-    coerce => 1,
+    is       => 'ro',
+    isa      => Path,
+    required => 1,
+    coerce   => 1,
 );
 
-has contents => (
+has '_contents' => (
     is      => 'ro',
-    isa     => 'ArrayRef',
+    traits  => ['Hash'],
+    isa     => 'HashRef',
     lazy    => 1,
-    builder => '_build_contents'
+    builder => '_build_contents',
+    handles => {
+        get_contents => 'get',
+    },
 );
 
 sub _build_contents {
     my $self = shift;
     my $file = $self->resource_file;
-    return [] unless $file->is_file;
+    if ( !$file->is_file ) {
+        Exception::IO::FileNotFound->throw(
+            message  => 'Failed to find the resource file.',
+            pathname => $file,
+        );
+    }
     my $yaml = try { YAML::Tiny->read( $file->stringify ) }
     catch {
         Exception::Config::YAML->throw(
@@ -35,7 +45,7 @@ sub _build_contents {
             logmsg  => $_,
         );
     };
-    return $yaml->[0]{resources};
+    return $yaml->[0];
 }
 
 __PACKAGE__->meta->make_immutable;

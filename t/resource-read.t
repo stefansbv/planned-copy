@@ -1,51 +1,85 @@
 #
-# Read the test data from t/resource.t
+# Read the test data from t/resource.yml
 #
-use Test::More tests => 16;
-use Path::Tiny;
-use File::HomeDir;
+use Test::Most;
 
 use App::PlannedCopy::Resource::Read;
-use App::PlannedCopy::Resource::Element::Destination;
 
-ok my $reader = App::PlannedCopy::Resource::Read->new(
-    resource_file => 't/resource.yml'
-), 'read a test resource file';
+my $expected = [
+    {   destination => {
+            name => ".config",
+            path => "dst/bin",
+            perm => "0644",
+        },
+        source => {
+            name => "config1",
+            path => "test/src/",
+        },
+    },
+    {   destination => {
+            name => "config2",
+            path => "test/dst/bin",
+            perm => "0755",
+        },
+        source => {
+            name => "config2.sh",
+            path => "test/src/",
+        },
+    },
+    {   destination => {
+            name => "config.pro",
+            path => undef,
+            perm => "0644",
+        },
+        source => {
+            name => "config.pro",
+            path => "test/src/",
+        },
+    },
+    {   destination => {
+            name => "config3",
+            path => "~/",
+            perm => "0644",
+        },
+        source => {
+            name => "config3",
+            path => "test/src/",
+        },
+    },
+    {   destination => {
+            name => "file_not_exists",
+            path => "test/dst",
+            perm => "0644",
+        },
+        source => {
+            name => "file_not_exists",
+            path => "test/src/",
+        },
+    },
+];
 
-# Record #1
+subtest 'Read resource' => sub {
+    ok my $reader = App::PlannedCopy::Resource::Read->new(
+        resource_file => 't/resource.yml' ), 'read a test resource file';
 
-my $res1 = $reader->contents->[0];
-ok my $dst1 = App::PlannedCopy::Resource::Element::Destination->new(
-    $res1->{destination} ), 'constructor';
+    is $reader->get_contents('scope'), 'user', 'get the scope';
+    ok my $resources = $reader->get_contents('resources'),
+        'get the resources';
+    is ref $resources, 'ARRAY', 'resources array';
 
-isa_ok $dst1, 'App::PlannedCopy::Resource::Element::Destination';
+    cmp_deeply $resources, $expected, 'resources';
+};
 
-is $dst1->_name, path('.config'), 'destination name';
-is $dst1->_path, path('dst/bin'),  'destination path';
-is $dst1->_perm, '0644', 'destination perm';
+subtest 'Read resource - no scope' => sub {
+    ok my $reader = App::PlannedCopy::Resource::Read->new(
+        resource_file => 't/noscope-resource.yml' ), 'read another test resource file';
 
-# Record #3
+    is $reader->get_contents('scope'), undef, 'get the scope';
+    ok my $resources = $reader->get_contents('resources'),
+        'get the resources';
+    is ref $resources, 'ARRAY', 'resources array';
 
-my $res3 = $reader->contents->[2];
-ok my $dst3 = App::PlannedCopy::Resource::Element::Destination->new(
-    $res3->{destination} ), 'constructor';
+    cmp_deeply $resources, $expected, 'resources';
+};
 
-isa_ok $dst3, 'App::PlannedCopy::Resource::Element::Destination';
-
-is $dst3->_name, path('config.pro'), 'destination name';
-is $dst3->_path, '{ undef }',  'destination path';
-is $dst3->_perm, '0644', 'destination perm';
-
-# Record #4
-
-my $res4 = $reader->contents->[3];
-ok my $dst4 = App::PlannedCopy::Resource::Element::Destination->new(
-    $res4->{destination} ), 'constructor';
-
-isa_ok $dst4, 'App::PlannedCopy::Resource::Element::Destination';
-
-is $dst4->_name, path('config3'), 'destination name';
-is $dst4->_path, path( File::HomeDir->my_home ),  'destination path';
-is $dst4->_perm, '0644', 'destination perm';
-
-# end
+done_testing;

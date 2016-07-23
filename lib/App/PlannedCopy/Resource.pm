@@ -5,7 +5,9 @@ package App::PlannedCopy::Resource;
 use 5.010001;
 use utf8;
 use Moose;
+use Moose::Util::TypeConstraints;
 use MooseX::Iterator;
+use MooseX::Types::Path::Tiny qw(Path);
 use Try::Tiny;
 use namespace::autoclean;
 
@@ -22,49 +24,91 @@ has count => (
     },
 );
 
+has 'resource_file' => (
+    is       => 'ro',
+    isa      => Path,
+    coerce   => 1,
+);
+
+has 'reader' => (
+    is      => 'ro',
+    isa     => 'App::PlannedCopy::Resource::Read',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        my $reader = try {
+            App::PlannedCopy::Resource::Read->new(
+                resource_file => $self->resource_file );
+        }
+        catch {
+            if ( my $e = Exception::Base->catch($_) ) {
+                if ( $e->isa('Exception::IO') ) {
+                    die "[EE] ", $e->message, ' : ', $e->pathname;
+                }
+                else {
+                    die "[EE] Unknown exception: $_";
+                }
+            }
+        };
+        return $reader;
+    },
+);
+
+sub get_resource_section {
+    my ($self, $section) = @_;
+    my $reader = $self->reader;
+    my $item   = try { $reader->get_contents($section) }
+    catch {
+        if ( my $e = Exception::Base->catch($_) ) {
+            if ( $e->isa('Exception::IO') ) {
+                die "[EE] ", $e->message, ' : ', $e->pathname, "\n";
+            }
+            elsif ( $e->isa('Exception::Config::YAML') ) {
+                die "[EE] ", $e->message, ' ', $e->logmsg, "\n";
+            }
+            else {
+                die "[EE] Unknown exception: $_", "\n";
+            }
+        }
+    };
+    return $item;
+}
+
+has 'resource_scope' => (
+    is      => 'ro',
+    isa     => enum( [qw(user system)] ),
+    lazy    => 1,
+    default => sub {
+        my $self  = shift;
+        my $scope = $self->get_resource_section('scope');
+        $scope    = 'user' unless $scope;
+        return $scope;
+    },
+);
+
 has _resource => (
     is      => 'ro',
     isa     => 'ArrayRef',
     lazy    => 1,
-    builder => '_build_resource'
+    builder => '_build_resource',
 );
+
+sub _build_resource {
+    my $self  = shift;
+    my $resources = $self->get_resource_section('resources');
+    $resources    = [] unless ref $resources;
+    my $records   = [];
+    foreach my $res ( @{ $resources } ) {
+        push @{$records}, App::PlannedCopy::Resource::Element->new($res);
+        $self->inc_counter;
+    }
+    return $records;
+}
 
 has 'resource_iter' => (
     metaclass    => 'Iterable',
     iterate_over => '_resource',
 );
-
-has 'resource_file' => (
-    is  => 'rw',
-    isa => 'Str',
-);
-
-sub _build_resource {
-    my $self = shift;
-    my $reader = App::PlannedCopy::Resource::Read->new(
-        resource_file => $self->resource_file );
-    my $contents = try { $reader->contents }
-    catch {
-        if ( my $e = Exception::Base->catch($_) ) {
-            if ( $e->isa('Exception::IO') ) {
-                say "[EE] ", $e->message, ' : ', $e->pathname;
-            }
-            elsif ( $e->isa('Exception::Config::YAML') ) {
-                say "[EE] ", $e->message, ' ', $e->logmsg;
-            }
-            else {
-                say "[EE] Unknown exception: $_";
-            }
-        }
-    };
-    $contents = [] unless ref $contents; # recover
-    my @records;
-    foreach my $res ( @{ $contents } ) {
-        push @records, App::PlannedCopy::Resource::Element->new($res);
-        $self->inc_counter;
-    }
-    return \@records;
-}
 
 __PACKAGE__->meta->make_immutable;
 

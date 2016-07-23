@@ -1,5 +1,4 @@
 ---
-scope: user
 resources:
   -
     destination:
