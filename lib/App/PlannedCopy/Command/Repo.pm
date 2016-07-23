@@ -29,7 +29,19 @@ parameter 'action' => (
 sub run {
     my ( $self ) = @_;
     if ( $self->action eq 'clone' ) {
-        $self->clone_repo;
+        try {
+            $self->clone_repo;
+        }
+        catch {
+            if ( my $e = Exception::Base->catch($_) ) {
+                if ( $e->isa('Exception::IO::Git') ) {
+                    say "[EE] ", $e->message;
+                }
+            }
+            else {
+                die "[EE] Unknown exception: ", $_;
+            }
+        };
     }
     return;
 }
@@ -57,8 +69,9 @@ sub clone_repo {
         return;
     }
 
+    print "Cloning '$uri'\n   into '$path'...\n";
     if ( $self->dryrun ) {
-        print "Cloning the repo '$uri' into '$path'...dry-run.\n";
+        print "dry-run!\n";
         return;
     }
     my $to_path = path($path)->parent;
@@ -67,14 +80,14 @@ sub clone_repo {
         catch {
             Exception::IO::Git->throw(
                 message  => 'Git clone failed.',
-                logmsg   => $_,
+                logmsg   => $_,              # doesn't show !?!
             );
         };
+        print "done.\n";
     }
     else {
         say "[EE] Can't cd to $to_path: $!\n";
     }
-
     return;
 }
 
