@@ -43,6 +43,14 @@ sub run {
     my $res  = App::PlannedCopy::Resource->new( resource_file => $file );
     my $iter = $res->resource_iter;
     my $name = $self->dst_name;
+
+    if (    $self->config->current_user ne 'root'
+        and $res->resource_scope eq 'system' )
+    {
+        say "\n[EE] Root privileges are required to install resources with 'system' scope.\n";
+        exit;
+    }
+
     if ($name) {
         say 'Job: 1 file',
             ' to check and install', ( $self->verbose ? ' (verbose)' : '' ),
