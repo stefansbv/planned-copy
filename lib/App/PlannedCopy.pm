@@ -25,6 +25,7 @@ option 'dryrun' => (
 option 'verbose' => (
     is            => 'rw',
     isa           => 'Bool',
+    cmd_aliases   => [qw(v)],
     documentation => q[Verbose output.],
 );
 
