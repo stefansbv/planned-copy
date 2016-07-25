@@ -11,6 +11,7 @@ use IPC::System::Simple 1.17 qw(run);
 use MooseX::App qw(Color Version);
 use App::PlannedCopy::Config;
 use App::PlannedCopy::Issue;
+use App::PlannedCopy::Resource;
 
 with qw(App::PlannedCopy::Role::Counters);
 
@@ -85,10 +86,16 @@ sub _build_projects {
     while ( defined( my $item = $next->() ) ) {
         my $path = path($item);
         if ( $path->is_dir ) {
-            my $has_resu = path( $path, 'resource.yml' )->is_file ? 1 : 0;
+            my $res_file = path( $path, 'resource.yml' );
+            my $has_resu = $res_file->is_file ? 1 : 0;
+            my $scope    = $has_resu ? $self->get_project_scope($res_file) : undef;
             $self->inc_count_proj if $has_resu;
             $self->inc_count_dirs;
-            push @dirs, { path => $path->basename, resource => $has_resu };
+            push @dirs, {
+                path     => $path->basename,
+                resource => $has_resu,
+                scope    => $scope,
+            };
         }
     }
     return \@dirs;
@@ -114,6 +121,13 @@ sub shell {
     return $self;
 }
 
+sub get_project_scope {
+    my ( $self, $file ) = @_;
+    die "The 'get_project_scope' method requires a resource file parameter.\n"
+        unless $file->is_file;
+    my $res = App::PlannedCopy::Resource->new( resource_file => $file );
+    return $res->resource_scope;
+}
 
 __PACKAGE__->meta->make_immutable;
 

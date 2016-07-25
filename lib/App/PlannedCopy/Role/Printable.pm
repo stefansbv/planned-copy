@@ -128,12 +128,15 @@ sub project_changes_list_printer {
 sub project_list_printer {
     my ( $self, @items ) = @_;
     foreach my $item (@items) {
-        my $path = $item->{path};
-        my $resu = $item->{resource};
-        my ($color, $mesg);
-        if ($resu == 1) {
-            $color = $self->get_color('done');
-            $mesg  = 'has resource';
+        my $path  = $item->{path};
+        my $resu  = $item->{resource};
+        my $scope = $item->{scope};
+        my ( $color, $mesg );
+        if ( $resu == 1 ) {
+            $color = $scope eq 'system'
+                   ? $self->get_color('warn')
+                   : $self->get_color('done');
+            $mesg = "has $scope resource";
         }
         else {
             $color = $self->get_color('info');
