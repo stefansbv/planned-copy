@@ -18,15 +18,14 @@ ok my $conf = App::PlannedCopy::Config->new, 'config constructor';
 
 ok $conf->load, 'load test config files';
 
-subtest 'Create new resourec and add 3 files' => sub {
+subtest 'Create new resource and add 3 files' => sub {
 
     is $conf->resource_file('resu'), $resu_file, 'resource file path';
 
     ok my $resu = App::PlannedCopy::Command::Resu->new(
         project => 'resu',
         config  => $conf,
-        ),
-        'resource command constructor';
+    ), 'resource command constructor';
 
     my @del = $resu->get_removed;
     my @upd = $resu->get_kept;

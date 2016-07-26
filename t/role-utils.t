@@ -22,8 +22,8 @@ my @methods    = (
         get_project_files
         check_res_user
         check_user
-		get_perms
-		get_owner
+        get_perms
+        get_owner
         )
 );
 

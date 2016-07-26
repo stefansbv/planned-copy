@@ -8,6 +8,7 @@ use Path::Tiny;
 use App::PlannedCopy::Config;
 use App::PlannedCopy::Command::Check;
 
+my $repo_path  = path( qw(t test-repo) );
 my $repo1_path = path( qw(t test-repo check-no-resu) );
 my $repo2_path = path( qw(t test-repo check) );
 my $dest_path  = path( qw(t test-dst check) );
@@ -17,6 +18,8 @@ local $ENV{PLCP_USR_CONFIG} = path( qw(t user.conf) );
 ok my $conf = App::PlannedCopy::Config->new, 'config constructor';
 
 ok $conf->load, 'load test config files';
+
+is $conf->repo_path, $repo_path, 'test repo path from t/user.conf';
 
 subtest 'No resource file' => sub {
 
@@ -48,6 +51,8 @@ subtest 'With a resource file - filename1' => sub {
         verbose  => 1,
         dst_name => 'filename1',
     ), 'command constructor';
+
+    is $check->project, 'check', 'project name';
 
     like uncolor ( capture_stdout { $check->run } ),
         qr/Job: 1 file to check/,

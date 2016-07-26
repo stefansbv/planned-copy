@@ -124,13 +124,14 @@ has '_added' => (
 
 sub _build_old_resource {
     my $self = shift;
-    my $reader = App::PlannedCopy::Resource::Read->new(
-        resource_file => $self->resource_file );
     my %items;
-    foreach my $res ( @{ $reader->contents } ) {
-        my $name
-            = path( $res->{source}{path}, $res->{source}{name} )->stringify;
-        $items{$name} = $res;
+    if ( $self->is_project ) {
+        my $reader = App::PlannedCopy::Resource::Read->new(
+            resource_file => $self->resource_file );
+        foreach my $res ( @{ $reader->get_contents('resources') } ) {
+            my $name = path( $res->{source}{path}, $res->{source}{name} )->stringify;
+            $items{$name} = $res;
+        }
     }
     return \%items;
 }
@@ -191,7 +192,10 @@ sub _build_compare {
 sub run {
     my ( $self ) = @_;
 
-    $self->check_project_name;
+    my $project = $self->project;
+    unless ( $self->is_project_path ) {
+        die "\n[EE] No directory named '$project' found.\n     Check the spelling or use the 'list' command.\n\n";
+    }
 
     my $proj = $self->project;
     say "Job: add/update the resource file for '$proj':\n";

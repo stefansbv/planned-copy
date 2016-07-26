@@ -1,13 +1,14 @@
 #
 # Test the diff command
 #
-use Test::More;
+use Test::Most;
 use Term::ExtendedColor qw(uncolor);
 use Capture::Tiny 0.12 qw(capture_stdout);
 use Path::Tiny;
 use App::PlannedCopy::Config;
 use App::PlannedCopy::Command::Diff;
 
+my $repo_path  = path( qw(t test-repo) );
 my $repo1_path = path(qw(t test-repo check-no-resu));
 my $repo2_path = path(qw(t test-repo check));
 my $dest_path  = path(qw(t test-dst check));
@@ -17,6 +18,8 @@ local $ENV{PLCP_USR_CONFIG} = path(qw(t user.conf));
 ok my $conf = App::PlannedCopy::Config->new, 'config constructor';
 
 ok $conf->load, 'load test config files';
+
+is $conf->repo_path, $repo_path, 'test repo path from t/user.conf';
 
 subtest 'No resource file' => sub {
 
@@ -32,30 +35,8 @@ subtest 'No resource file' => sub {
 
     is $diff->project, 'check-no-resu', 'project name';
 
-    is capture_stdout { $diff->run }, "Job: 0 files to diff:
-
----
-There is no resource file for the 'check-no-resu' project.
-Run the 'resu' command to create it.
----
-
-Summary:
- - processed: 0 records
- - skipped  : 0
- - same     : 0
- - different: 0
-
-", 'run should work';
-
-    is capture_stdout { $diff->print_summary }, '
-Summary:
- - processed: 0 records
- - skipped  : 0
- - same     : 0
- - different: 0
-
-', 'print_summary should work';
-
+    throws_ok { $diff->run } qr/No project named/,
+        'Should get an exception for unknown project';
 };
 
 # Same contents, same perms - no diff

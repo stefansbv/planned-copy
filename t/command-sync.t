@@ -1,7 +1,7 @@
 #
 # Test the sync command
 #
-use Test::More;
+use Test::Most;
 use Term::ExtendedColor qw(uncolor);
 use Capture::Tiny 0.12 qw(capture_stdout);
 use Path::Tiny;
@@ -9,6 +9,7 @@ use File::Copy::Recursive qw(dircopy);
 use App::PlannedCopy::Config;
 use App::PlannedCopy::Command::Sync;
 
+my $repo_path  = path( qw(t test-repo) );
 my $repo1_path = path(qw(t test-repo sync-no-resu));
 my $repo2_path = path(qw(t test-repo sync));
 my $dest_path  = path(qw(t test-dst sync));
@@ -24,6 +25,8 @@ ok my $conf = App::PlannedCopy::Config->new, 'config constructor';
 
 ok $conf->load, 'load test config files';
 
+is $conf->repo_path, $repo_path, 'test repo path from t/user.conf';
+
 subtest 'No resource file' => sub {
 
     is $conf->resource_file('sync-no-resu'),
@@ -36,29 +39,8 @@ subtest 'No resource file' => sub {
 
     is $sync->project, 'sync-no-resu', 'project name';
 
-    is capture_stdout { $sync->run },
-        "Job: 0 files to check and synchronize:
-
----
-There is no resource file for the 'sync-no-resu' project.
-Run the 'resu' command to create it.
----
-
-Summary:
- - processed   : 0 records
- - skipped     : 0
- - synchronized: 0
-
-", 'run should work';
-
-    is capture_stdout { $sync->print_summary }, '
-Summary:
- - processed   : 0 records
- - skipped     : 0
- - synchronized: 0
-
-', 'print_summary should work';
-
+    throws_ok { $sync->run } qr/No project named/,
+        'Should get an exception for unknown project';
 };
 
 # Same contents, same perms - synced

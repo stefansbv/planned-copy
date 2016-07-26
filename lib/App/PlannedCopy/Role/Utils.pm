@@ -354,6 +354,29 @@ sub get_owner {
     # return $user;
 }
 
+sub check_project_name {
+    my $self    = shift;
+    my $project = $self->project;
+    unless ( $self->is_project_path ) {
+        die "\n[EE] No directory named '$project' found.\n     Check the spelling or use the 'list' command.\n\n";
+    }
+    unless ( $self->is_project ) {
+        die "\n[EE] No project named '$project' found.\n     Check the spelling or use the 'list' command.\n\n";
+    }
+}
+
+sub is_project_path {
+    my $self    = shift;
+    my $dir     = path $self->config->repo_path, $self->project;
+    return $dir->is_dir;
+}
+
+sub is_project {
+    my $self    = shift;
+    my $record  = $self->find_project( sub { $_->{path} eq $self->project } );
+    return $record->{resource};
+}
+
 no Moose::Role;
 
 1;
