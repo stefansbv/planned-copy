@@ -129,6 +129,30 @@ sub get_project_scope {
     return $res->resource_scope;
 }
 
+sub check_project_name {
+    my $self    = shift;
+    my $project = $self->project;
+    unless ( $self->is_project_path ) {
+        die "\n[EE] No directory named '$project' found.\n     Check the spelling or use the 'list' command.\n\n";
+    }
+    unless ( $self->is_project($project) ) {
+        die "\n[EE] No project named '$project' found.\n     Check the spelling or use the 'list' command.\n\n";
+    }
+}
+
+sub is_project_path {
+    my $self    = shift;
+    my $project = $self->project;
+    my $dir     = path $self->config->repo_path, $project;
+    return $dir->is_dir;
+}
+
+sub is_project {
+    my ($self, $name) = @_;
+    die "The 'is_project' method requires a name parameter." unless defined $name;
+    return $self->find_project( sub { /$name/ } );
+}
+
 __PACKAGE__->meta->make_immutable;
 
 1;

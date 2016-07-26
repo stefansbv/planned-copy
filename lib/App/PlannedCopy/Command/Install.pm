@@ -39,6 +39,8 @@ parameter 'dst_name' => (
 sub run {
     my ( $self ) = @_;
 
+    $self->check_project_name;
+
     my $file = $self->config->resource_file( $self->project );
     my $res  = App::PlannedCopy::Resource->new( resource_file => $file );
     my $iter = $res->resource_iter;
@@ -47,8 +49,7 @@ sub run {
     if (    $self->config->current_user ne 'root'
         and $res->resource_scope eq 'system' )
     {
-        say "\n[EE] Root privileges are required to install resources with 'system' scope.\n";
-        exit;
+        die "\n[EE] Root privileges are required to install resources with 'system' scope.\n";
     }
 
     if ($name) {

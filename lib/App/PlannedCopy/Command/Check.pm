@@ -49,7 +49,9 @@ has '_differences' => (
 
 sub run {
     my ($self) = @_;
+
     if ( $self->project ) {
+        $self->check_project_name;
         $self->check_project;
     }
     else {

@@ -145,7 +145,7 @@ sub _build_new_resource {
         if ( my $e = Exception::Base->catch($_) ) {
             if ( $e->isa('Exception::IO::PathNotFound') ) {
                 $self->print_exeception_message($e->message, $e->pathname);
-                exit;
+                exit;                        # ???
             }
             else {
                 die "Unexpected exception: $_";
@@ -190,6 +190,8 @@ sub _build_compare {
 
 sub run {
     my ( $self ) = @_;
+
+    $self->check_project_name;
 
     my $proj = $self->project;
     say "Job: add/update the resource file for '$proj':\n";

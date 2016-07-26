@@ -1,7 +1,7 @@
 #
 # Test the check command
 #
-use Test::More;
+use Test::Most;
 use Term::ExtendedColor qw(uncolor);
 use Capture::Tiny 0.12 qw(capture_stdout);
 use Path::Tiny;
@@ -32,31 +32,8 @@ subtest 'No resource file' => sub {
 
     is $check->project, 'check-no-resu', 'project name';
 
-    is uncolor ( capture_stdout { $check->run } ),
-        "[check-no-resu], Job: 0 files to check:
-
----
-There is no resource file for the 'check-no-resu' project.
-Run the 'resu' command to create it.
----
-
-Summary:
- - processed: 0 records
- - skipped  : 0
- - same     : 0
- - different: 0
-
-", 'run should work';
-
-    is capture_stdout { $check->print_summary }, '
-Summary:
- - processed: 0 records
- - skipped  : 0
- - same     : 0
- - different: 0
-
-', 'print_summary should work';
-
+    throws_ok { $check->run } qr/No project named/,
+        'Should get an exception for unknown project';
 };
 
 # Same contents, same perms

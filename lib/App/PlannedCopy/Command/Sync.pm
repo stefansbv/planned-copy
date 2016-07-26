@@ -38,6 +38,8 @@ parameter 'dst_name' => (
 sub run {
     my ( $self ) = @_;
 
+    $self->check_project_name;
+
     my $file = $self->config->resource_file( $self->project );
     my $res  = App::PlannedCopy::Resource->new( resource_file => $file);
     my $iter = $res->resource_iter;
