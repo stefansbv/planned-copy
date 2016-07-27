@@ -76,9 +76,17 @@ sub set_perm {
     die "The 'set_perm' method works only with files.\n" unless $file->is_file;
     try   { $file->chmod($perm) }
     catch {
+        my $err = $_;
+        my $logmsg = '';
+        if ( $err =~ m{Operation not permitted}i ) {
+            $logmsg = 'Permission denied';
+        }
+        else {
+            $logmsg = $err;
+        }
         Exception::IO::SystemCmd->throw(
             message => 'The perm command failed.',
-            logmsg  => $_,
+            logmsg  => $logmsg,
         );
     };
     return;
@@ -121,8 +129,8 @@ sub exception_to_issue {
     if ( $e->isa('Exception::IO::SystemCmd') ) {
         $res->add_issue(
             App::PlannedCopy::Issue->new(
-                message => $e->message,
-                details => $e->logmsg,
+                message  => $e->message,
+                details  => $e->logmsg,
                 category => 'error',
                 action   => 'skip',
             ),
