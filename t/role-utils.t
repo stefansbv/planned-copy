@@ -22,9 +22,14 @@ my @methods    = (
         get_project_files
         check_res_user
         check_user
+        exceptions
+        prevalidate_element
         get_perms
         get_owner
-        )
+        check_project_name
+        is_project_path
+        is_project
+      )
 );
 
 my $cmd = TestCmd->new;
