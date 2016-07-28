@@ -85,7 +85,7 @@ sub check_project {
     }
     else {
         if ( $self->verbose ) {
-            say '[', fg('green1', $self->project), "], Job: ", $cnt, ' file',
+            print '[', fg('green1', $self->project), "], Job: ", $cnt, ' file',
                 ( $cnt != 1 ? 's' : '' ),
                 ' to check',
                 ( $batch ? '...' : ':' );
@@ -133,6 +133,7 @@ sub check_project {
     else {
         $self->print_summary;
     }
+    print " done\n" if $batch and $self->verbose;
 
     return;
 }
