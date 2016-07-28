@@ -148,7 +148,7 @@ subtest 'With a resource file - filename4' => sub {
     is capture_stdout { $diff->print_summary }, '
 Summary:
  - processed: 1 records
- - skipped  : 0
+ - skipped  : 1
  - same     : 0
  - different: 0
 
@@ -402,7 +402,7 @@ subtest 'With a resource file - all' => sub {
     is capture_stdout { $diff->print_summary }, '
 Summary:
  - processed: 12 records
- - skipped  : 6
+ - skipped  : 7
  - same     : 2
  - different: 3
 

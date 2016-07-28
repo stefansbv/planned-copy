@@ -99,19 +99,16 @@ sub run {
             }
             else {
 
-                # print
+                # print it
                 $self->item_printer($res);
-
-                # install
-                if (   $res->has_action('install')
-                    || $res->has_action('unpack') ) {
-                    $self->inc_count_skip;
-                }
 
                 # update
                 if ( $res->has_action('update') ) {
                     $self->diff_files($res);
                     $self->inc_count_diff;
+                }
+                else {
+                    $self->inc_count_skip;
                 }
             }
         }

@@ -24,7 +24,6 @@ sub validate_element {
     $self->src_file_readable($res);
     if ( $res->src->type_is('archive') ) {
         $self->archive_is_unpacked($res);
-        return;
     }
     else {
         $self->dst_file_readable($res);
@@ -37,8 +36,8 @@ sub validate_element {
             $self->is_owner_different($res);
             $self->is_mode_different($res);
         }
-        return;
     }
+    return;
 }
 
 no Moose::Role;
