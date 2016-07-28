@@ -139,7 +139,7 @@ sub run {
                     catch { $self->exceptions( $_, $res ) };
                 }
 
-                # print
+                # print it
                 $self->item_printer($res);
             }
         }

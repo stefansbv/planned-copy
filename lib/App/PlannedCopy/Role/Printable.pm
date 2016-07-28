@@ -86,6 +86,7 @@ sub item_printer {
         my $issue_color = $self->get_color( $issue->category );
         $self->issue_printer( $issue, $issue_color );
     }
+    $res->remove_all_issues unless $self->command eq 'diff';
     return;
 }
 

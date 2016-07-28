@@ -139,8 +139,8 @@ sub exception_to_issue {
     if ( $e->isa('Exception::IO::WrongPerms') ) {
         $res->add_issue(
             App::PlannedCopy::Issue->new(
-                message => $e->message,
-                details => $e->perm,
+                message  => $e->message,
+                details  => $e->perm,
                 category => 'info',
                 action   => 'chmod',
             ),
@@ -185,7 +185,6 @@ sub exception_to_issue {
             ),
         );
     }
-
     return;
 }
 
@@ -297,15 +296,13 @@ sub exceptions {
 
 sub prevalidate_element {
     my ($self, $res) = @_;
-    my $cont = try {
+    try {
         $self->check_res_user($res);
         $self->validate_element($res);
-        1;                                   # required
     }
     catch {
         my $exc = $_;
         $self->handle_exception($exc, $res);
-        return undef;                        # required
     };
     return;
 }

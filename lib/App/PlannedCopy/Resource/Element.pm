@@ -66,16 +66,17 @@ has '_issue' => (
     required => 1,
     default  => sub { [] },
     handles  => {
-        all_issues    => 'elements',
-        add_issue     => 'push',
-        get_issue     => 'get',
-        count_issues  => 'count',
-        has_no_issues => 'is_empty',
-        remove_issue  => 'delete',
+        all_issues         => 'elements',
+        add_issue          => 'push',
+        get_issue          => 'get',
+        count_issues       => 'count',
+        has_no_issues      => 'is_empty',
+        remove_issue       => 'delete',
+        remove_all_issues  => 'clear',
     },
     trigger => sub {
         my ( $self, $new, $old ) = @_;
-        $self->_new_issue_category;          # compute new dominant category
+        $self->_new_issue_category;    # compute new dominant category
     },
 );
 
