@@ -141,7 +141,7 @@ A counter attribute for the projects.
 
 A counter attribute for the directories.
 
-=item3 count_same
+=head3 count_same
 
 A counter attribute for the records with no difference between the
 source and destination files.

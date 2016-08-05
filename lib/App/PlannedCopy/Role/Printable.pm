@@ -181,11 +181,11 @@ A role for printing messages to the terminal.
 
 =head2 Attributes
 
-=item3 term_size
+=head3 term_size
 
 Returns the width of the terminal in characters.
 
-=item3 _issue_category_color_map
+=head3 _issue_category_color_map
 
 Holds the mapping between a category and a color name.
 
@@ -205,7 +205,7 @@ A colorized print for items, consisting of a line that starts with the
 name of the source file, followed by a number of dot chars, followed
 by the name of the destination file.
 
-=item3 get_issue_header
+=head3 get_issue_header
 
 Returns a string corresponding to an issue category.
 
@@ -228,22 +228,22 @@ The source and the destination strings have an assigned color:
 
 =back
 
-=item3 issue_printer
+=head3 issue_printer
 
-=item3 print_exeception_message
+=head3 print_exeception_message
 
 Prints a colorized line to the terminal, corresponding to an issue.
 
-=item3 project_changes_list_printer
+=head3 project_changes_list_printer
 
 A colorized print for items added, kept and removed from the resource
 file.
 
-=item3 project_list_printer
+=head3 project_list_printer
 
 A colorized print for the directories under the C<repo_path> dir.
 
-=item3 difference_printer
+=head3 difference_printer
 
 Prints a list of items to the terminal using the C<printer> method.
 
