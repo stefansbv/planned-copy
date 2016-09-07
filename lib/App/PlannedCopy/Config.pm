@@ -91,7 +91,7 @@ has 'diff_tool' => (
     },
 );
 
-# From Sqlitch ;)
+# From Sqitch ;)
 sub get_section {
     my ( $self, %p ) = @_;
     $self->load unless $self->is_loaded;
@@ -161,6 +161,26 @@ It inherits from L<Config::GitLike>.
 =head2 Instance Methods
 
 =head3 dir_file
+
+=head3 get_section
+
+  my $core = $config->get_section(section => 'core');
+  my $pg   = $config->get_section(section => 'engine.pg');
+
+Returns a hash reference containing only the keys within the specified
+section or subsection.
+
+* Method borrowed entirely from Sqitch, including the documentation.
+
+=head3 initial_key
+
+  my $key = $config->initial_key($data_key);
+
+Given the lowercase key from the loaded data, this method returns it in its
+original case. This is like C<original_key>, only in the case where there are
+multiple keys (for multivalue keys), only the first key is returned.
+
+* Method borrowed entirely from Sqitch, including the documentation.
 
 =head3 resource_file
 

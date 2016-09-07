@@ -388,8 +388,8 @@ in the resource file, for example:
 Checks the source parent dir of a resource element to see if it's
 readable, using the L<File::stat> function, and throws an
 L<Exception::IO::PermissionDenied> exception if is not readable or the
-error message contains the "Permission denied" string or dies with an
-"Unknown stat ERROR: $err" error message.
+error message contains the "Permission denied" string or else dies
+with an "Unknown stat ERROR: $err" error message.
 
 =head3 dst_path_exists
 
@@ -398,16 +398,24 @@ C<Exception::IO::PathNotFound> if it is not.
 
 Used by the C<check>, C<diff> and C<sync> commands.
 
+=head3 archive_is_unpacked
+
+=head3 is_src_and_dst_different
+
+Adds an issue with the message 'Different source and destination' if
+the source and destination files are different, as returned by the
+C<is_selfsame> method.
+
+=head3 is_owner_default
+
+=head3 is_owner_different
+
 =head3 is_mode_different
 
 Returns true if the actual C<perms> of the destination file match the
 C<perms> defined in the resource file.  Otherwise throws an
 C<Exception::IO::WrongPerms> exception.
 
-=head3 get_perms
-
-Return the C<perms> as an octal string of the file givven as parameter
-or throws a C<Exception::IO::PermissionDenied> exception if the file
-can't be read.
+=head3 is_mode_default
 
 =cut

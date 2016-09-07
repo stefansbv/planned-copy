@@ -175,6 +175,8 @@ An hash reference containing a source section of the resource file.
 An hash reference containing a destination section of the resource
 file.
 
+=head3 is_printed
+
 =head3 _issue
 
 An array reference containing C<App::PlannedCopy::Issue> objects.  It
@@ -202,7 +204,22 @@ Holds the issue category with the greatest weight acording to the
 C<_issue_categ_weight_map>.  It is used by the printer methods to
 assign colors to the resource items.
 
+=head3 _issue
+
+Holds an array ref of issue instance objects.
+
 =head2 Instance Methods
+
+=head3 _new_issue_category
+
+A method invoked by a C<_issue> trigger when a new issue is added.
+Sets the new C<issues_category> for current resource element.
+
+=head3 has_action
+
+    $self->has_action($action);
+
+Returns true if the resource has an action named $action.
 
 =head3 src
 
@@ -213,9 +230,6 @@ Returns the L<App::PlannedCopy::Resource::Element::Source> instance.
 Returns the L<App::PlannedCopy::Resource::Element::Destination>
 instance.
 
-=head3 _new_issue_category
-
-A method invoked by a C<_issue> trigger when a new issue is added.
-Sets the new C<issues_category> for current resource element.
+=head3 remove_issue_by_action
 
 =cut

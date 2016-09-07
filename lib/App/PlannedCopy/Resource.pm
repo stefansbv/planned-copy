@@ -155,4 +155,10 @@ A meta class attribute for the itertor.
 
 A count attribute for the number of resource elements.
 
+=head2 Instance Methods
+
+=head3 get_resource_section
+
+Returns a data-structure representing a section in the resource file.
+
 =cut

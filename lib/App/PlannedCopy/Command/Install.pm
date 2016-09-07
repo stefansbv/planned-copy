@@ -309,10 +309,27 @@ C<install_file> method is called on the item.
 Copies an item (file), changes the owner and the perms.  Unpacks
 archive files.
 
+=head3 change_perms
+
+Changes the permissions of the destination file to the permissions set in the
+resource file.  Adds an info type issue.
+
+=head3 change_owner
+
+    $self->change_owner($file, $user);
+
+Changes the owner of the destination file to the owner set in the
+resource file.  Adds an info type issue.  Throws an
+C<Exception::IO::SystemCmd> if the operation fails.
+
 =head3 extract_archive
 
 Unpacks an archive file in the destination dir.  Can handle any type
 of archive that the C<Archive::Any::Lite> module recognizes.
+
+=head3 remove_archive
+
+Removes the archive file after its contents was extracted.
 
 =head3 print_summary
 

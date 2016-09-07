@@ -158,10 +158,40 @@ An attribute that holds the C<verbose> comman line option.
 Creates and returns an instance object of the
 L<App::PlannedCopy::Config> class.
 
+=head3 repo_owner
+
+An attribute that holds the owner of the repository.  It has to be in
+a subdirectory of L<home/user>, where C<user> is the repository owner.
+
 =head3 _projects
 
-Holds an array reference of the names of the subdirectories of
+An attribute that holds an array reference of the names of the subdirectories of
 L<repo_path> that contains a resource file (L<resource.yml>).
+
+=head3 editor
+
+An attribute that holds and returns the C<core.editor> setting from
+the config file if it exists or the EDITOR system enviroment variable.
+
+=head2 Instance Methods
+
+=head3 _build_projects
+
+Builder for the C<_projects> attribute.
+
+=head3 shell
+
+  $self->shell('echo -n hello');
+
+Shells out a system command and waits for it to finish. Throws an exception on
+error. Always uses the shell, so a single string must be passed encapsulating
+the entire command and its arguments.
+
+* Method borrowed entirely from Sqitch, including the documentation :)
+
+=head3 get_project_scope
+
+Returns the scope attribute of the resource file if is defined.
 
 =head1 Known Problems
 

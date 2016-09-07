@@ -328,9 +328,7 @@ sub get_perms {
             die "Unknown stat ERROR: $err";
         }
     };
-    # my $perms = sprintf "%04o", $mode & 07777;
     return sprintf "%04o", $mode & 07777;
-    # return $perms;
 }
 
 sub get_owner {
@@ -401,13 +399,43 @@ by the command modules.
 
 =head2 Instance Methods
 
-=head3 change_owner
+=head3 is_selfsame
 
-    $self->change_owner($file, $user);
+Uses an MD5 digest to compare the source and the destination file and
+returns the result of the comparison.  Throws exceptions in
+exceptional cases ;)
 
-Changes the owner of the file.
+=head3 copy_file
 
-Throws an C<Exception::IO::SystemCmd> if the operation fails.
+Tries to copy the source file to the destination dir.  Throws a
+C<Exception::IO::SystemCmd> if the operation fails.
+
+=head3 set_perm
+
+    $self->set_perm($file, $perm);
+
+Tries to set the perms for the file.  Throws a
+C<Exception::IO::SystemCmd> if the operation fails.
+
+=head3 set_owner
+
+=head3 handle_exception
+
+=head3 exception_to_issue
+
+=head3 no_resource_message
+
+Prints a message if there is no resource file in the project dir.
+
+=head3 quote_string
+
+=head3 compare
+
+=head3 get_project_files
+
+Recursively scan the project dir and get a list of the files,
+excepting the C<resource.yml> file if it exists and return the data as
+an AoH.
 
 =head3 check_res_user
 
@@ -423,42 +451,22 @@ destination user, else throws an C<Exception::IO::WrongUser>.
 Return true if the current user is the same as the repository owner,
 else throws an C<Exception::IO::WrongUser>.
 
-=head3 copy_file
+=head3 exceptions
 
-Tries to copy the source file to the destination dir.  Throws a
-C<Exception::IO::SystemCmd> if the operation fails.
+=head3 prevalidate_element
 
-=head3 get_project_files
+=head3 get_perms
 
-Recursively scan the project dir and get a list of the files,
-excepting the C<resource.yml> file if it exists and return the data as
-an AoH.
+Return the C<perms> as an octal string of the file givven as parameter
+or throws a C<Exception::IO::PermissionDenied> exception if the file
+can't be read.
 
-=head3 handle_exception
+=head3 get_owner
 
-TODO
+=head3 check_project_name
 
-=head3 is_selfsame
+=head3 is_project_path
 
-Uses an MD5 digest to compare the source and the destination file and
-returns the result of the comparison.  Throws exceptions in
-exceptional cases ;)
-
-=head3 kompare
-
-Runs the C<diff_tool>.
-
-=head3 no_resource_message
-
-Prints a message if there is no resource file in the project dir.
-
-=head3 quote_string
-
-=head3 set_perm
-
-    $self->set_perm($file, $perm);
-
-Tries to set the perms for the file.  Throws a
-C<Exception::IO::SystemCmd> if the operation fails.
+=head3 is_project
 
 =cut
