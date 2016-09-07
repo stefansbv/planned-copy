@@ -170,10 +170,11 @@ sub install_file {
             );
         }
     }
-    $self->copy_file( $res->dst->_abs_path, $res->dst->_abs_path_bak ); # backup!
+    $self->copy_file( $res->dst->_abs_path, $res->dst->_abs_path_bak )
+        if $res->has_action('update');
     $self->copy_file( $res->src->_abs_path, $res->dst->_abs_path );
-    $res->remove_issue_by_action($res, 'install');
-    $res->remove_issue_by_action($res, 'update');
+    $res->remove_issue_by_action( $res, 'install' );
+    $res->remove_issue_by_action( $res, 'update' );
     $res->issues_category('done');
     return;
 }
