@@ -418,4 +418,12 @@ C<Exception::IO::WrongPerms> exception.
 
 =head3 is_mode_default
 
+=head2 Imported subs
+
+=head3 S_IRUSR
+
+=head3 S_IWUSR
+
+=cut
+
 =cut
