@@ -49,7 +49,14 @@ sub run {
     if (    $self->config->current_user ne 'root'
         and $res->resource_scope eq 'system' )
     {
-        die "\n[EE] Root privileges are required to install resources with 'system' scope.\n";
+        say "\nSkipping project: ", $self->project, ".";
+        die "Root privileges are required to install resources with 'system' scope.\n";
+    }
+    if (    $self->config->current_user eq 'root'
+        and $res->resource_scope eq 'user' )
+    {
+        say "\nSkipping project: ", $self->project, ".";
+        die "\nRoot can't install resources with 'user' scope, unless '--force' is used (not implemented yet)\n";
     }
 
     if ($name) {
