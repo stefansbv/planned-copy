@@ -24,10 +24,17 @@ subtest 'minimum valid config' => sub {
     isa_ok $dst, 'App::PlannedCopy::Resource::Element::Destination';
 
     is $dst->_name, 'filename1', 'destination name';
+    is $dst->_name_bak, 'filename1.bak', 'destination bakup name';
     is $dst->_path, $dest_path, 'destination path';
     is $dst->_perm, '0644', 'destination perm';
+    is $dst->_full_path, path( $dest_path, qw(filename1) ),
+        'destination path';
+    is $dst->_full_path_bak, path( $dest_path, qw(filename1.bak) ),
+        'destination backup path';
     is $dst->_abs_path, path( $dest_path, qw(filename1) )->absolute,
         'destination absolute path';
+    is $dst->_abs_path_bak, path( $dest_path, qw(filename1.bak) )->absolute,
+        'destination backup absolute path';
     is $dst->_parent_dir, $dest_path->absolute,
         'destination absolute path parent';
 };
@@ -49,12 +56,15 @@ subtest 'maximum valid config' => sub {
     isa_ok $dst, 'App::PlannedCopy::Resource::Element::Destination';
 
     is $dst->_name, 'filename3', 'destination name';
+    is $dst->_name_bak, 'filename3.bak', 'destination bakup name';
     is $dst->_path, $dest_path,  'destination path';
     is $dst->_perm, '0644',      'destination perm';
     is $dst->_verb, 'unpack',    'destination verb';
     is $dst->_user, 'someuser',  'destination user';
     is $dst->_abs_path, path( $dest_path, qw(filename3) )->absolute,
         'destination absolute path';
+    is $dst->_abs_path_bak, path( $dest_path, qw(filename3.bak) )->absolute,
+        'destination backup absolute path';
     is $dst->_parent_dir, $dest_path->absolute,
         'destination absolute path parent';
 };

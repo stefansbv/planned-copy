@@ -18,6 +18,17 @@ has '_name' => (
     required => 1,
 );
 
+has '_name_bak' => (
+    is       => 'ro',
+    isa      => 'Str',
+    lazy     => 1,
+    required => 1,
+    default  => sub {
+        my $self = shift;
+        return $self->_name . '.bak';
+    },
+);
+
 has '_path' => (
     is       => 'ro',
     isa      => Path,
@@ -32,6 +43,16 @@ has '_full_path' => (
     default  => sub {
         my $self = shift;
         return path( $self->_path, $self->_name );
+    },
+);
+
+has '_full_path_bak' => (
+    is       => 'ro',
+    isa      => 'Path::Tiny',
+    lazy     => 1,
+    default  => sub {
+        my $self = shift;
+        return path( $self->_path, $self->_name_bak );
     },
 );
 

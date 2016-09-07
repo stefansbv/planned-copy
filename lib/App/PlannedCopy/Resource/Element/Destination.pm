@@ -34,6 +34,16 @@ has '_abs_path' => (
     },
 );
 
+has '_abs_path_bak' => (
+    is       => 'ro',
+    isa      => 'Path::Tiny',
+    lazy     => 1,
+    default  => sub {
+        my $self = shift;
+        return $self->_full_path_bak->absolute;
+    },
+);
+
 has '_parent_dir' => (
     is       => 'ro',
     isa      => 'Path::Tiny',
