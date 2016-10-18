@@ -86,6 +86,18 @@ has 'resource_scope' => (
     },
 );
 
+has 'resource_host' => (
+    is      => 'ro',
+    isa     => 'Str',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        my $host = $self->get_resource_section('host');
+        $host    = 'localhost' unless $host;
+        return $host;
+    },
+);
+
 has _resource => (
     is      => 'ro',
     isa     => 'ArrayRef',

@@ -12,6 +12,7 @@ subtest 'Read resource' => sub {
     isa_ok $res->reader, 'App::PlannedCopy::Resource::Read', 'resource read';
 
     is $res->get_resource_section('scope'), 'user', 'get section scope';
+    is $res->get_resource_section('host'), 'host1', 'get section host';
     is ref $res->get_resource_section('resources'), 'ARRAY', 'get section resources';
 
     is $res->resource_scope, 'user', 'resource scope';
@@ -19,16 +20,18 @@ subtest 'Read resource' => sub {
     is $res->count, 5, 'resources count';
 };
 
-subtest 'Read resource - no scope' => sub {
+subtest 'Read resource - default scope, default host' => sub {
     ok my $res = App::PlannedCopy::Resource->new(
-        resource_file => 't/noscope-resource.yml' ), 'read another test resource file';
+        resource_file => 't/resource-min.yml' ), 'read another test resource file';
 
     isa_ok $res->reader, 'App::PlannedCopy::Resource::Read', 'resource read';
 
     is $res->get_resource_section('scope'), undef, 'get section scope';
+    is $res->get_resource_section('host'), undef, 'get section host';
     is ref $res->get_resource_section('resources'), 'ARRAY', 'get section resources';
 
     is $res->resource_scope, 'user', 'default resource scope';
+    is $res->resource_host, 'localhost', 'default resource host';
     is ref $res->_resource, 'ARRAY', 'resources array';
     is $res->count, 5, 'resources count';
 };

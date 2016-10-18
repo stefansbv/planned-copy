@@ -72,7 +72,7 @@ subtest 'Read resource' => sub {
 
 subtest 'Read resource - no scope' => sub {
     ok my $reader = App::PlannedCopy::Resource::Read->new(
-        resource_file => 't/noscope-resource.yml' ), 'read another test resource file';
+        resource_file => 't/resource-min.yml' ), 'read another test resource file';
 
     is $reader->get_contents('scope'), undef, 'get the scope';
     ok my $resources = $reader->get_contents('resources'),

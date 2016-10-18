@@ -1,5 +1,6 @@
 ---
 scope: user
+host: host1
 resources:
   -
     destination:
