@@ -403,9 +403,16 @@ by the command modules.
 
 =head3 is_selfsame
 
-Uses an MD5 digest to compare the source and the destination file and
-returns the result of the comparison.  Throws exceptions in
-exceptional cases ;)
+Returns true if the source and the destination files are the same.
+
+If the files are with different sizes, returns false, else uses an MD5
+digest to compare contents.
+
+Throws exceptions in exceptional cases ;)
+
+=head3 digest_local
+
+Calculates and returns the MD5 digest of a file.
 
 =head3 copy_file
 
