@@ -15,6 +15,7 @@ use App::PlannedCopy::Exceptions;
 sub is_selfsame {
     my ( $self, $src, $dst ) = @_;
 
+    # Dst not defined or not installed?
     if ( $dst =~ m{undef}i ) {
         Exception::IO::PathNotDefined->throw(
             message  => 'The destination path is not defined.',
@@ -29,31 +30,27 @@ sub is_selfsame {
     return 0 if $src->stat->size != $dst->stat->size;
 
     # Check contents
-    my $digest_src;
-    try   { $digest_src = $src->digest('MD5') }
-    catch {
-        my $err = $_;
-        if ( $err =~ m{permission}i ) {
-            Exception::IO::PermissionDenied->throw(
-                message  => 'Permision denied for src path:',
-                pathname => $src,
-            );
-        }
-        else { die "Unknown error: $err" }
-    };
-    my $digest_dst;
-    try   { $digest_dst = $dst->digest('MD5') }
-    catch {
-        my $err = $_;
-        if ( $err =~ m{permission}i ) {
-            Exception::IO::PermissionDenied->throw(
-                message  => 'Permision denied for dst path:',
-                pathname => $src,
-            );
-        }
-        else { die "Unknown error: $err" }
-    };
+    my $digest_src = $self->digest_local($src);
+    my $digest_dst = $self->digest_local($dst);
+
     return ( $digest_src eq $digest_dst ) ? 1 : 0;
+}
+
+sub digest_local {
+    my ($self, $file) = @_;
+    my $digest;
+    try   { $digest = $file->digest('MD5') }
+    catch {
+        my $err = $_;
+        if ( $err =~ m{permission}i ) {
+            Exception::IO::PermissionDenied->throw(
+                message  => 'Permision denied for path:',
+                pathname => $file,
+            );
+        }
+        else { die "Unknown error: $err" }
+    };
+    return $digest;
 }
 
 sub copy_file {
