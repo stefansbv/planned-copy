@@ -16,6 +16,7 @@ subtest 'Read resource' => sub {
     is ref $res->get_resource_section('resources'), 'ARRAY', 'get section resources';
 
     is $res->resource_scope, 'user', 'resource scope';
+    is $res->resource_host, 'host1', 'resource host';
     is ref $res->_resource, 'ARRAY', 'resources array';
     is $res->count, 5, 'resources count';
 };
