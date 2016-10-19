@@ -24,6 +24,11 @@ sub is_selfsame {
     if ( !$dst->is_file ) {
         return 0;
     }
+
+    # Compare sizes
+    return 0 if $src->stat->size != $dst->stat->size;
+
+    # Check contents
     my $digest_src;
     try   { $digest_src = $src->digest('MD5') }
     catch {
