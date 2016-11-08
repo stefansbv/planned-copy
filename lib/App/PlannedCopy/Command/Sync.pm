@@ -14,6 +14,7 @@ extends qw(App::PlannedCopy);
 with qw(App::PlannedCopy::Role::Printable
         App::PlannedCopy::Role::Utils
         App::PlannedCopy::Role::Validate::Sync
+        App::PlannedCopy::Role::Remote
        );
 
 use App::PlannedCopy::Resource;

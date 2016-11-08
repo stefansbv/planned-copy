@@ -12,6 +12,17 @@ use Capture::Tiny ':all';
 
 use App::PlannedCopy::Exceptions;
 
+sub file_stat {
+    my ($self, $file) = @_;
+    say "File is $file";
+    if ( my $sftp = $self->sftp ) {
+        my $path = path($file)->absolute;
+        say "Path is $path";
+        return $self->sftp->stat($path);
+    }
+    return $file->stat;
+}
+
 sub is_selfsame {
     my ( $self, $src, $dst ) = @_;
 
@@ -24,38 +35,52 @@ sub is_selfsame {
     if ( !$dst->is_file ) {
         return 0;
     }
-    my $digest_src;
-    try   { $digest_src = $src->digest('MD5') }
-    catch {
-        my $err = $_;
-        if ( $err =~ m{permission}i ) {
-            Exception::IO::PermissionDenied->throw(
-                message  => 'Permision denied for src path:',
-                pathname => $src,
-            );
-        }
-        else { die "Unknown error: $err" }
-    };
-    my $digest_dst;
-    try   { $digest_dst = $dst->digest('MD5') }
-    catch {
-        my $err = $_;
-        if ( $err =~ m{permission}i ) {
-            Exception::IO::PermissionDenied->throw(
-                message  => 'Permision denied for dst path:',
-                pathname => $src,
-            );
-        }
-        else { die "Unknown error: $err" }
-    };
+
+    # Compare sizes
+    return 0 if $self->file_stat($src)->size != $self->file_stat($dst)->size;
+
+    # Check contents
+    my $digest_src = $self->digest_local($src);
+    my $digest_dst = $self->digest_local($dst);
+
     return ( $digest_src eq $digest_dst ) ? 1 : 0;
 }
 
-sub copy_file {
-    my ($self, $src, $dst) = @_;
-    try   { $src->copy($dst) }
+sub digest_local {
+    my ($self, $file) = @_;
+    my $digest;
+    try   { $digest = $file->digest('MD5') }
     catch {
         my $err = $_;
+        if ( $err =~ m{permission}i ) {
+            Exception::IO::PermissionDenied->throw(
+                message  => 'Permision denied for path:',
+                pathname => $file,
+            );
+        }
+        else { die "Unknown error: $err" }
+    };
+    return $digest;
+}
+
+sub copy_file {
+    my ( $self, $src, $dst, $host ) = @_;
+    if (!$host or $host eq 'localhost') {
+        say "HOST is localhost";
+        $self->copy_file_local( $src, $dst );
+    }
+    else {
+        say "HOST is $host";
+        $self->copy_file_remote( $src, $dst, $host );
+    }
+    return;
+}
+
+sub copy_file_local {
+    my ( $self, $src, $dst ) = @_;
+    try { $src->copy($dst) }
+    catch {
+        my $err    = $_;
         my $logmsg = '';
         if ( $err =~ m{Permission denied}i ) {
             $logmsg = 'Permission denied';

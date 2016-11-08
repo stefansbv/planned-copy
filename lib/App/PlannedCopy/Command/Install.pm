@@ -15,6 +15,7 @@ extends qw(App::PlannedCopy);
 with qw(App::PlannedCopy::Role::Printable
         App::PlannedCopy::Role::Utils
         App::PlannedCopy::Role::Validate::Install
+        App::PlannedCopy::Role::Remote
        );
 
 use App::PlannedCopy::Resource;
@@ -36,13 +37,65 @@ parameter 'dst_name' => (
     documentation => q[Optional destination file name.],
 );
 
+option 'host' => (
+    is            => 'rw',
+    isa           => 'Str',
+    cmd_aliases   => [qw(H)],
+    documentation => q[Remote host name.],
+);
+
+option 'user' => (
+    is            => 'rw',
+    isa           => 'Str',
+    cmd_aliases   => [qw(u)],
+    documentation => q[User name.  Defaults to ENV{USER}],
+);
+
+option 'pass' => (
+    is            => 'rw',
+    isa           => 'Str',
+    cmd_aliases   => [qw(p)],
+    documentation => q[Password.],
+);
+
+has 'remote_host' => (
+    is      => 'ro',
+    isa     => 'Str',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return $self->host if $self->host;
+        return $self->resource->resource_host;
+    },
+);
+
+has 'resource_file' => (
+    is      => 'ro',
+    isa     => 'Str',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return $self->config->resource_file( $self->project );
+    },
+);
+
+has 'resource' => (
+    is      => 'ro',
+    isa     => 'App::PlannedCopy::Resource',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return App::PlannedCopy::Resource->new(
+            resource_file => $self->resource_file );
+    },
+);
+
 sub run {
     my ( $self ) = @_;
 
     $self->check_project_name;
 
-    my $file = $self->config->resource_file( $self->project );
-    my $res  = App::PlannedCopy::Resource->new( resource_file => $file );
+    my $res  = $self->resource;
     my $iter = $res->resource_iter;
     my $name = $self->dst_name;
 
@@ -170,9 +223,10 @@ sub install_file {
             );
         }
     }
-    $self->copy_file( $res->dst->_abs_path, $res->dst->_abs_path_bak )
-        if $res->has_action('update');
-    $self->copy_file( $res->src->_abs_path, $res->dst->_abs_path );
+    $self->copy_file( $res->dst->_abs_path, $res->dst->_abs_path_bak,
+        $self->remote_host ) if $res->has_action('update');
+    $self->copy_file( $res->src->_abs_path, $res->dst->_abs_path,
+        $self->remote_host );
     $res->remove_issue_by_action( $res, 'install' );
     $res->remove_issue_by_action( $res, 'update' );
     $res->issues_category('done');
@@ -266,6 +320,18 @@ sub print_summary {
     say '';
     return;
 }
+
+#+--
+
+sub copy_file_remote {
+    my ($self, $src, $dst, $host ) = @_;
+    die "HOST is $host";
+    my $sftp = $self->sftp;
+    $sftp->setcwd($dst->_parent_dir) or die "Unable to change cwd: " . $sftp->error;
+    say $sftp->cwd;
+    return;
+}
+
 
 __PACKAGE__->meta->make_immutable;
 
