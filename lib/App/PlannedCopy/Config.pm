@@ -138,6 +138,12 @@ __END__
 This class provides the interface to App::PlannedCopy configuration.
 It inherits from L<Config::GitLike>.
 
+=head2 Constants
+
+=head2 RESOURCE_FILE
+
+Returns the name of the resource file.
+
 =head1 Interface
 
 =head2 Attributes

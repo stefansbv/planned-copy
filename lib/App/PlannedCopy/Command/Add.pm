@@ -15,6 +15,7 @@ extends qw(App::PlannedCopy);
 use constant RESOURCE_FILE => 'resource.yml';
 
 with qw(App::PlannedCopy::Role::Utils
+        App::PlannedCopy::Role::Resource::Utils
         App::PlannedCopy::Role::Printable);
 
 parameter 'project' => (
@@ -31,34 +32,31 @@ parameter 'files' => (
     documentation => q[The file(s) to be added to the project.],
 );
 
-option 'update' => (
-    is            => 'rw',
-    isa           => 'Bool',
-    cmd_aliases   => [qw(u)],
-    documentation => q[Remove entries for nonexistent files.],
-);
-
-option 'interactive' => (
-    is            => 'rw',
-    isa           => 'Bool',
-    cmd_aliases   => [qw(i)],
-    documentation => q[Enter interactive mode.],
+has 'resource_file' => (
+    is      => 'ro',
+    isa     => 'Str',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return $self->config->resource_file( $self->project );
+    },
 );
 
 sub run {
     my ( $self ) = @_;
 
-    $self->check_project_name;
+    # $self->check_project_name;
+    $self->check_dir_name;
 
     my $path_param = $self->files;
 
     my $file_list = [];
+    my ( $file_path, $file_name );
 
     # The parameter has wildcards?
     if ( $path_param =~ m{[?*]} ) {
         say "param has wildcards!";
 
-        my ( $file_path, $file_name );
         if ( $path_param =~ m{^(.*)/([^/]*)$} ) {
             $file_path = $1;
             $file_name = $2;
@@ -79,7 +77,6 @@ sub run {
         say "is dir:  ", path($path_param)->is_dir  ? 'yes' : 'no';
 
         if ( path($path_param)->is_file ) {
-            my ( $file_path, $file_name );
             if ( $path_param =~ m{^(.*)/([^/]*)$} ) {
                 $file_path = $1;
                 $file_name = $2;
@@ -101,11 +98,26 @@ sub run {
         if ( path($path_param)->is_dir ) {
 
             # Go and gather all files
+            $file_path = $path_param;
             $file_list = $self->gather_files($path_param);
         }
     }
 
-    use Data::Dump; dd $file_list;
+    # Sync (copy) the files into the repo
+    # XXX Should copy files only if does not exist?!
+    foreach my $file ( @{$file_list} ) {
+        my $dst_path = path $self->project_path, path($file)->parent;
+        unless ( $dst_path->is_dir ) {
+            $self->make_path($dst_path);
+        }
+        my $src = path $file_path, $file;
+        my $dst = path $self->project_path, $file;
+        $self->copy_file( $src, $dst );
+    }
+
+    # Set the destination path and create/update the resource file
+    $self->destination_path($file_path);
+    $self->update_resource;
 
     $self->print_summary;
 
@@ -122,6 +134,7 @@ sub gather_files {
     $rule->skip_vcs;
     $rule->skip(
         $rule->new->file->empty,
+        $rule->new->file->name( qr/~$/, '*.bak'),
         $rule->new->file->name(RESOURCE_FILE),
     );
     $rule->name($wildcard) if $wildcard;
@@ -141,7 +154,9 @@ sub print_summary {
     my $self = shift;
     say '';
     say 'Summary:';
-    say ' - directories: ', $self->count_dirs;
+    say ' - removed: ', $self->dryrun ? '0 (dry-run)' : $self->count_removed;
+    say ' - kept   : ', $self->count_kept;
+    say ' - added  : ', $self->dryrun ? '0 (dry-run)' : $self->count_added;
     say '';
     return;
 }
@@ -164,7 +179,13 @@ plcp add <project> ./path/           - add a directory recursively
 
 plcp add <project> ./path/*.conf     - add files using wildcards
 
-plcp add <project> file1 file2 file3 - add a list of files
+plcp add <project> file1 file2 file3 - add a list of files (not yet!)
+
+=head2 Constants
+
+=head2 RESOURCE_FILE
+
+Returns the name of the resource file.
 
 =head1 Interface
 
@@ -180,6 +201,11 @@ project - a directory name under C<repo_path>.
 =head3 run
 
 The method to be called when the C<add> command is run.
+
+=head3 gather_files
+
+Create and return a list of files to be added to the repo.  The C<*>
+and C<?> wildcards can be used in the file names.
 
 =head3 print_summary
 

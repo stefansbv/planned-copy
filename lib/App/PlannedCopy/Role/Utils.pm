@@ -75,6 +75,26 @@ sub copy_file {
     return;
 }
 
+sub make_path {
+    my ($self, $dir) = @_;
+    try   { $dir->mkpath }
+    catch {
+        my $err = $_;
+        my $logmsg = '';
+        if ( $err =~ m{Permission denied}i ) {
+            $logmsg = 'Permission denied';
+        }
+        else {
+            $logmsg = $err;
+        }
+        Exception::IO::SystemCmd->throw(
+            message => 'The mkpath command failed.',
+            logmsg  => $logmsg,
+        );
+    };
+    return;
+}
+
 sub set_perm {
     my ($self, $file, $perm) = @_;
     die "The 'set_perm' method works only with files.\n" unless $file->is_file;
@@ -361,26 +381,36 @@ sub get_owner {
     # return $user;
 }
 
-sub check_project_name {
+sub check_dir_name {
     my $self    = shift;
     my $project = $self->project;
     unless ( $self->is_project_path ) {
         die "\n[EE] No directory named '$project' found.\n     Check the spelling or use the 'list' command.\n\n";
     }
+}
+
+sub check_project_name {
+    my $self    = shift;
+    my $project = $self->project;
     unless ( $self->is_project ) {
         die "\n[EE] No project named '$project' found.\n     Check the spelling or use the 'list' command.\n\n";
     }
 }
 
-sub is_project_path {
+sub project_path {
     my $self    = shift;
-    my $dir     = path $self->config->repo_path, $self->project;
-    return $dir->is_dir;
+    my $project = $self->project;
+    return path( $self->config->repo_path, $project );
+}
+
+sub is_project_path {
+    my $self = shift;
+    return $self->project_path->is_dir;
 }
 
 sub is_project {
-    my $self    = shift;
-    my $record  = $self->find_project( sub { $_->{path} eq $self->project } );
+    my $self   = shift;
+    my $record = $self->find_project( sub { $_->{path} eq $self->project } );
     return $record->{resource};
 }
 
@@ -401,6 +431,12 @@ by the command modules.
 
 =head1 Interface
 
+=head2 Constants
+
+=head2 RESOURCE_FILE
+
+Returns the name of the resource file.
+
 =head2 Instance Methods
 
 =head3 is_selfsame
@@ -419,6 +455,11 @@ Calculates and returns the MD5 digest of a file.
 =head3 copy_file
 
 Tries to copy the source file to the destination dir.  Throws a
+C<Exception::IO::SystemCmd> if the operation fails.
+
+=head3 make_path
+
+Tries to create the destination dir.  Throws a
 C<Exception::IO::SystemCmd> if the operation fails.
 
 =head3 set_perm
@@ -474,10 +515,20 @@ can't be read.
 
 =head3 get_owner
 
+=head3 check_dir_name
+
+Return true if the name of the project attribute is a dir under the
+C<repo_path>, false otherwise.
+
 =head3 check_project_name
+
+=head3 project_path
 
 =head3 is_project_path
 
 =head3 is_project
+
+XXX Return true if the project dir contains a resource file, false
+otherwise.
 
 =cut

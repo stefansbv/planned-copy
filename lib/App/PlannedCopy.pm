@@ -143,6 +143,12 @@ __END__
 
 Planned Copy - a smarter copy application for your Linux box.
 
+=head2 Constants
+
+=head2 RESOURCE_FILE
+
+Returns the name of the resource file.
+
 =head1 Interface
 
 =head2 Attributes
