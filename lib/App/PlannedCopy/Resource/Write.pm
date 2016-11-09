@@ -1,6 +1,6 @@
 package App::PlannedCopy::Resource::Write;
 
-# ABSTRACT: Write a 'resource.yml' file
+# ABSTRACT: Write a resource file
 
 use 5.010001;
 use utf8;

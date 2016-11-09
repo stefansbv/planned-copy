@@ -1,6 +1,6 @@
 package App::PlannedCopy::Resource::Read;
 
-# ABSTRACT: Read a 'resource.yml' file
+# ABSTRACT: Read a resource file
 
 use 5.010001;
 use utf8;

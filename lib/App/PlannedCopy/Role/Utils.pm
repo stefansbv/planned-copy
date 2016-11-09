@@ -10,6 +10,8 @@ use Path::Iterator::Rule;
 use Try::Tiny;
 use Capture::Tiny ':all';
 
+use constant RESOURCE_FILE => 'resource.yml';
+
 use App::PlannedCopy::Exceptions;
 
 sub is_selfsame {
@@ -249,7 +251,7 @@ sub get_project_files {
     $rule->skip_vcs;
     $rule->skip(
         $rule->new->file->empty,
-        $rule->new->file->name('resource.yml'),
+        $rule->new->file->name(RESOURCE_FILE),
     );
     $rule->min_depth(1);
 

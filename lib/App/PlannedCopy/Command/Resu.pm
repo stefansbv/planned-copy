@@ -17,6 +17,8 @@ extends qw(App::PlannedCopy);
 with qw(App::PlannedCopy::Role::Utils
         App::PlannedCopy::Role::Printable);
 
+use constant RESOURCE_FILE => 'resource.yml';
+
 use App::PlannedCopy::Resource::Read;
 use App::PlannedCopy::Resource::Write;
 
@@ -278,7 +280,7 @@ sub get_all_files {
     my $rule    = Path::Iterator::Rule->new;
     $rule->skip(
         $rule->new->file->empty,
-        $rule->new->file->name('resource.yml'),
+        $rule->new->file->name(RESOURCE_FILE),
     );
     my $next = $rule->iter( $abs_dir,
         { relative => 0, sorted => 1, follow_symlinks => 0 } );

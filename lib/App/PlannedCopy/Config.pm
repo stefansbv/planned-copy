@@ -16,6 +16,8 @@ extends 'Config::GitLike';
 
 use App::PlannedCopy::Exceptions;
 
+use constant RESOURCE_FILE => 'resource.yml';
+
 has '+confname' => ( default => 'plannedcopyrc' );
 has '+encoding' => ( default => 'UTF-8' );
 
@@ -115,7 +117,7 @@ sub initial_key {
 sub resource_file {
     my ($self, $project) = @_;
     return unless $self->repo_path and $project;
-    return path( $self->repo_path, $project, 'resource.yml' )->stringify;
+    return path( $self->repo_path, $project, RESOURCE_FILE )->stringify;
 }
 
 __PACKAGE__->meta->make_immutable;
