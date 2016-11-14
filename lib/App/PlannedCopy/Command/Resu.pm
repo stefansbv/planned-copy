@@ -15,10 +15,8 @@ use namespace::autoclean;
 extends qw(App::PlannedCopy);
 
 with qw(App::PlannedCopy::Role::Utils
-		App::PlannedCopy::Role::Resource::Utils
-		App::PlannedCopy::Role::Printable);
-
-use constant RESOURCE_FILE => 'resource.yml';
+        App::PlannedCopy::Role::Resource::Utils
+        App::PlannedCopy::Role::Printable);
 
 command_long_description q[Create/update a resource file for the <project>.];
 

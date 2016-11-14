@@ -12,8 +12,6 @@ use namespace::autoclean;
 
 extends qw(App::PlannedCopy);
 
-use constant RESOURCE_FILE => 'resource.yml';
-
 with qw(App::PlannedCopy::Role::Utils
         App::PlannedCopy::Role::Resource::Utils
         App::PlannedCopy::Role::Printable);
@@ -135,7 +133,7 @@ sub gather_files {
     $rule->skip(
         $rule->new->file->empty,
         $rule->new->file->name( qr/~$/, '*.bak'),
-        $rule->new->file->name(RESOURCE_FILE),
+        $rule->new->file->name($self->config->resource_file_name),
     );
     $rule->name($wildcard) if $wildcard;
     $rule->min_depth(1);
@@ -180,12 +178,6 @@ plcp add <project> ./path/           - add a directory recursively
 plcp add <project> ./path/*.conf     - add files using wildcards
 
 plcp add <project> file1 file2 file3 - add a list of files (not yet!)
-
-=head2 Constants
-
-=head2 RESOURCE_FILE
-
-Returns the name of the resource file.
 
 =head1 Interface
 

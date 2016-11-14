@@ -13,8 +13,6 @@ use App::PlannedCopy::Config;
 use App::PlannedCopy::Issue;
 use App::PlannedCopy::Resource;
 
-use constant RESOURCE_FILE => 'resource.yml';
-
 with qw(App::PlannedCopy::Role::Counters);
 
 app_namespace 'App::PlannedCopy::Command';
@@ -88,7 +86,7 @@ sub _build_projects {
     while ( defined( my $item = $next->() ) ) {
         my $path = path($item);
         if ( $path->is_dir ) {
-            my $res_file = path( $path, RESOURCE_FILE );
+            my $res_file = path( $path, $self->config->resource_file_name );
             my $has_resu = $res_file->is_file ? 1 : 0;
             my $scope    = $has_resu ? $self->get_project_scope($res_file) : undef;
             $self->inc_count_proj if $has_resu;
@@ -142,12 +140,6 @@ __END__
 =head1 Description
 
 Planned Copy - a smarter copy application for your Linux box.
-
-=head2 Constants
-
-=head2 RESOURCE_FILE
-
-Returns the name of the resource file.
 
 =head1 Interface
 

@@ -11,8 +11,6 @@ use Path::Iterator::Rule;
 use List::Compare;
 use Moose::Util::TypeConstraints;
 
-use constant RESOURCE_FILE => 'resource.yml';
-
 use App::PlannedCopy::Resource::Read;
 use App::PlannedCopy::Resource::Write;
 
@@ -213,7 +211,7 @@ sub get_all_files {
     my $rule    = Path::Iterator::Rule->new;
     $rule->skip(
         $rule->new->file->empty,
-        $rule->new->file->name(RESOURCE_FILE),
+        $rule->new->file->name($self->config->resource_file_name),
     );
     my $next = $rule->iter( $abs_dir,
         { relative => 0, sorted => 1, follow_symlinks => 0 } );
@@ -268,12 +266,6 @@ __END__
 Helper role the C<resu> command.  TODO: change the name.
 
 =head1 Interface
-
-=head2 Constants
-
-=head2 RESOURCE_FILE
-
-Returns the name of the resource file.
 
 =head2 Attributes
 

@@ -10,8 +10,6 @@ use Path::Iterator::Rule;
 use Try::Tiny;
 use Capture::Tiny ':all';
 
-use constant RESOURCE_FILE => 'resource.yml';
-
 use App::PlannedCopy::Exceptions;
 
 sub is_selfsame {
@@ -271,7 +269,7 @@ sub get_project_files {
     $rule->skip_vcs;
     $rule->skip(
         $rule->new->file->empty,
-        $rule->new->file->name(RESOURCE_FILE),
+        $rule->new->file->name($self->config->resource_file_name),
     );
     $rule->min_depth(1);
 
@@ -430,12 +428,6 @@ A common role which encapsulates the attributes and methods required
 by the command modules.
 
 =head1 Interface
-
-=head2 Constants
-
-=head2 RESOURCE_FILE
-
-Returns the name of the resource file.
 
 =head2 Instance Methods
 
