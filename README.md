@@ -5,124 +5,32 @@ Planned Copy
 
 Version: 0.840
 
-Planned Copy - a smarter copy application for your Linux box.
+Planned Copy - a smarter copy application for your Linux box.  See the
+manual for details.
 
 
-Description
------------
+Install
+-------
 
-This is my solution for the task of managing configuration files,
-scripts and other files that need to be copied around.
+The easiest method is to download the latest binary package made with
+Cava Packager from the GitHub repository and then:
 
-The idea behind the application is simple, but the implementation is
-complicated... :)
+....
+# chmod 755 planned-copy-linux-x86_64-0-XXX.bin
+# cp planned-copy-linux-x86_64-0-XXX.bin /opt/
+# cd /opt
+# ./planned-copy-linux-x86_64-0-XXX.bin
+....
 
-I keep my configuration files, like many others do, in a Git
-repository.  The task is to install this files to the places where
-they belong to, as automated as possible.
+Put `/opt/planned-copy/bin/` in your PATH.
 
-A minimal Git repository in `/home/user/configs` looks like this:
+The second option is to download the source package from the GitHub
+repository and do:
 
-```
-.
-├── emacs
-│   ├── custom.el
-│   ├── init.el
-│   └── resource.yml
-├── kde
-│   ├── Shell.profile
-│   └── resource.yml
-├── linux
-│   ├── ackrc
-│   ├── bash_alias
-│   ├── bash_profile
-│   ├── bash_prompt
-│   ├── bashrc
-│   └── resource.yml
-└── system
-    ├── rc.firebird
-    ├── rc.postgresql
-    └── resource.yml
-```
+TODO: Add a package with build scripts!
 
-My solution is to use a
-configuration file `resource.yml` in each project directory with the
-following information:
+The third option is to clone the repository, build and install with `dzil`.
 
-An item in the `resource.yml` file:
-
-```YAML
----
-resources:
-  -
-    destination:
-      name: .ackrc
-      path: '~/'
-      perm: 0644
-    source:
-      name: ackrc
-      path: linux
-```
-
-The `plcp install linux` command will copy and rename the
-`linux/ackrc` file to `/home/user/.ackrc` and will set the permissions
-to `0644`.
-
-The `resource.yml` configuration file is automatically
-generated/updated by the `plcp resu linux` command, but the
-destination path is initially undefined and have to be edited manually
-for every record.
-
-
-Features
---------
-
-The features and also the commands of the application are:
-
-The main commands:
-* install - Install the configuration files (copy files and set permissions);
-* sync    - Synchronize the configuration files (copy back to the repo);
-* check   - Compare the repository files with the installed versions;
-
-Additional helper and info commands:
-* config  - Configure the application;
-* repo    - Manage the repository (clone only for now);
-* resu    - Manage the resource config files (create/update);
-* diff    - Run a diff utility on the repo files and the installed versions;
-* list    - Print a list of the projects in the repository;
-* version - Print the current version;
-
-
-Quick Usage
------------
-
-The initial configuration of `plcp`:
-
-```
-$ plcp config set --url user@host:/path/to/git-repos/configs.git
-$ plcp config set --path /home/user/configs
-```
-
-Clone the repository to localhost:
-
-```
-$ plcp repo clone
-```
-
-Add/update the `resource.yml` file in the `linux` directory:
-
-```
-$ plcp resu linux
-```
-
-Edit the `linux/resource.yml` file and set the destination path for
-all the items.
-
-Finally install the files with:
-
-```
-$ plcp install linux
-```
 
 License And Copyright
 ---------------------

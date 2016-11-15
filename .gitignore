@@ -18,3 +18,4 @@ t/output
 .build
 .al
 t/test-dst/install
+doc/*.html
