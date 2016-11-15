@@ -40,6 +40,7 @@ sub run {
     my ( $self ) = @_;
 
     $self->check_project_name;
+    $self->check_dir_name;
 
     my $file = $self->config->resource_file( $self->project );
     my $res  = App::PlannedCopy::Resource->new( resource_file => $file );
