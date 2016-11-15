@@ -1,4 +1,4 @@
-package App::PlannedCopy::Command::Resu;
+package App::PlannedCopy::Command::Resource;
 
 # ABSTRACT: Create/update a resource file
 
