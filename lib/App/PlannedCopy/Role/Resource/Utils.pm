@@ -125,8 +125,8 @@ sub _build_new_resource {
     catch {
         if ( my $e = Exception::Base->catch($_) ) {
             if ( $e->isa('Exception::IO::PathNotFound') ) {
-                $self->print_exeception_message($e->message, $e->pathname);
-                exit;                        # ???
+                die "[EE] ", $e->message, ' (', $e->pathname, ').';
+                exit;                        # XXX ?!
             }
             else {
                 die "Unexpected exception: $_";

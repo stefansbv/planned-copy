@@ -24,6 +24,8 @@ parameter 'project' => (
 sub run {
     my ( $self ) = @_;
 
+    $self->check_project_name;
+
     if ( my $project = $self->project ) {
         say "Job: list files in '$project':\n";
         my @items;
@@ -33,10 +35,10 @@ sub run {
         catch {
             if ( my $e = Exception::Base->catch($_) ) {
                 if ( $e->isa('Exception::IO::PathNotFound') ) {
-                    $self->print_exeception_message($e->message, $e->pathname);
+                    die "[EE] ", $e->message, ' (', $e->pathname, ').';
                 }
                 else {
-                    die "Unexpected exception: $_";
+                    die "[EE] ", "Unexpected exception: $_";
                 }
             }
         };
