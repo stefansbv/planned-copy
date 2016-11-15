@@ -13,13 +13,12 @@ This is my solution for the task of managing configuration files,
 scripts and other files that need to be copied around.
 
 The idea behind the application is simple, but the implementation is
-complicated... :)
+complicated... :) I keep my configuration files, like many others do,
+in a Git repository.  The task is to install this files to the places
+where they belong to, as automated as possible and syncronize any
+changes.
 
-I keep my configuration files, like many others do, in a Git
-repository.  The task is to install this files to the places where
-they belong to, as automated as possible.
-
-A minimal Git repository in `/home/user/configs` looks like this:
+A small Git repository in `/home/user/configs` looks like this:
 
 ....
 .
@@ -51,9 +50,9 @@ destination name:: the name of the file in the destination directory, without th
 destination path:: the destination absolute path (see issue #19);
 destination perm:: the permissions for the destination file (ex: 0644);
 source name:: the name of the file in the source repository, without the path;
-source path:: the source path relative to the project directory;
+source path:: the source path relative to the repository directory;
 
-An item in the resource file:
+For example an item in the resource file is configured like this:
 
 .resource.yml
 ....
@@ -69,55 +68,80 @@ resources:
       path: linux
 ....
 
-The `plcp install linux` command will copy and rename the
+
+If the file is not installed or the source and the destination are
+different, the `plcp install linux` command will copy and rename the
 `linux/ackrc` file to `/home/user/.ackrc` and will set the permissions
 to `0644`.
 
 The `resource.yml` configuration file is automatically
-generated/updated by the `plcp resu linux` command, but the
+generated/updated by the `plcp resource linux` command, but the
 destination path is initially undefined and have to be edited manually
 for every record.
 
+Starting with `v0.900` the `add` command can be used to add files to
+the repository:
 
-== Features
-
-The features and also the commands of the application are:
-
-The main commands:
-
-install:: Install the configuration files (copy files and set permissions);
-sync:: Synchronize the configuration files (copy back to the repo);
-check:: Compare the repository files with the installed versions;
-
-ditional helper and info commands:
-config:: Configure the application;
-repo:: Manage the repository (clone only for now);
-resu:: Manage the resource config files (create/update);
-diff:: Run a diff utility on the repo files and the installed versions;
-list:: Print a list of the projects in the repository;
-version:: Print the current version;
+....
+$ plcp add /path/to/a/file.txt
+or
+$ plcp add /path/to/some/configs
+....
 
 
-Quick Usage
------------
+== Commands
+
+The commands can be abbreviated to the shortest unambiguous name.  The
+command examples bellow, show the shortest usable name and the list of
+commands show the optional part in square brackets.
+
+The commands:
+
+add::
+
+Add file(s) to a project and update the resource file
+
+....
+plcp a <project> ./path/to/a/file  - add the 'file' file
+
+plcp a <project> ./path/           - add a directory recursively
+
+plcp a <project> ./path/*.conf     - add files using wildcards
+
+plcp a <project> file1 file2 file3 - add a list of files (not yet!)
+....
+
+ch[eck]::    Compare the repository files with the installed versions
+co[nfig]::   Configure the application
+d[iff]::     Run a diff utility on the repo files and the installed versions
+h[elp]::     Prints this usage information
+i[nstall]::  Install the project items (files)
+l[ist]::     Print a list of the projects in the repository
+rep[o]::     Manage the repository
+res[ource]:: Create/update a resource file
+s[ync]::     Synchronize the configuration files
+v[ersion]::  Print the current version
+
+
+== Quick Usage
 
 The initial configuration of `plcp`:
 
 ....
-$ plcp config set --url user@host:/path/to/git-repos/configs.git
-$ plcp config set --path /home/user/configs
+$ plcp co[nfig] set --url user@host:/path/to/git-repos/configs.git
+$ plcp co[nfig] set --path /home/user/configs
 ....
 
 Clone the repository to localhost:
 
 ....
-$ plcp repo clone
+$ plcp rep[o] clone
 ....
 
 Add/update the `resource.yml` file in the `linux` directory:
 
 ....
-$ plcp resu linux
+$ plcp res[ource] linux
 ....
 
 Edit the `linux/resource.yml` file and set the destination path for
@@ -126,11 +150,11 @@ all the items.
 Finally install the files with:
 
 ....
-$ plcp install linux
+$ plcp i[nstall] linux
 ....
 
-License And Copyright
----------------------
+
+== License And Copyright
 
 Copyright (C) 2016 Ștefan Suciu
 
