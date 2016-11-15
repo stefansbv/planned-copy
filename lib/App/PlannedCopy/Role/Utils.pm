@@ -4,6 +4,7 @@ package App::PlannedCopy::Role::Utils;
 
 use 5.0100;
 use utf8;
+use Carp;
 use Moose::Role;
 use Path::Tiny;
 use Path::Iterator::Rule;
@@ -95,7 +96,7 @@ sub make_path {
 
 sub set_perm {
     my ($self, $file, $perm) = @_;
-    die "The 'set_perm' method works only with files.\n" unless $file->is_file;
+    die "The 'set_perm' method works only with files." unless $file->is_file;
     try   { $file->chmod($perm) }
     catch {
         my $err = $_;
@@ -116,7 +117,7 @@ sub set_perm {
 
 sub set_owner {
     my ( $self, $file, $user ) = @_;
-    die "The 'change_owner' method works only with files.\n"
+    die "The 'change_owner' method works only with files."
         unless $file->is_file;
     my ( $login, $pass, $uid, $gid ) = getpwnam($user)
         or die "$user not in passwd file";
@@ -285,7 +286,7 @@ sub get_project_files {
 
 sub check_res_user {
     my ( $self, $res ) = @_;
-    die "The 'check_res_user' method requires a resource param.\n"
+    croak "The 'check_res_user' method requires a resource param."
         unless ref $res;
     my $user = $self->config->current_user;
     if ( $user ne 'root' && $res->dst->_user_isnot_default ) {
@@ -390,7 +391,7 @@ sub check_dir_name {
 sub check_project_name {
     my $self    = shift;
     my $project = $self->project;
-    unless ( $self->is_project ) {
+    unless ( $self->is_project($project) ) {
         die "\n[EE] No project named '$project' found.\n     Check the spelling or use the 'list' command.\n\n";
     }
 }
@@ -407,8 +408,10 @@ sub is_project_path {
 }
 
 sub is_project {
-    my $self   = shift;
-    my $record = $self->find_project( sub { $_->{path} eq $self->project } );
+    my ($self, $project) = @_;
+    croak "The 'is_project' method requires a project name parameter!"
+        unless $project;
+    my $record = $self->find_project( sub { $_->{path} eq $project } );
     return $record->{resource};
 }
 

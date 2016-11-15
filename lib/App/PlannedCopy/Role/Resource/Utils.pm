@@ -105,7 +105,7 @@ has '_added' => (
 sub _build_old_resource {
     my $self = shift;
     my %items;
-    if ( $self->is_project ) {
+    if ( $self->is_project( $self->project ) ) {
         my $reader = App::PlannedCopy::Resource::Read->new(
             resource_file => $self->resource_file );
         foreach my $res ( @{ $reader->get_contents('resources') } ) {
