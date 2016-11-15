@@ -85,4 +85,35 @@ subtest 'Test with config files' => sub {
         'color scheme is from config';
 };
 
+subtest 'Test with config files - renamed resource file' => sub {
+
+    my $repo_path = path(qw(t test-repo));
+
+    local $ENV{PLCP_SYS_CONFIG} = path(qw(t system.conf));
+    local $ENV{PLCP_USR_CONFIG} = path(qw(t user2.conf));
+
+    ok $conf = App::PlannedCopy::Config->new, 'constructor';
+
+    ok $conf->load, 'load test config files';
+    is scalar @{ $conf->config_files }, 2, '2 config files loaded';
+
+    is $conf->repo_path, $repo_path, 'test repo path';
+    is $conf->repo_url, 'user@host:/git-repos/configs.git',
+        'configs repo url';
+    is $conf->uri, 'user@host:/git-repos/configs.git', 'configs repo uri';
+    is $conf->resource_file('conf'),
+        path( $repo_path, qw(conf resource-file.yml) ),
+        'resource file path';
+
+    my $scheme_default = {
+        info  => 'yellow2',
+        warn  => 'blue2',
+        error => 'red2',
+        done  => 'green2',
+    };
+
+    is_deeply $conf->get_section( section => 'color' ), $scheme_default,
+        'color scheme is from config';
+};
+
 done_testing;

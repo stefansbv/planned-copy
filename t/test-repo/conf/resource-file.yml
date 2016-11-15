@@ -1,0 +1,107 @@
+---
+resources:
+  -
+    destination:
+      name: filename1
+      path: t/test-dst/check
+      perm: '0644'
+    source:
+      name: filename1
+      path: check
+  -
+    destination:
+      name: filename2
+      path: t/test-dst/check
+      perm: '0644'
+    source:
+      name: filename2
+      path: check
+  -
+    destination:
+      name: filename3
+      path: t/test-dst/check
+      perm: '0644'
+    source:
+      name: filename3
+      path: check
+  -
+    destination:
+      name: filename4
+      path: t/test-dst/check
+      perm: '0444'
+    source:
+      name: filename4
+      path: check
+  -
+    destination:
+      name: filename5
+      path: ~
+      perm: '0644'
+    source:
+      name: filename5
+      path: check
+  -
+    destination:
+      name: filename6
+      path: t/test-dst/check
+      perm: '0444'
+    source:
+      name: filename6
+      path: check
+  -
+    destination:
+      name: filename7
+      path: t/test-dst/check
+      perm: '0444'
+      user: nobody
+    source:
+      name: filename7
+      path: check
+  -
+    destination:
+      name: filename8 with spaces
+      path: t/test-dst/check
+      perm: '0644'
+    source:
+      name: filename8 with spaces
+      path: check
+  -
+    destination:
+      name: archive1.tar.gz
+      path: t/test-dst/check
+      perm: '0644'
+      verb: unpack
+    source:
+      name: archive1.tar.gz
+      path: check
+      type: archive
+  -
+    destination:
+      name: archive2.tar.gz
+      path: ~/temp/planned-copy/check
+      perm: '0644'
+      verb: unpack
+    source:
+      name: archive2.tar.gz
+      path: check
+      type: archive
+  -
+    destination:
+      name: impolite.tar.gz
+      path: t/test-dst/check
+      perm: '0644'
+      verb: unpack
+    source:
+      name: impolite.tar.gz
+      path: check
+      type: archive
+  -
+    destination:
+      name: naughty.tar.gz
+      path: t/test-dst/check
+      perm: '0644'
+      verb: unpack
+    source:
+      name: naughty.tar.gz
+      path: check
+      type: archive
