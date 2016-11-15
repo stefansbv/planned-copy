@@ -4,6 +4,7 @@ package App::PlannedCopy;
 
 use 5.0100;
 use utf8;
+use Carp;
 use Moose;
 use Path::Tiny;
 use Path::Iterator::Rule;
@@ -123,7 +124,7 @@ sub shell {
 
 sub get_project_scope {
     my ( $self, $file ) = @_;
-    die "The 'get_project_scope' method requires a resource file parameter.\n"
+    croak "The 'get_project_scope' method requires a resource file parameter."
         unless $file->is_file;
     my $res = App::PlannedCopy::Resource->new( resource_file => $file );
     return $res->resource_scope;
