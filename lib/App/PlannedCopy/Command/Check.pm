@@ -1,6 +1,6 @@
 package App::PlannedCopy::Command::Check;
 
-# ABSTRACT: Compare the repository files with the installed versions
+# ABSTRACT: Compare the files from the repository with the installed files
 
 use 5.010001;
 use utf8;
