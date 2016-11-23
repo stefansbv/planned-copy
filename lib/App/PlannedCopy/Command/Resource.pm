@@ -44,7 +44,7 @@ has open_editor => (
     default  => sub {
         my $self = shift;
         $self->config->get(
-            key => 'resu.open_editor',
+            key => 'resource.open_editor',
             as  => 'bool',
         ) // 0;
     },
