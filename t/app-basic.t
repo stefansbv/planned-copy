@@ -83,9 +83,9 @@ subtest 'Command "repo" with parameter' => sub {
 # Command: resource
 
 subtest 'Command "resource" with parameter' => sub {
-    MooseX::App::ParsedArgv->new(argv => [qw(resu test)]);
+    MooseX::App::ParsedArgv->new(argv => [qw(reso test)]);
     my $res_01 = App::PlannedCopy->new_with_command();
-    isa_ok($res_01, 'App::PlannedCopy::Command::Resu');
+    isa_ok($res_01, 'App::PlannedCopy::Command::Resource');
     is($res_01->project, 'test', 'Param is set');
 };
 
