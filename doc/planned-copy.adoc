@@ -74,13 +74,17 @@ different, the `plcp install linux` command will copy and rename the
 `linux/ackrc` file to `/home/user/.ackrc` and will set the permissions
 to `0644`.
 
+Notice that the name of the file in the repository is without the
+starting dot, this way the file is not hidden in the repository and
+when is installed gets the correct name.
+
 The `resource.yml` configuration file is automatically
 generated/updated by the `plcp resource linux` command, but the
 destination path is initially undefined and have to be edited manually
 for every record.
 
 Starting with `v0.900` the `add` command can be used to add files to
-the repository:
+the repository (EXPERIMENTAL FEATURE):
 
 ....
 $ plcp add /path/to/a/file.txt
