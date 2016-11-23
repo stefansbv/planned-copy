@@ -1,6 +1,6 @@
 = Planned Copy
 Ștefan Suciu
-0.840, 2016-11-15
+0.910, 2016-11-23
 :toc:
 :imagesdir: assets/images
 :homepage: http://stefansuciu.ro
