@@ -3,7 +3,7 @@ Planned Copy
 Ștefan Suciu
 2016-01-22
 
-Version: 0.840
+Version: 0.910
 
 Planned Copy - a smarter copy application for your Linux box.  See the
 manual for details.
@@ -25,11 +25,35 @@ Cava Packager from the GitHub repository and then:
 Put `/opt/planned-copy/bin/` in your PATH.
 
 The second option is to download the source package from the GitHub
-repository and do:
+repository and install like any other Perl package.
 
-TODO: Add a package with build scripts!
+Download the distribution, unpack and install:
+
+```
+$ tar xaf App::PlannedCopy-0.NNN.tar.gz
+$ cd App::PlannedCopy-0.NNN
+```
+
+Then as usual for a Perl application:
+
+```
+$ perl Makefile.PL
+$ make
+$ make test
+$ make install
+```
 
 The third option is to clone the repository, build and install with `dzil`.
+
+
+Known Issues
+------------
+
+If the `diff` program is set to ignore whitespace, then when `plcp`
+reports differences, the `diff` program may report identical files.
+
+If the destination path for an item is too long, it will alter the
+printing format.
 
 
 License And Copyright
