@@ -50,6 +50,7 @@ sub run {
     print "Job: search for '$name'\n\n";
 
     my $non_projects = [];
+
     foreach my $item ( $self->projects ) {
         my $path = $item->{path};
         my $resu = $item->{resource};
@@ -60,9 +61,11 @@ sub run {
         $self->project($path);               # set project
         $self->search_in_projects( 'batch' );
     }
+
     foreach my $path ( @{$non_projects} ) {
         $self->search_non_projects( $path, 'batch' );
     }
+
     $self->print_summary( 'batch' );
 
     return;
@@ -124,7 +127,7 @@ sub gather_files {
         $rule->new->file->name( qr/~$/, '*.bak'),
         $rule->new->file->name($self->config->resource_file_name),
     );
-    $rule->name($wildcard) if $wildcard;
+    $rule->name($wildcard) if $wildcard; # not used (yet?)
     $rule->min_depth(1);
 
     my $next = $rule->iter( $project_path,
@@ -167,8 +170,13 @@ The implementation of the C<search> command.
 
 =head3 project
 
-Required parameter attribute for the install command.  The name of the
-project - a directory name under C<repo_path>.
+An attribute to hold the name of the project - a directory name under
+C<repo_path>.
+
+=head3 command
+
+An attribute to hold the name of the command - used in the Printable
+role.  For other command is defined in the coresponding Validate role.
 
 =head2 Instance Methods
 
@@ -181,23 +189,25 @@ the C<validate_element> method throws an exception, it is cached and
 the item is skipped.  If there is no fatal exception thrown, then the
 C<search> method is called on the item.
 
-=head3 search
-
-Search the source and destination files for found.
-
-TODO: Revise the counters.
-
-=head3 search_project
+=head3 search_in_projects
 
 Builds an iterator for the resource items and iterates over them.  If
-the C<validate_element> method throws an exception, it is cached and
-the item is skipped.  If there is no fatal exception thrown, then the
-C<search> method is called on the item.
+the destination name of an item matches the searched name, prints it
+and increments the counter.
+
+=head3 search_non_projects
+
+Iterates over the project files and prints the name of the files that
+match the name of the searched file.
+
+=head3 gather_files
+
+Uses L<Path::Iterator::Rule> to create and return an array reference
+containing the list of the files in a directory.
 
 =head3 print_summary
 
-Prints the summary of the command execution.  If in batch mode, prints
-all project items with found.
+Prints the summary of the command execution.
 
 =head3 store_summary
 
