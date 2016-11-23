@@ -15,12 +15,12 @@ Install
 The easiest method is to download the latest binary package made with
 Cava Packager from the GitHub repository and then:
 
-....
+```
 # chmod 755 planned-copy-linux-x86_64-0-XXX.bin
 # cp planned-copy-linux-x86_64-0-XXX.bin /opt/
 # cd /opt
 # ./planned-copy-linux-x86_64-0-XXX.bin
-....
+```
 
 Put `/opt/planned-copy/bin/` in your PATH.
 
