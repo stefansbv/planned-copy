@@ -2,7 +2,7 @@
 Ștefan Suciu
 0.910, 2016-11-23
 :toc:
-:imagesdir: assets/images
+:icons: font
 :homepage: http://stefansuciu.ro
 
 Planned Copy - a smarter copy application for your Linux box.
@@ -10,15 +10,17 @@ Planned Copy - a smarter copy application for your Linux box.
 == Description
 
 This is my solution for the task of managing configuration files,
-scripts and other files that need to be copied around.
+scripts and other files that need to be copied around quite often.
 
 The idea behind the application is simple, but the implementation is
-complicated... :) I keep my configuration files, like many others do,
-in a Git repository.  The task is to install this files to the places
-where they belong to, as automated as possible and syncronize any
-changes.
+quite complicated...
 
-A small Git repository in `/home/user/configs` looks like this:
+I keep my configuration files, like many others do, in a Git
+repository, the goal is to install (copy) this files to the places
+where they belong to and synchronize any changes back and forth as
+automated and as safe as possible.
+
+A small Git repository in `/home/user/configs` may look like this:
 
 ....
 .
@@ -29,7 +31,7 @@ A small Git repository in `/home/user/configs` looks like this:
 ├── kde
 │   ├── Shell.profile
 │   └── resource.yml
-├── linux
+├── user
 │   ├── ackrc
 │   ├── bash_alias
 │   ├── bash_profile
@@ -42,9 +44,9 @@ A small Git repository in `/home/user/configs` looks like this:
     └── resource.yml
 ....
 
-My solution is to use a configuration file (`resource.yml` is the
-default name of the file) in each project directory with the following
-minimum information for each item:
+The solution is to use a configuration file named `resource.yml` by
+default, in each project directory with the following minimum
+information for each item:
 
 destination name:: the name of the file in the destination directory, without the path;
 destination path:: the destination absolute path (see issue #19);
@@ -52,7 +54,11 @@ destination perm:: the permissions for the destination file (ex: 0644);
 source name:: the name of the file in the source repository, without the path;
 source path:: the source path relative to the repository directory;
 
-For example an item in the resource file is configured like this:
+In the above example resource files there are 4 project directories:
+_emacs_, _kde_, _user_ and _system_.
+
+For example a minimal configuration for an item in the resource file
+looks like this:
 
 .resource.yml
 ....
@@ -65,32 +71,128 @@ resources:
       perm: 0644
     source:
       name: ackrc
-      path: linux
+      path: user
 ....
-
 
 If the file is not installed or the source and the destination are
-different, the `plcp install linux` command will copy and rename the
-`linux/ackrc` file to `/home/user/.ackrc` and will set the permissions
-to `0644`.
+different, the `plcp install user` command will copy and rename the
+`user/ackrc` file to `/home/<username>/.ackrc` and will set the
+permissions to `0644`.  Starting with `v0.910` a backup for the
+original file will be created.
 
-Notice that the name of the file in the repository is without the
-starting dot, this way the file is not hidden in the repository and
-when is installed gets the correct name.
+NOTE: The name of the file in the repository is without the starting
+      dot, this way the file is not hidden in the repository and when
+      is installed gets the correct name.
 
-The `resource.yml` configuration file is automatically
-generated/updated by the `plcp resource linux` command, but the
-destination path is initially undefined and have to be edited manually
-for every record.
+The resource configuration file is automatically generated/updated by
+the `plcp resource user` command, but the destination path is
+initially undefined and have to be edited manually for every record.
 
-Starting with `v0.900` the `add` command can be used to add files to
-the repository (EXPERIMENTAL FEATURE):
+Starting with `v0.910` the `add` command can be used to add files to
+the repository (EXPERIMENTAL).
+
+
+== Configuration
+
+=== Initial Configuration
+
+The configuration file(s) are in the format used by Git and parsed and
+modified by the `Config::GitLike` module.  The configuration file
+name is `plannedcopyrc` for the system and `.plannedcopyrc` for the
+users.
+
+The minimum required configuration contains the path to a clone of the
+`configs` repository on localhost.  The name of the repository can be
+anything.
+
+IMPORTANT: The application was not tested with paths containing
+           spaces, and it may not work properly, so is better to avoid
+           them.
 
 ....
-$ plcp add /path/to/a/file.txt
-or
-$ plcp add /path/to/some/configs
+$ plcp config set --path /home/user/configs
 ....
+
+Another setting, used only by the `repo` command, is the URL to the
+remote repository.  If the local clone of the repository does not
+exist, it can be created using the `repo` command.
+
+....
+[core]
+    #editor = emacs
+    diff-tool = kompare
+[local]
+    path = /home/username/configs/
+[remote]
+    url = ssh://username@host/path/to/git-repos/configs.git
+[resource]
+    open_editor = true
+[color]
+    info  = yellow2
+    warn  = blue2
+    error = red2
+    done  = green2
+    none  = clear
+....
+
+....
+$ plcp config set --url user@host:/path/to/git-repos/configs.git
+....
+
+
+=== Configuration Reference
+
+The sections of the configuration file are:
+
+==== core
+
+The `core` section contains miscellaneous settings.
+
+    editor = emacs
+
+Defaults to the contents of the `EDITOR` environment variable.
+
+    diff-tool = diff
+
+Defaults to `diff` for the root user and to `kompare` for regular users.
+
+    resource-file = resource.yml
+
+==== local
+
+    path = /home/username/configs/
+
+The local path to a clone of the `configs` repository, and must be set
+before the first run.
+
+==== remote
+
+    url = ssh://username@host/path/to/git-repos/configs.git
+
+ The URL to the remote repository, is used by the `repo` command and
+it's purpose is to make the initial clone of the repository.
+
+WARNING: Not thoroughly tested!
+
+==== resource
+
+    open_editor = true | false
+
+If the value is `true`, the `resource` command opens the resource file
+in the editor after it is updated.
+
+==== color
+
+    info  = yellow2
+    warn  = blue2
+    error = red2
+    done  = green2
+    none  = clear
+
+The colors are those provided by the `Term::ExtendedColor` module.
+
+WARNING: The configuration must (re)define the entire set of colors
+         or none, the colors above are the default colors.
 
 
 == Commands
@@ -99,12 +201,16 @@ The commands can be abbreviated to the shortest unambiguous name.  The
 command examples bellow, show the shortest usable name and the list of
 commands show the optional part in square brackets.
 
-The commands:
 
-add::
+=== Commands Reference
 
-Add file(s) to a project and update the resource file
+a[dd]::      add file(s) to an existing `dir|project` and update the resource file.
 
+....
+plcp a <project> </absolute/path>
+....
+
+Examples:
 ....
 plcp a <project> ./path/to/a/file  - add the 'file' file
 
@@ -115,47 +221,64 @@ plcp a <project> ./path/*.conf     - add files using wildcards
 plcp a <project> file1 file2 file3 - add a list of files (not yet!)
 ....
 
-ch[eck]::    Compare the repository files with the installed versions
-co[nfig]::   Configure the application
-d[iff]::     Run a diff utility on the repo files and the installed versions
-h[elp]::     Prints this usage information
-i[nstall]::  Install the project items (files)
-l[ist]::     Print a list of the projects in the repository
-rep[o]::     Manage the repository
-res[ource]:: Create/update a resource file
-s[ync]::     Synchronize the configuration files
-v[ersion]::  Print the current version
+WARNING: This is an early implementation, and is not thoroughly tested!
 
+ch[eck]::    compare the files from the repository with the installed files.
 
-== Quick Usage
-
-The initial configuration of `plcp`:
-
+Examples:
 ....
-$ plcp co[nfig] set --url user@host:/path/to/git-repos/configs.git
-$ plcp co[nfig] set --path /home/user/configs
+plcp ch <project> [file]
 ....
 
-Clone the repository to localhost:
+co[nfig]::   configure the application
+d[iff]::     run a diff utility on the repo files and the installed versions
+h[elp]::     prints this usage information
+i[nstall]::  install the project items (files)
+l[ist]::     print a list of the projects in the repository
+rep[o]::     manage the repository
+res[ource]:: create/update a resource file
+se[arch]::   search for a file in the repository
+sy[nc]::     synchronize the configuration files
+v[ersion]::  print the current version
+
+
+== Usage
+
+The check command can be used to print the project name with
+differences found between the files in the repository and the installed
+files.
 
 ....
-$ plcp rep[o] clone
+$ plcp ch
+Checking ....... .
+ user ....................................................................... 1
+ kde ........................................................................ 1
+ emacs ...................................................................... 1
 ....
 
-Add/update the `resource.yml` file in the `linux` directory:
+This output means that for every project there is a file that is not
+synchronized with the repository.  To find out which, we need to run
+the command again with the project parameter:
 
 ....
-$ plcp res[ource] linux
+$ plcp ch user
+
+ bash_alias ....................................................... .bash_alias
+ bash_prompt .......................................... { undef }/rkhunter.conf
+
+Summary:
+ - processed: 17 records
+ - skipped  : 1
+ - same     : 15
+ - different: 1
 ....
 
-Edit the `linux/resource.yml` file and set the destination path for
-all the items.
+The `undef` in the second line means the the item doesn't have a
+destination path defined in the resource file.
 
-Finally install the files with:
-
-....
-$ plcp i[nstall] linux
-....
+If we add the *-v|--verbose* option and run the command again, more
+information will be printed for the items with issues, for example,
+`Not installed.`, or `Read permission denied: <filename>`.
 
 
 == License And Copyright
