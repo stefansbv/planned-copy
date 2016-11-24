@@ -30,7 +30,7 @@ subtest 'Test with no config files' => sub {
 
 };
 
-subtest 'Test with config files and minimum options' => sub {
+subtest 'Test with empty config files' => sub {
 
     my $repo_path = path(qw(t configs));
 
@@ -42,14 +42,28 @@ subtest 'Test with config files and minimum options' => sub {
     ok $conf->load, 'load test config files';
     is scalar @{ $conf->config_files }, 2, '2 config files loaded';
 
+    throws_ok { $conf->repo_path } 'Exception::Config::Error',
+        'config error thrown';
+};
+
+subtest 'Test with minimum system config and empty user config' => sub {
+
+    my $repo_path = path(qw(t configs));
+
+    local $ENV{PLCP_SYS_CONFIG} = path(qw(t system1.conf));
+    local $ENV{PLCP_USR_CONFIG} = path(qw(t user0.conf));
+
+    ok $conf = App::PlannedCopy::Config->new, 'constructor';
+
+    ok $conf->load, 'load test config files';
+    is scalar @{ $conf->config_files }, 2, '2 config files loaded';
     is $conf->repo_path, $repo_path, 'test repo path';
-    is $conf->repo_url, 'sys@host:/git-repos/configs.git',
-        'configs repo url';
-    is $conf->uri, 'sys@host:/git-repos/configs.git', 'configs repo uri';
+    throws_ok { $conf->repo_url }
+    qr/No remote.url is set/,
+        'no remote.url set in config caught okay';
     is $conf->resource_file('check'),
         path( $repo_path, qw(check resource.yml) ),
         'resource file path';
-
     is_deeply $conf->get_section( section => 'color' ), {},
         'color scheme is empty';
 };
@@ -68,7 +82,7 @@ subtest 'Test with config files' => sub {
 
     is $conf->repo_path, $repo_path, 'test repo path';
     is $conf->repo_url, 'user@host:/git-repos/configs.git',
-        'configs repo url';
+        'configs remote URL';
     is $conf->uri, 'user@host:/git-repos/configs.git', 'configs repo uri';
     is $conf->resource_file('check'),
         path( $repo_path, qw(check resource.yml) ),
@@ -99,7 +113,7 @@ subtest 'Test with config files - renamed resource file' => sub {
 
     is $conf->repo_path, $repo_path, 'test repo path';
     is $conf->repo_url, 'user@host:/git-repos/configs.git',
-        'configs repo url';
+        'configs remote URL';
     is $conf->uri, 'user@host:/git-repos/configs.git', 'configs repo uri';
     is $conf->resource_file('conf'),
         path( $repo_path, qw(conf resource-file.yml) ),
