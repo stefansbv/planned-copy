@@ -1,0 +1,58 @@
+---
+resources:
+  -
+    destination:
+      name: filename1
+      path: '~/project/public/planned-copy/t/test-dst/add'
+      perm: '0644'
+    source:
+      name: filename1
+      path: add
+  -
+    destination:
+      name: filename2
+      path: '~/project/public/planned-copy/t/test-dst/add'
+      perm: '0644'
+    source:
+      name: filename2
+      path: add
+  -
+    destination:
+      name: file1.conf
+      path: '~/project/public/planned-copy/t/test-dst/add'
+      perm: '0644'
+    source:
+      name: file1.conf
+      path: add
+  -
+    destination:
+      name: file2.conf
+      path: '~/project/public/planned-copy/t/test-dst/add'
+      perm: '0644'
+    source:
+      name: file2.conf
+      path: add
+  -
+    destination:
+      name: filename6
+      path: '~/project/public/planned-copy/t/test-dst/add/topdir1'
+      perm: '0644'
+    source:
+      name: filename6
+      path: add/topdir1
+  -
+    destination:
+      name: filename7
+      path: '~/project/public/planned-copy/t/test-dst/add/topdir1'
+      perm: '0644'
+    source:
+      name: filename7
+      path: add/topdir1
+  -
+    destination:
+      name: filename8
+      path: '~/project/public/planned-copy/t/test-dst/add/topdir1'
+      perm: '0644'
+    source:
+      name: filename8
+      path: add/topdir1

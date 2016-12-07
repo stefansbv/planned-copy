@@ -17,7 +17,7 @@ my $repo2_path_orig = path(qw(t test-repo sync-orig));
 
 local $ENV{PLCP_USR_CONFIG} = path( qw(t user.conf) );
 
-# Cleanup
+# Cleanup and init
 path($repo2_path)->remove_tree( { safe => 0 } ); # force remove
 dircopy($repo2_path_orig, $repo2_path);
 
