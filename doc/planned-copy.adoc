@@ -1,6 +1,6 @@
 = Planned Copy
 Ștefan Suciu
-0.910, 2016-11-23
+0.911, 2016-12-07
 :toc:
 :icons: font
 :homepage: http://stefansuciu.ro
@@ -88,7 +88,7 @@ The resource configuration file is automatically generated/updated by
 the `plcp resource user` command, but the destination path is
 initially undefined and have to be edited manually for every record.
 
-Starting with `v0.910` the `add` command can be used to add files to
+Starting with `v0.911` the `add` command can be used to add files to
 the repository (EXPERIMENTAL).
 
 
@@ -204,6 +204,8 @@ commands show the optional part in square brackets.
 
 === Commands Reference
 
+NOTE: The project directory must exist.
+
 a[dd]::      add file(s) to an existing `dir|project` and update the resource file.
 
 ....
@@ -218,7 +220,7 @@ plcp a <project> ./path/           - add a directory recursively
 
 plcp a <project> ./path/*.conf     - add files using wildcards
 
-plcp a <project> file1 file2 file3 - add a list of files (not yet!)
+plcp a <project> file1 file2 file3 - add a list of files (NOT yet!)
 ....
 
 WARNING: This is an early implementation, and is not thoroughly tested!
