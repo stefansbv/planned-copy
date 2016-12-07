@@ -5,9 +5,8 @@ package App::PlannedCopy::Command::Add;
 use 5.010001;
 use utf8;
 use MooseX::App::Command;
-use Try::Tiny;
 use Path::Tiny;
-use App::PlannedCopy::Ls;
+use List::MoreUtils;
 use namespace::autoclean;
 
 extends qw(App::PlannedCopy);
@@ -40,6 +39,16 @@ has 'resource_file' => (
     },
 );
 
+has '_dst_path' => (
+    is      => 'rw',
+    isa     => 'Path::Tiny',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return path( $self->files )->parent->absolute;
+    },
+);
+
 sub run {
     my ( $self ) = @_;
 
@@ -48,10 +57,8 @@ sub run {
 
     my $path_param = $self->files;
 
-    my $file_list = [];
-    my ( $file_path, $file_name );
-
     # The parameter has wildcards?
+    my ( $file_path, $file_name );
     if ( $path_param =~ m{[?*]} ) {
         say "param has wildcards!";
 
@@ -66,59 +73,60 @@ sub run {
         say 'file_name: ', $file_name;
 
         # Go and build the file list
-        $file_list = $self->gather_files($file_path, $file_name);
+        my $file_list = $self->gather_files($file_path, $file_name);
+        $self->copy_file_batch($file_list);
     }
     else {
-        say "param has NO wildcards!";
 
-        say "is file: ", path($path_param)->is_file ? 'yes' : 'no';
-        say "is dir:  ", path($path_param)->is_dir  ? 'yes' : 'no';
-
+        # Single file
         if ( path($path_param)->is_file ) {
-            if ( $path_param =~ m{^(.*)/([^/]*)$} ) {
-                $file_path = $1;
-                $file_name = $2;
-            }
-            else {
-                $file_path = '.';
-                $file_name = $path_param;
-            }
-
-            die "The '$file_path' path does not exists!\n"
-                unless path($file_path)->is_dir;
-
-            say 'file_path: ', $file_path;
-            say 'file_name: ', $file_name;
-
-            # Add the file
-            push @{$file_list}, $path_param;
+            $self->copy_file_single($path_param);
         }
+
+        # Dir
         if ( path($path_param)->is_dir ) {
-
-            # Go and gather all files
-            $file_path = $path_param;
-            $file_list = $self->gather_files($path_param);
+            my $file_list = $self->gather_files($path_param);
+            $self->copy_file_batch($file_list);
         }
-    }
-
-    # Sync (copy) the files into the repo
-    # XXX Should copy files only if does not exist?!
-    foreach my $file ( @{$file_list} ) {
-        my $dst_path = path $self->project_path, path($file)->parent;
-        unless ( $dst_path->is_dir ) {
-            $self->make_path($dst_path);
-        }
-        my $src = path $file_path, $file;
-        my $dst = path $self->project_path, $file;
-        $self->copy_file( $src, $dst );
     }
 
     # Set the destination path and create/update the resource file
-    $self->destination_path($file_path);
+    $self->destination_path( $self->_dst_path->stringify );
     $self->update_resource;
 
     $self->print_summary;
 
+    return;
+}
+
+sub copy_file_single {
+    my ( $self, $path ) = @_;
+    my $project = $self->project;
+    my $abs_path;
+    if ( path($path)->is_absolute ) {
+        $abs_path = path($path);
+    }
+    if ( path($path)->is_relative ) {
+        $abs_path = path($path)->absolute;
+    }
+    my @chunks = split "/", $abs_path->parent->stringify;
+    $chunks[0] = q{/} if $chunks[0] eq q{};  # add the root
+    my @base = List::MoreUtils::before { $_ eq $project } @chunks;
+    my @top  = List::MoreUtils::after  { $_ eq $project } @chunks;
+    my $repo = path( $self->project_path, @top );
+    unless ($repo->is_dir) {
+        $self->make_path($repo);
+    }
+    $self->_dst_path( path( @base, $project ) ); # set the destination path!
+    $self->copy_file( $abs_path, $repo );
+    return;
+}
+
+sub copy_file_batch {
+    my ( $self, $file_list ) = @_;
+    foreach my $file ( @{$file_list} ) {
+        $self->copy_file_single($file);
+    }
     return;
 }
 
@@ -133,8 +141,8 @@ sub gather_files {
     $rule->skip(
         $rule->new->file->empty,
         $rule->new->file->name( qr/~$/, '*.bak'),
-        $rule->new->file->name($self->config->resource_file_name),
-    );
+        $rule->new->file->name( $self->config->resource_file_name ),
+    );                            # XXX: Add option to include empty files?
     $rule->name($wildcard) if $wildcard;
     $rule->min_depth(1);
 
@@ -143,7 +151,7 @@ sub gather_files {
     my $dirs = [];
     while ( defined( my $item = $next->() ) ) {
         my $file = path $item;
-        push @{$dirs}, $file->relative($path)->stringify if $file->is_file;
+        push @{$dirs}, $file if $file->is_file;
     }
     return $dirs;
 }
@@ -193,6 +201,15 @@ project - a directory name under C<repo_path>.
 =head3 run
 
 The method to be called when the C<add> command is run.
+
+=head3 copy_file_batch
+
+Execute 'copy_file_single' for a list of file.
+
+=head3 copy_file_single
+
+Copy a file back into the repository in the project path.  Creates the
+sub-dirs under the project mimicking the source tree.
 
 =head3 gather_files
 

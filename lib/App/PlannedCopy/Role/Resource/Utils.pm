@@ -7,6 +7,7 @@ use utf8;
 use Moose::Role;
 use Try::Tiny;
 use Path::Tiny;
+use File::HomeDir;
 use Path::Iterator::Rule;
 use List::Compare;
 use Moose::Util::TypeConstraints;
@@ -141,7 +142,7 @@ sub _build_new_resource {
         my $subd = path($path)->relative($self->project);
         my $name = path( $path, $file )->stringify;
         my $dest = $self->destination_path
-                 ? path($self->destination_path, $subd)->stringify
+                 ? $self->compact_path($subd)
                  : undef;
         $items{$name} = {
             source => {
@@ -156,6 +157,14 @@ sub _build_new_resource {
         };
     }
     return \%items;
+}
+
+sub compact_path {
+    my ($self, $subd) = @_;
+    my $dest = path($self->destination_path, $subd)->stringify;
+    my $home = File::HomeDir->my_home;
+    $dest =~ s{^$home}{~};                   # replace $HOME with '~/'
+    return $dest;
 }
 
 sub _build_compare {
@@ -296,6 +305,10 @@ Returns an array reference of deleted items.
 Returns an array reference of added items.
 
 =head2 Instance Methods
+
+=head3 compact_path
+
+Replace C<$HOME> with C<~/> in the path.
 
 =head3 write_resource
 
