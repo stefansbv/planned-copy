@@ -32,7 +32,8 @@ my @methods    = (
       )
 );
 
-my $cmd = TestCmd->new;
+my $project = 'resource';
+my $cmd = TestCmd->new( project => $project );
 map has_attribute_ok( $cmd, $_ ), @attributes;
 map can_ok( $cmd, $_ ), @methods;
 

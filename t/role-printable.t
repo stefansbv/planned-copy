@@ -22,7 +22,8 @@ my @methods    = (
         )
 );
 
-my $class = TestCmd->new;
+my $project = 'resource';
+my $class = TestCmd->new( project => $project );
 map has_attribute_ok( $class, $_ ), @attributes;
 map can_ok( $class, $_ ), @methods;
 
