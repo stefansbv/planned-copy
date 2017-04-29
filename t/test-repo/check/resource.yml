@@ -1,4 +1,6 @@
 ---
+scope: system
+host: hostname1
 resources:
   -
     destination:

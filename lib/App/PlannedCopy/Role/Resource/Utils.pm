@@ -12,7 +12,7 @@ use Path::Iterator::Rule;
 use List::Compare;
 use Moose::Util::TypeConstraints;
 
-use App::PlannedCopy::Resource::Read;
+use App::PlannedCopy::Resource;
 use App::PlannedCopy::Resource::Write;
 
 has 'destination_path' => (
@@ -20,8 +20,50 @@ has 'destination_path' => (
     isa => 'Maybe[Str]',
 );
 
+has reader => (
+    is      => 'ro',
+    isa     => 'App::PlannedCopy::Resource::Read',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        my $pcr = App::PlannedCopy::Resource->new(
+            resource_file => $self->resource_file );
+        return $pcr->reader;
+    },
+);
+
+has 'resource_scope' => (
+    is      => 'ro',
+    isa     => 'Maybe[Str]',
+    lazy    => 1,
+    builder => '_build_old_resource_scope',
+);
+
+sub _build_old_resource_scope {
+    my $self = shift;
+    if ( $self->is_project( $self->project ) ) {
+        return $self->reader->get_contents('scope') // 'user';
+    }
+    return 'user';
+}
+
+has 'resource_host' => (
+    is      => 'ro',
+    isa     => 'Maybe[Str]',
+    lazy    => 1,
+    builder => '_build_old_resource_host',
+);
+
+sub _build_old_resource_host {
+    my $self = shift;
+    if ( $self->is_project( $self->project ) ) {
+        return $self->reader->get_contents('host') // 'localhost';
+    }
+    return 'localhost';
+}
+
 has 'resource_old' => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => 'HashRef',
     traits  => ['Hash'],
     lazy    => 1,
@@ -30,12 +72,24 @@ has 'resource_old' => (
         get_old_res    => 'get',
         has_no_old_res => 'is_empty',
         old_res_keys   => 'keys',
-        old_res_pairs  => 'kv',
     },
 );
 
+sub _build_old_resource {
+    my $self = shift;
+    my %items;
+    if ( $self->is_project( $self->project ) ) {
+        foreach my $res ( @{ $self->reader->get_contents('resources') } ) {
+            die "The '\$res' variable is not a reference: '$res'" unless ref $res;
+            my $name = path( $res->{source}{path}, $res->{source}{name} )->stringify;
+            $items{$name} = $res;
+        }
+    }
+    return \%items;
+}
+
 has 'resource_new' => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => 'HashRef',
     traits  => ['Hash'],
     lazy    => 1,
@@ -46,6 +100,48 @@ has 'resource_new' => (
         fs_res_keys   => 'keys',
     },
 );
+
+sub _build_new_resource {
+    my $self = shift;
+    my @items;
+    try {
+        @items = @{ $self->get_all_files( $self->project ) };
+    }
+    catch {
+        if ( my $e = Exception::Base->catch($_) ) {
+            if ( $e->isa('Exception::IO::PathNotFound') ) {
+                die "[EE] ", $e->message, ' (', $e->pathname, ').';
+                exit;                        # XXX ?!
+            }
+            else {
+                die "Unexpected exception: $_";
+            }
+        }
+    };
+    return {} unless scalar @items;
+    my %items;
+    foreach my $rec (@items) {
+        my $file = $rec->{name};
+        my $path = $rec->{path};
+        my $subd = path($path)->relative($self->project);
+        my $name = path( $path, $file )->stringify;
+        my $dest = $self->destination_path
+                 ? $self->compact_path($subd)
+                 : undef;
+        $items{$name} = {
+            source => {
+                name => $file,
+                path => $path,
+            },
+            destination => {
+                name => $file,
+                path => $dest,
+                perm => '0644',
+            }
+        };
+    }
+    return \%items;
+}
 
 has '_compare' => (
     is      => 'rw',
@@ -103,62 +199,6 @@ has '_added' => (
     },
 );
 
-sub _build_old_resource {
-    my $self = shift;
-    my %items;
-    if ( $self->is_project( $self->project ) ) {
-        my $reader = App::PlannedCopy::Resource::Read->new(
-            resource_file => $self->resource_file );
-        foreach my $res ( @{ $reader->get_contents('resources') } ) {
-            my $name = path( $res->{source}{path}, $res->{source}{name} )->stringify;
-            $items{$name} = $res;
-        }
-    }
-    return \%items;
-}
-
-sub _build_new_resource {
-    my $self = shift;
-    my @items;
-    try {
-        @items = @{ $self->get_all_files( $self->project ) };
-    }
-    catch {
-        if ( my $e = Exception::Base->catch($_) ) {
-            if ( $e->isa('Exception::IO::PathNotFound') ) {
-                die "[EE] ", $e->message, ' (', $e->pathname, ').';
-                exit;                        # XXX ?!
-            }
-            else {
-                die "Unexpected exception: $_";
-            }
-        }
-    };
-    return {} unless scalar @items;
-    my %items;
-    foreach my $rec (@items) {
-        my $file = $rec->{name};
-        my $path = $rec->{path};
-        my $subd = path($path)->relative($self->project);
-        my $name = path( $path, $file )->stringify;
-        my $dest = $self->destination_path
-                 ? $self->compact_path($subd)
-                 : undef;
-        $items{$name} = {
-            source => {
-                name => $file,
-                path => $path,
-            },
-            destination => {
-                name => $file,
-                path => $dest,
-                perm => '0644',
-            }
-        };
-    }
-    return \%items;
-}
-
 sub compact_path {
     my ($self, $subd) = @_;
     my $dest = path($self->destination_path, $subd)->stringify;
@@ -186,7 +226,12 @@ sub write_resource {
     my ($self, $data) = @_;
     my $rw = App::PlannedCopy::Resource::Write->new(
         resource_file => $self->resource_file );
-    try   { $rw->create_yaml( { resources => $data } ) }
+    my $res = {
+        scope     => $self->resource_scope,
+        host      => $self->resource_host,
+        resources => $data
+    };
+    try   { $rw->create_yaml( $res ) }
     catch {
         if ( my $e = Exception::Base->catch($_) ) {
             if ( $e->isa('Exception::IO') ) {
