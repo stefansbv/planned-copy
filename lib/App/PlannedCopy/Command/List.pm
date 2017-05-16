@@ -24,8 +24,6 @@ parameter 'project' => (
 sub run {
     my ( $self ) = @_;
 
-    $self->check_project_name;
-
     if ( my $project = $self->project ) {
         say "Job: list files in '$project':\n";
         my @items;
