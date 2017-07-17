@@ -58,38 +58,6 @@ option 'pass' => (
     documentation => q[Password.],
 );
 
-has 'remote_host' => (
-    is      => 'ro',
-    isa     => 'Str',
-    lazy    => 1,
-    default => sub {
-        my $self = shift;
-        return $self->host if $self->host;
-        return $self->resource->resource_host;
-    },
-);
-
-has 'resource_file' => (
-    is      => 'ro',
-    isa     => 'Str',
-    lazy    => 1,
-    default => sub {
-        my $self = shift;
-        return $self->config->resource_file( $self->project );
-    },
-);
-
-has 'resource' => (
-    is      => 'ro',
-    isa     => 'App::PlannedCopy::Resource',
-    lazy    => 1,
-    default => sub {
-        my $self = shift;
-        return App::PlannedCopy::Resource->new(
-            resource_file => $self->resource_file );
-    },
-);
-
 sub run {
     my ( $self ) = @_;
 
@@ -214,19 +182,10 @@ sub run {
 sub install_file {
     my ( $self, $res ) = @_;
     return if $self->dryrun;
-    my $parent_dir = $res->dst->_parent_dir;
-    if ( !$parent_dir->is_dir ) {
-        unless ( $parent_dir->mkpath ) {
-            Exception::IO::PathNotFound->throw(
-                message  => 'Failed to create the destination path.',
-                pathname => $parent_dir,
-            );
-        }
-    }
-    $self->copy_file( $res->dst->_abs_path, $res->dst->_abs_path_bak,
-        $self->remote_host ) if $res->has_action('update');
-    $self->copy_file( $res->src->_abs_path, $res->dst->_abs_path,
-        $self->remote_host );
+	$self->make_dst_path($res);
+    $self->copy_file( 'backup', $res, $self->remote_host )
+        if $res->has_action('update');
+    $self->copy_file( 'install', $res, $self->remote_host );
     $res->remove_issue_by_action( $res, 'install' );
     $res->remove_issue_by_action( $res, 'update' );
     $res->issues_category('done');
@@ -318,17 +277,6 @@ sub print_summary {
     say ' - skipped  : ', $self->dryrun ? "$cnt_proc (dry-run)" : $self->count_skip;
     say ' - installed: ', $self->dryrun ? '0 (dry-run)' : $self->count_inst;
     say '';
-    return;
-}
-
-#+--
-
-sub copy_file_remote {
-    my ($self, $src, $dst, $host ) = @_;
-    die "HOST is $host";
-    my $sftp = $self->sftp;
-    $sftp->setcwd($dst->_parent_dir) or die "Unable to change cwd: " . $sftp->error;
-    say $sftp->cwd;
     return;
 }
 

@@ -8,13 +8,24 @@ use Moose::Role;
 use Path::Tiny;
 use Net::SFTP::Foreign;
 
+has 'remote_host' => (
+    is      => 'ro',
+    isa     => 'Str',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return $self->host if $self->host;
+        return $self->resource->resource_host;
+    },
+);
+
 has 'sftp' => (
     is      => 'ro',
     isa     => 'Maybe[Net::SFTP::Foreign]',
     lazy    => 1,
     default => sub {
         my $self = shift;
-        my $host = $self->remote_host;
+        my $host = $self->remote_host // 'localhost';
         return if $host eq 'localhost';
         my $user = $self->user;
         my $pass = $self->pass;
@@ -24,12 +35,12 @@ has 'sftp' => (
             username => $user,
             password => $pass,
         );
-        say "Connecting as ", $user ? "'$user'" : "'default'";
+        say "[sftp] Connecting as ", $user ? "'$user'" : "'default'" if $self->verbose;
         $sftp->error
-            and die "Unable to establish SFTP connection: " . $sftp->error;
+            and die "Unable to establish SFTP connection: " . $sftp->error . "\n";
 
-        $sftp->setcwd('/') or die "Unable to change cwd: " . $sftp->error;
-        say "CWD is ", $sftp->cwd;
+        $sftp->setcwd('/') or die "Unable to change cwd: " . $sftp->error . "\n";
+        say "[sftp] CWD is ", $sftp->cwd if $self->verbose;
 
         return $sftp;
     },

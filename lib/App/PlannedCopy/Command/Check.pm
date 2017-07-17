@@ -36,6 +36,27 @@ parameter 'dst_name' => (
     documentation => q[Optional destination file name.],
 );
 
+option 'host' => (
+    is            => 'rw',
+    isa           => 'Str',
+    cmd_aliases   => [qw(H)],
+    documentation => q[Remote host name.],
+);
+
+option 'user' => (
+    is            => 'rw',
+    isa           => 'Str',
+    cmd_aliases   => [qw(u)],
+    documentation => q[User name.  Defaults to ENV{USER}],
+);
+
+option 'pass' => (
+    is            => 'rw',
+    isa           => 'Str',
+    cmd_aliases   => [qw(p)],
+    documentation => q[Password.],
+);
+
 has '_differences' => (
     is      => 'rw',
     isa     => 'ArrayRef',

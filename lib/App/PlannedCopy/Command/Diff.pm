@@ -16,6 +16,7 @@ extends qw(App::PlannedCopy);
 with qw(App::PlannedCopy::Role::Printable
         App::PlannedCopy::Role::Utils
         App::PlannedCopy::Role::Validate::Diff
+        App::PlannedCopy::Role::Remote
        );
 
 use App::PlannedCopy::Resource;
@@ -35,6 +36,27 @@ parameter 'dst_name' => (
     required      => 0,
     cmd_flag      => 'file',
     documentation => q[Optional destination file name.],
+);
+
+option 'host' => (
+    is            => 'rw',
+    isa           => 'Str',
+    cmd_aliases   => [qw(H)],
+    documentation => q[Remote host name.],
+);
+
+option 'user' => (
+    is            => 'rw',
+    isa           => 'Str',
+    cmd_aliases   => [qw(u)],
+    documentation => q[User name.  Defaults to ENV{USER}],
+);
+
+option 'pass' => (
+    is            => 'rw',
+    isa           => 'Str',
+    cmd_aliases   => [qw(p)],
+    documentation => q[Password.],
 );
 
 has 'prompting' => (

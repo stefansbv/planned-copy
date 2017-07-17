@@ -36,6 +36,27 @@ parameter 'dst_name' => (
     documentation => q[Optional destination file name.],
 );
 
+option 'host' => (
+    is            => 'rw',
+    isa           => 'Str',
+    cmd_aliases   => [qw(H)],
+    documentation => q[Remote host name.],
+);
+
+option 'user' => (
+    is            => 'rw',
+    isa           => 'Str',
+    cmd_aliases   => [qw(u)],
+    documentation => q[User name.  Defaults to ENV{USER}],
+);
+
+option 'pass' => (
+    is            => 'rw',
+    isa           => 'Str',
+    cmd_aliases   => [qw(p)],
+    documentation => q[Password.],
+);
+
 sub run {
     my ( $self ) = @_;
 
@@ -109,7 +130,7 @@ sub synchronize {
     my ( $self, $res ) = @_;
     return if $self->dryrun;
     my $src_path = $res->src->_abs_path;
-    $self->copy_file( $res->dst->_abs_path, $src_path );
+    $self->copy_file( 'sync', $res, $self->remote_host );
     $self->set_perm( $src_path, oct(644) );
     $res->remove_issue_by_action( $res, 'sync' );
     $self->set_owner( $res->src->_abs_path, $self->repo_owner )
