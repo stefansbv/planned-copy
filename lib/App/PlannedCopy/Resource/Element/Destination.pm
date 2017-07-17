@@ -84,6 +84,20 @@ sub verb_is {
     return;
 }
 
+has '_location' => (
+    is       => 'ro',
+    isa      => 'Str',
+    required => 0,
+	init_arg => 'location',
+    default  => sub {'local'},
+);
+
+sub is_local {
+	my $self = shift;
+    return 1 if $self->_location eq 'local';
+    return;
+}
+
 __PACKAGE__->meta->make_immutable;
 
 1;
@@ -123,11 +137,20 @@ instance method of the L<Path::Tiny> object.
 Return true if the user attribute was not explicitly set for a
 resource.
 
+=head2 _location
+
+The C<_location> attribute value is set to the host name attribute of the
+resource file on build time.
+
 =head1 Instance Methods
 
 =head2 verb_is
 
 Return true if the L<_verb> attribute equals to the C<$verb_action>
 parameter.
+
+=head2 is_local
+
+Return true if the L<_location> attribute values is C<local>.
 
 =cut

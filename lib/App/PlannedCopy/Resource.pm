@@ -110,7 +110,10 @@ sub _build_resource {
     my $resources = $self->get_resource_section('resources');
     $resources    = [] unless ref $resources;
     my $records   = [];
-    foreach my $res ( @{ $resources } ) {
+    foreach my $res ( @{$resources} ) {
+        $res->{destination}{location}
+            = $self->resource_host eq 'localhost' ? 'local' : 'remote';
+		$res->{source}{location} = 'local';
         push @{$records}, App::PlannedCopy::Resource::Element->new($res);
         $self->inc_counter;
     }

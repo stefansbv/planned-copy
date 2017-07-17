@@ -57,6 +57,20 @@ sub type_is {
     return;
 }
 
+has '_location' => (
+    is       => 'ro',
+    isa      => 'Str',
+    required => 0,
+	init_arg => 'location',
+    default  => sub {'local'},
+);
+
+sub is_local {
+	my $self = shift;
+    return 1 if $self->_location eq 'local';
+    return;
+}
+
 __PACKAGE__->meta->make_immutable;
 
 1;
@@ -88,11 +102,20 @@ instance method of the L<Path::Tiny> object.
 The parent dir of the C<_abs_path> as returned by the C<parent>
 instance method of the L<Path::Tiny> object.
 
+=head2 _location
+
+The C<_location> attribute value is set to C<local> on build time for
+all resource source elements.
+
 =head1 Instance Methods
 
 =head2 type_is
 
 Return true if the L<_type> attribute equals to the C<$type_name>
 parameter.
+
+=head2 is_local
+
+Return true if the L<_location> attribute values is C<local>.
 
 =cut
