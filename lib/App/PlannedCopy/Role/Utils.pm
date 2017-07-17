@@ -12,36 +12,63 @@ use Capture::Tiny ':all';
 
 use App::PlannedCopy::Exceptions;
 
+has 'resource_file' => (
+    is      => 'ro',
+    isa     => 'Str',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return $self->config->resource_file( $self->project );
+    },
+);
+
+has 'resource' => (
+    is      => 'ro',
+    isa     => 'App::PlannedCopy::Resource',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return App::PlannedCopy::Resource->new(
+            resource_file => $self->resource_file );
+    },
+);
+
 sub file_stat {
-    my ($self, $file) = @_;
-    say "File is $file";
-    if ( my $sftp = $self->sftp ) {
-        my $path = path($file)->absolute;
-        say "Path is $path";
-        return $self->sftp->stat($path);
-    }
-    return $file->stat;
+    my ( $self, $res_sord ) = @_;
+    return $res_sord->_abs_path->stat if $res_sord->is_local;
+    my $path = $res_sord->_abs_path;
+    die "No such file or directory: $path" unless $self->sftp->stat($path);
+    return $self->sftp->stat($path);
+}
+
+sub file_perms {
+    my ( $self, $res_sord ) = @_;
+    my $stat = $self->file_stat($res_sord);
+    return $res_sord->is_local ? $stat->mode : $stat->perm;
 }
 
 sub is_selfsame {
-    my ( $self, $src, $dst ) = @_;
+    my ( $self, $src_sord, $dst_sord ) = @_;
 
-    if ( $dst =~ m{undef}i ) {
+	my $src_path = $src_sord->_abs_path;
+    my $dst_path = $dst_sord->_abs_path;
+
+    if ( $dst_path =~ m{undef}i ) {
         Exception::IO::PathNotDefined->throw(
             message  => 'The destination path is not defined.',
             pathname => '',
         );
     }
-    if ( !$dst->is_file ) {
+    if ( !$dst_path->is_file ) {
         return 0;
     }
 
     # Compare sizes
-    return 0 if $self->file_stat($src)->size != $self->file_stat($dst)->size;
+	return 0 if $self->file_stat($src_sord)->size != $self->file_stat($dst_sord)->size;
 
     # Check contents
-    my $digest_src = $self->digest_local($src);
-    my $digest_dst = $self->digest_local($dst);
+    my $digest_src = $self->digest_local($src_path);
+    my $digest_dst = $self->digest_local($dst_path);
 
     return ( $digest_src eq $digest_dst ) ? 1 : 0;
 }
@@ -64,14 +91,31 @@ sub digest_local {
 }
 
 sub copy_file {
-    my ( $self, $src, $dst, $host ) = @_;
+    my ( $self, $verb, $res ) = @_;
+    die "res has to be a 'App::PlannedCopy::Resource::Element'"
+        unless $res->isa('App::PlannedCopy::Resource::Element');
+	my ($src_path, $dst_path);
+	if ($verb eq 'install') {
+		$src_path = $res->src->_abs_path;
+		$dst_path = $res->dst->_abs_path;
+	}
+	elsif ($verb eq 'backup') {
+		$src_path = $res->dst->_abs_path;
+		$dst_path = $res->dst->_abs_path_bak;
+	}
+	elsif ($verb eq 'sync') {
+		$src_path = $res->dst->_abs_path;
+		$dst_path = $res->src->_abs_path;
+	}
+	else {
+		die "unknown verb: $verb";
+	}
+	my $host = $self->remote_host;
     if (!$host or $host eq 'localhost') {
-        say "HOST is localhost";
-        $self->copy_file_local( $src, $dst );
+        $self->copy_file_local( $src_path, $dst_path );
     }
     else {
-        say "HOST is $host";
-        $self->copy_file_remote( $src, $dst, $host );
+        $self->copy_file_remote( $src_path, $dst_path );
     }
     return;
 }
@@ -93,6 +137,32 @@ sub copy_file_local {
             logmsg  => $logmsg,
         );
     };
+    return;
+}
+
+sub copy_file_remote {
+    my ( $self, $src, $dst ) = @_;
+	my $sftp = try { $self->sftp }
+	catch {
+        my $err = $_;
+        Exception::IO::SystemCmd->throw(
+            message => 'The sftp command failed.',
+            logmsg  => $err,
+        );
+	};
+    try {
+		# $sftp->setcwd( $dst->parent )
+        #     or die "Unable to change cwd " . $sftp->error . "\n";
+        $sftp->put( $src, $dst, late_set_perm => 1 )
+            or die "put failed: " . $sftp->error . "\n";
+    }
+    catch {
+        my $err = $_;
+        Exception::IO::SystemCmd->throw(
+            message => 'The sftp command failed.',
+            logmsg  => $err,
+		);
+	};
     return;
 }
 
@@ -333,20 +403,20 @@ sub prevalidate_element {
 }
 
 sub get_perms {
-    my ( $self, $file ) = @_;
-    my $mode = try { $file->stat->mode }
+    my ( $self, $res_sord ) = @_;
+	my $mode = try { $self->file_perms($res_sord) }
     catch  {
         my $err = $_;
         if ( $err =~ m/Permission denied/i ) {
             Exception::IO::PermissionDenied->throw(
                 message  => 'Permision denied for path:',
-                pathname => $file,
+                pathname => $res_sord->_name,
             );
         }
         elsif ( $err =~ m/No such file or directory/i ) {
             Exception::IO::FileNotFound->throw(
                 message  => 'No such file or directory',
-                pathname => $file,
+                pathname => $res_sord->_name,
             );
         }
         else {
@@ -405,6 +475,21 @@ sub is_project {
     return $record->{resource};
 }
 
+sub make_dst_path {
+	my ($self, $res) = @_;
+    my $parent_dir = $res->dst->_parent_dir;
+    if ( $res->dst->is_local ) {
+        if ( !$parent_dir->is_dir ) {
+            unless ( $parent_dir->mkpath ) {
+                Exception::IO::PathNotFound->throw(
+                    message  => 'Failed to create the destination path.',
+                    pathname => $parent_dir,
+                );
+            }
+        }
+    }
+}
+
 no Moose::Role;
 
 1;
@@ -422,7 +507,21 @@ by the command modules.
 
 =head1 Interface
 
+=head2 Attributes
+
+=head3 'resource_file'
+
+=head3 'resource'
+
 =head2 Instance Methods
+
+=head3 file_stat
+
+=head3 file_perms
+
+The argument must be a resource source or destination object.
+
+	my $mode = $self->file_perms($res_sord);
 
 =head3 is_selfsame
 
@@ -430,10 +529,26 @@ Uses an MD5 digest to compare the source and the destination file and
 returns the result of the comparison.  Throws exceptions in
 exceptional cases ;)
 
+=head3 digest_local
+
 =head3 copy_file
 
 Tries to copy the source file to the destination dir.  Throws a
 C<Exception::IO::SystemCmd> if the operation fails.
+
+    $self->copy_file( $src, $dst, $host);
+
+The first argument is the source and the second argument is the
+destination.  Both arguments are instances of the
+C<::Resource::Element> type, usually C<::Resource::Element::Source>
+and C<::Resource::Element::Destination>.
+
+The third argument is the remote host name, is optional and defaults
+to C<localhost>.
+
+=head3 copy_file_local
+
+=head3 copy_file_remote
 
 =head3 set_perm
 
@@ -482,7 +597,13 @@ else throws an C<Exception::IO::WrongUser>.
 
 =head3 get_perms
 
-Return the C<perms> as an octal string of the file givven as parameter
+The argument must be a resource source or destination object, because
+the C<_location> attribute is needed for making distinction from local
+and remote files.
+
+    my $perms = $self->get_perms( $res->dst );
+
+Return the C<perms> as an octal string of the file given as argument
 or throws a C<Exception::IO::PermissionDenied> exception if the file
 can't be read.
 
@@ -493,5 +614,7 @@ can't be read.
 =head3 is_project_path
 
 =head3 is_project
+
+=head3 make_dst_path
 
 =cut

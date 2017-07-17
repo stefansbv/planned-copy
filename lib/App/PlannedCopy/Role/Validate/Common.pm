@@ -237,9 +237,7 @@ sub is_src_and_dst_different {
     my ( $self, $res ) = @_;
     die "The 'is_src_and_dst_different' method, does not work on archives"
         if $res->src->type_is('archive');
-    my $src_path = $res->src->_abs_path;
-    my $dst_path = $res->dst->_abs_path;
-    if ( !$self->is_selfsame( $src_path, $dst_path ) ) {
+    if ( !$self->is_selfsame( $res->src, $res->dst ) ) {
         my $action = 'update';
         $res->add_issue(
             App::PlannedCopy::Issue->new(
@@ -284,7 +282,7 @@ sub is_owner_different {
 
 sub is_mode_different {
     my ( $self, $res ) = @_;
-    my $perms = $self->get_perms( $res->dst->_abs_path );
+    my $perms = $self->get_perms( $res->dst );
     if ( $perms ne $res->dst->_perm ) {
         if ( $self->command eq 'install' ) {
             $res->add_issue(
@@ -401,6 +399,8 @@ Used by the C<check>, C<diff> and C<sync> commands.
 =head3 archive_is_unpacked
 
 =head3 is_src_and_dst_different
+
+Takes a resource object as argument.
 
 Adds an issue with the message 'Different source and destination' if
 the source and destination files are different, as returned by the
