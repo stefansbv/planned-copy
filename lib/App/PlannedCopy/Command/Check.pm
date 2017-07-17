@@ -86,7 +86,7 @@ sub run {
             $self->check_project( 'batch' );
             print "." unless $self->verbose;
         }
-        print " .\n" unless $self->verbose;
+        print " done\n" unless $self->verbose;
         $self->print_summary( 'batch' );
     }
     return;
@@ -99,6 +99,16 @@ sub check_project {
     my $resu = App::PlannedCopy::Resource->new( resource_file => $file );
     my $iter = $resu->resource_iter;
     my $cnt  = $resu->count;
+
+	# Disable remote check until it works.
+    if ( $resu->resource_host ne 'localhost' ) {
+        print '[', fg('yellow1', $self->project), "], Job: ", $cnt, ' file',
+            ( $cnt != 1 ? 's' : '' ),
+            ' to check',
+            ( $batch ? '...' : ':' ) if $self->verbose;
+        print " skipped\n" if $self->verbose;
+        return;
+    }
 
     my $name = $self->dst_name;
     if ($name) {
