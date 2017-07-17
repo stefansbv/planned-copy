@@ -33,6 +33,8 @@ subtest 'minimum valid config' => sub {
     is $src->_abs_path, path( $repo_path, qw(filename1) ),
         'source absolute path';
     is $src->_parent_dir, $repo_path, 'source absolute path parent';
+	is $src->_location, 'local', 'source location';
+	is $src->is_local, 1, 'is local';
 };
 
 subtest 'maximum valid config' => sub {
@@ -56,6 +58,8 @@ subtest 'maximum valid config' => sub {
     is $src->_abs_path, path( $repo_path, qw(filename2) ),
         'source absolute path';
     is $src->_parent_dir, $repo_path, 'source absolute path parent';
+	is $src->_location, 'local', 'source location';
+	is $src->is_local, 1, 'is local';
 };
 
 done_testing;

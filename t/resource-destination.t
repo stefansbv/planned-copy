@@ -37,6 +37,8 @@ subtest 'minimum valid config' => sub {
         'destination backup absolute path';
     is $dst->_parent_dir, $dest_path->absolute,
         'destination absolute path parent';
+    is $dst->_location, 'local', 'destination location';
+    is $dst->is_local, 1, 'is local';
 };
 
 subtest 'maximum valid config' => sub {
@@ -47,6 +49,7 @@ subtest 'maximum valid config' => sub {
             perm => '0644',
             verb => 'unpack',
             user => 'someuser',
+            location => 'somehostname',
         },
     };
 
@@ -67,6 +70,8 @@ subtest 'maximum valid config' => sub {
         'destination backup absolute path';
     is $dst->_parent_dir, $dest_path->absolute,
         'destination absolute path parent';
+    is $dst->_location, 'somehostname', 'destination location';
+    is $dst->is_local, undef, 'is local';
 };
 
 done_testing;
