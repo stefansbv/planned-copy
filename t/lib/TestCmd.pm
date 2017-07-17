@@ -7,6 +7,7 @@ extends qw(App::PlannedCopy);
 
 with qw( App::PlannedCopy::Role::Printable
          App::PlannedCopy::Role::Utils
+         App::PlannedCopy::Role::Resource::Utils
          App::PlannedCopy::Role::Remote );
 
 has [qw{remote_host user pass}] => (

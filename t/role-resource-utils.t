@@ -46,6 +46,6 @@ foreach my $x (@k) {
     like $x, qr/^check/, "$x starts with project name";
 }
 is $cmd->resource_scope, 'system', 'scope is system';
-is $cmd->resource_host, 'hostname1', 'host is hostname';
+is $cmd->resource_host, 'localhost', 'host is hostname';
 
 done_testing();

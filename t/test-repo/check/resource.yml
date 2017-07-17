@@ -1,6 +1,6 @@
 ---
 scope: system
-host: hostname1
+host: localhost
 resources:
   -
     destination:

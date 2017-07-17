@@ -38,8 +38,9 @@ my @methods    = (
 
 local $ENV{PLCP_USR_CONFIG} = path( qw(t user.conf) );
 
+my $project   = 'check';
 my $repo_path = path( qw(t test-repo install) );
-my $dest_path  = path(qw(t test-dst install));
+my $dest_path = path(qw(t test-dst install));
 my $dest_path_orig = path(qw(t test-dst install-orig));
 
 # Cleanup
@@ -48,7 +49,7 @@ dircopy($dest_path_orig, $dest_path);
 
 subtest 'Utils Role - local' => sub {
 
-    my $cmd = TestCmd->new;
+	my $cmd = TestCmd->new( project => $project );
 	my $args = {};
     map has_attribute_ok( $cmd, $_ ), @attributes;
     map can_ok( $cmd, $_ ), @methods;
@@ -141,8 +142,10 @@ path($dest_path)->remove_tree( { safe => 0 } ); # force remove
 dircopy($dest_path_orig, $dest_path);
 
 subtest 'Utils Role - remote' => sub {
-
-	my $cmd = TestCmd->new(remote_host => 'master');
+	my $cmd = TestCmd->new(
+		project     => $project,
+		remote_host => 'master',
+	);
 	my $args = {};
     map has_attribute_ok( $cmd, $_ ), @attributes;
     map can_ok( $cmd, $_ ), @methods;
