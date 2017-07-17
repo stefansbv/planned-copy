@@ -91,6 +91,16 @@ has 'diff_tool' => (
     },
 );
 
+has 'resource_file_name' => (
+    is      => 'ro',
+    isa     => 'Str',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return $self->get( key => 'core.resource-file' ) || 'resource.yml';
+    },
+);
+
 # From Sqitch ;)
 sub get_section {
     my ( $self, %p ) = @_;
@@ -115,7 +125,7 @@ sub initial_key {
 sub resource_file {
     my ($self, $project) = @_;
     return unless $self->repo_path and $project;
-    return path( $self->repo_path, $project, 'resource.yml' )->stringify;
+    return path( $self->repo_path, $project, $self->resource_file_name )->stringify;
 }
 
 __PACKAGE__->meta->make_immutable;
@@ -157,6 +167,10 @@ It inherits from L<Config::GitLike>.
 =head3 current_user
 
 =head3 diff_tool
+
+=head3 resource_file_name
+
+Returns the name of the resource file.
 
 =head2 Instance Methods
 

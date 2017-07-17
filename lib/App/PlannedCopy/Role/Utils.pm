@@ -4,6 +4,7 @@ package App::PlannedCopy::Role::Utils;
 
 use 5.0100;
 use utf8;
+use Carp;
 use Moose::Role;
 use Path::Tiny;
 use Path::Iterator::Rule;
@@ -168,7 +169,7 @@ sub copy_file_remote {
 
 sub set_perm {
     my ($self, $file, $perm) = @_;
-    die "The 'set_perm' method works only with files.\n" unless $file->is_file;
+    die "The 'set_perm' method works only with files." unless $file->is_file;
     try   { $file->chmod($perm) }
     catch {
         my $err = $_;
@@ -189,7 +190,7 @@ sub set_perm {
 
 sub set_owner {
     my ( $self, $file, $user ) = @_;
-    die "The 'change_owner' method works only with files.\n"
+    die "The 'change_owner' method works only with files."
         unless $file->is_file;
     my ( $login, $pass, $uid, $gid ) = getpwnam($user)
         or die "$user not in passwd file";
@@ -342,7 +343,7 @@ sub get_project_files {
     $rule->skip_vcs;
     $rule->skip(
         $rule->new->file->empty,
-        $rule->new->file->name('resource.yml'),
+        $rule->new->file->name($self->config->resource_file_name),
     );
     $rule->min_depth(1);
 
@@ -358,7 +359,7 @@ sub get_project_files {
 
 sub check_res_user {
     my ( $self, $res ) = @_;
-    die "The 'check_res_user' method requires a resource param.\n"
+    croak "The 'check_res_user' method requires a resource param."
         unless ref $res;
     my $user = $self->config->current_user;
     if ( $user ne 'root' && $res->dst->_user_isnot_default ) {
@@ -452,26 +453,38 @@ sub get_owner {
     # return $user;
 }
 
-sub check_project_name {
+sub check_dir_name {
     my $self    = shift;
     my $project = $self->project;
     unless ( $self->is_project_path ) {
         die "\n[EE] No directory named '$project' found.\n     Check the spelling or use the 'list' command.\n\n";
     }
-    unless ( $self->is_project ) {
+}
+
+sub check_project_name {
+    my $self    = shift;
+    my $project = $self->project;
+    unless ( $self->is_project($project) ) {
         die "\n[EE] No project named '$project' found.\n     Check the spelling or use the 'list' command.\n\n";
     }
 }
 
-sub is_project_path {
+sub project_path {
     my $self    = shift;
-    my $dir     = path $self->config->repo_path, $self->project;
-    return $dir->is_dir;
+    my $project = $self->project;
+    return path( $self->config->repo_path, $project );
+}
+
+sub is_project_path {
+    my $self = shift;
+    return $self->project_path->is_dir;
 }
 
 sub is_project {
-    my $self    = shift;
-    my $record  = $self->find_project( sub { $_->{path} eq $self->project } );
+    my ($self, $project) = @_;
+    croak "The 'is_project' method requires a project name parameter!"
+        unless $project;
+    my $record = $self->find_project( sub { $_->{path} eq $project } );
     return $record->{resource};
 }
 
@@ -525,9 +538,16 @@ The argument must be a resource source or destination object.
 
 =head3 is_selfsame
 
-Uses an MD5 digest to compare the source and the destination file and
-returns the result of the comparison.  Throws exceptions in
-exceptional cases ;)
+Returns true if the source and the destination files are the same.
+
+If the files are with different sizes, returns false, else uses an MD5
+digest to compare contents.
+
+Throws exceptions in exceptional cases ;)
+
+=head3 digest_local
+
+Calculates and returns the MD5 digest of a file.
 
 =head3 digest_local
 
@@ -609,11 +629,21 @@ can't be read.
 
 =head3 get_owner
 
+=head3 check_dir_name
+
+Return true if the name of the project attribute is a dir under the
+C<repo_path>, false otherwise.
+
 =head3 check_project_name
+
+=head3 project_path
 
 =head3 is_project_path
 
 =head3 is_project
+
+Return true if the project dir contains a resource file, false
+otherwise.
 
 =head3 make_dst_path
 

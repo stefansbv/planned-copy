@@ -62,6 +62,7 @@ sub run {
     my ( $self ) = @_;
 
     $self->check_project_name;
+    $self->check_dir_name;
 
     my $res  = $self->resource;
     my $iter = $res->resource_iter;

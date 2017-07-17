@@ -33,10 +33,10 @@ sub run {
         catch {
             if ( my $e = Exception::Base->catch($_) ) {
                 if ( $e->isa('Exception::IO::PathNotFound') ) {
-                    $self->print_exeception_message($e->message, $e->pathname);
+                    die "[EE] ", $e->message, ' (', $e->pathname, ').';
                 }
                 else {
-                    die "Unexpected exception: $_";
+                    die "[EE] ", "Unexpected exception: $_";
                 }
             }
         };

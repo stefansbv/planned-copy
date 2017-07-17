@@ -1,46 +1,69 @@
-package App::PlannedCopy::Command::Resu;
+package App::PlannedCopy::Role::Resource::Utils;
 
-# ABSTRACT: Create/update a resource file
+# ABSTRACT: Utils
 
 use 5.010001;
 use utf8;
+use Moose::Role;
 use Try::Tiny;
 use Path::Tiny;
+use File::HomeDir;
 use Path::Iterator::Rule;
 use List::Compare;
-use MooseX::App::Command;
 use Moose::Util::TypeConstraints;
-use namespace::autoclean;
 
-extends qw(App::PlannedCopy);
-
-with qw(App::PlannedCopy::Role::Utils
-        App::PlannedCopy::Role::Printable);
-
-use App::PlannedCopy::Resource::Read;
+use App::PlannedCopy::Resource;
 use App::PlannedCopy::Resource::Write;
 
-command_long_description q[Create/update a resource file for the <project>.];
-
-parameter 'project' => (
-    is            => 'rw',
-    isa           => 'Str',
-    required      => 1,
-    documentation => q[Project name.],
+has 'destination_path' => (
+    is  => 'rw',
+    isa => 'Maybe[Str]',
 );
 
-has 'resource_file' => (
+has reader => (
     is      => 'ro',
-    isa     => 'Str',
+    isa     => 'App::PlannedCopy::Resource::Read',
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return $self->config->resource_file( $self->project );
+        my $pcr = App::PlannedCopy::Resource->new(
+            resource_file => $self->resource_file );
+        return $pcr->reader;
     },
 );
 
+has 'resource_scope' => (
+    is      => 'ro',
+    isa     => 'Maybe[Str]',
+    lazy    => 1,
+    builder => '_build_old_resource_scope',
+);
+
+sub _build_old_resource_scope {
+    my $self = shift;
+    if ( $self->is_project( $self->project ) ) {
+        return $self->reader->get_contents('scope') // 'user';
+    }
+    return 'user';
+}
+
+has 'resource_host' => (
+    is      => 'ro',
+    isa     => 'Maybe[Str]',
+    lazy    => 1,
+    builder => '_build_old_resource_host',
+);
+
+sub _build_old_resource_host {
+    my $self = shift;
+    if ( $self->is_project( $self->project ) ) {
+        return $self->reader->get_contents('host') // 'localhost';
+    }
+    return 'localhost';
+}
+
 has 'resource_old' => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => 'HashRef',
     traits  => ['Hash'],
     lazy    => 1,
@@ -49,12 +72,24 @@ has 'resource_old' => (
         get_old_res    => 'get',
         has_no_old_res => 'is_empty',
         old_res_keys   => 'keys',
-        old_res_pairs  => 'kv',
     },
 );
 
+sub _build_old_resource {
+    my $self = shift;
+    my %items;
+    if ( $self->is_project( $self->project ) ) {
+        foreach my $res ( @{ $self->reader->get_contents('resources') } ) {
+            die "The '\$res' variable is not a reference: '$res'" unless ref $res;
+            my $name = path( $res->{source}{path}, $res->{source}{name} )->stringify;
+            $items{$name} = $res;
+        }
+    }
+    return \%items;
+}
+
 has 'resource_new' => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => 'HashRef',
     traits  => ['Hash'],
     lazy    => 1,
@@ -65,6 +100,48 @@ has 'resource_new' => (
         fs_res_keys   => 'keys',
     },
 );
+
+sub _build_new_resource {
+    my $self = shift;
+    my @items;
+    try {
+        @items = @{ $self->get_all_files( $self->project ) };
+    }
+    catch {
+        if ( my $e = Exception::Base->catch($_) ) {
+            if ( $e->isa('Exception::IO::PathNotFound') ) {
+                die "[EE] ", $e->message, ' (', $e->pathname, ').';
+                exit;                        # XXX ?!
+            }
+            else {
+                die "Unexpected exception: $_";
+            }
+        }
+    };
+    return {} unless scalar @items;
+    my %items;
+    foreach my $rec (@items) {
+        my $file = $rec->{name};
+        my $path = $rec->{path};
+        my $subd = path($path)->relative($self->project);
+        my $name = path( $path, $file )->stringify;
+        my $dest = $self->destination_path
+                 ? $self->compact_path($subd)
+                 : undef;
+        $items{$name} = {
+            source => {
+                name => $file,
+                path => $path,
+            },
+            destination => {
+                name => $file,
+                path => $dest,
+                perm => '0644',
+            }
+        };
+    }
+    return \%items;
+}
 
 has '_compare' => (
     is      => 'rw',
@@ -122,56 +199,12 @@ has '_added' => (
     },
 );
 
-sub _build_old_resource {
-    my $self = shift;
-    my %items;
-    if ( $self->is_project ) {
-        my $reader = App::PlannedCopy::Resource::Read->new(
-            resource_file => $self->resource_file );
-        foreach my $res ( @{ $reader->get_contents('resources') } ) {
-            my $name = path( $res->{source}{path}, $res->{source}{name} )->stringify;
-            $items{$name} = $res;
-        }
-    }
-    return \%items;
-}
-
-sub _build_new_resource {
-    my $self = shift;
-    my @items;
-    try {
-        @items = @{ $self->get_all_files( $self->project ) };
-    }
-    catch {
-        if ( my $e = Exception::Base->catch($_) ) {
-            if ( $e->isa('Exception::IO::PathNotFound') ) {
-                $self->print_exeception_message($e->message, $e->pathname);
-                exit;                        # ???
-            }
-            else {
-                die "Unexpected exception: $_";
-            }
-        }
-    };
-    return {} unless scalar @items;
-    my %items;
-    foreach my $rec ( @items ) {
-        my $file = $rec->{name};
-        my $path = $rec->{path};
-        my $name = path($path, $file)->stringify;
-        $items{$name} = {
-            source => {
-                name => $file,
-                path => $path,
-            },
-            destination => {
-                name => $file,
-                path => undef,
-                perm => '0644',
-            }
-        };
-    }
-    return \%items;
+sub compact_path {
+    my ($self, $subd) = @_;
+    my $dest = path($self->destination_path, $subd)->stringify;
+    my $home = File::HomeDir->my_home;
+    $dest =~ s{^$home}{~};                   # replace $HOME with '~/'
+    return $dest;
 }
 
 sub _build_compare {
@@ -189,16 +222,66 @@ sub _build_compare {
     return \%comp;
 }
 
-sub run {
-    my ( $self ) = @_;
+sub write_resource {
+    my ($self, $data) = @_;
+    my $rw = App::PlannedCopy::Resource::Write->new(
+        resource_file => $self->resource_file );
+    my $res = {
+        scope     => $self->resource_scope,
+        host      => $self->resource_host,
+        resources => $data
+    };
+    try   { $rw->create_yaml( $res ) }
+    catch {
+        if ( my $e = Exception::Base->catch($_) ) {
+            if ( $e->isa('Exception::IO') ) {
+                die "[EE] ", $e->message, ' (', $e->pathname, ').';
+            }
+            elsif ( $e->isa('Exception::Config::YAML') ) {
+                die "[EE] ", $e->message, ' ', $e->logmsg;
+            }
+            else {
+                die "[EE] Unknown exception: $_";
+            }
+        }
+    };
+    return;
+}
 
-    my $project = $self->project;
-    unless ( $self->is_project_path ) {
-        die "\n[EE] No directory named '$project' found.\n     Check the spelling or use the 'list' command.\n\n";
+sub get_all_files {
+    my ($self, $dir) = @_;
+
+    die "The 'dir' parameter is required for 'get_all_files'\n" unless $dir;
+
+    my $proj = $self->find_project( sub { $_->{path} eq $dir } );
+    unless ($proj) {
+        Exception::IO::PathNotFound->throw(
+            message  => 'The project was not found:',
+            pathname => $dir,
+        );
     }
 
-    my $proj = $self->project;
-    say "Job: add/update the resource file for '$proj':\n";
+    my $abs_dir = path( $self->config->repo_path, $dir );
+    my $rule    = Path::Iterator::Rule->new;
+    $rule->skip(
+        $rule->new->file->empty,
+        $rule->new->file->name($self->config->resource_file_name),
+    );
+    my $next = $rule->iter( $abs_dir,
+        { relative => 0, sorted => 1, follow_symlinks => 0 } );
+    my @files;
+    while ( defined( my $item = $next->() ) ) {
+        my $item = path $item;
+        next if $item->is_dir;
+        my $name = $item->basename;
+        my $path = $item->parent->relative( $abs_dir->parent )->stringify;
+        push @files, { name => $name, path => $path };
+    }
+    return \@files;
+}
+
+sub update_resource {
+    my $self = shift;
 
     my @del = $self->get_removed;
     my @upd = $self->get_kept;
@@ -221,92 +304,10 @@ sub run {
     $self->project_changes_list_printer( 'kept',    @upd );
     $self->project_changes_list_printer( 'added',   @add );
 
-    $self->print_summary;
-
-    if ( $self->count_added > 0 && $self->open_editor ) {
-        $self->shell( $self->editor . ' ' . $self->resource_file );
-    }
-
     return;
 }
 
-sub print_summary {
-    my $self = shift;
-    say '';
-    say 'Summary:';
-    say ' - removed: ', $self->dryrun ? '0 (dry-run)' : $self->count_removed;
-    say ' - kept   : ', $self->count_kept;
-    say ' - added  : ', $self->dryrun ? '0 (dry-run)' : $self->count_added;
-    say '';
-    return;
-}
-
-sub write_resource {
-    my ($self, $data) = @_;
-    my $rw = App::PlannedCopy::Resource::Write->new(
-        resource_file => $self->resource_file );
-    try   { $rw->create_yaml( { resources => $data } ) }
-    catch {
-        if ( my $e = Exception::Base->catch($_) ) {
-            if ( $e->isa('Exception::IO') ) {
-                die "[EE] ", $e->message, ' (', $e->pathname, ').';
-            }
-            elsif ( $e->isa('Exception::Config::YAML') ) {
-                die "[EE] ", $e->message, ' ', $e->logmsg;
-            }
-            else {
-                die "[EE] Unknown exception: $_";
-            }
-        }
-    };
-    return;
-}
-
-sub get_all_files {
-    my ($self, $dir) = @_;
-
-    die "The 'dir' parameter is required for 'get_all_files'\n" unless $dir;
-    my $proj = $self->find_project( sub { $_->{path} eq $dir } );
-    unless ($proj) {
-        Exception::IO::PathNotFound->throw(
-            message  => 'The project was not found:',
-            pathname => $dir,
-        );
-    }
-
-    my $abs_dir = path( $self->config->repo_path, $dir );
-    my $rule    = Path::Iterator::Rule->new;
-    $rule->skip(
-        $rule->new->file->empty,
-        $rule->new->file->name('resource.yml'),
-    );
-    my $next = $rule->iter( $abs_dir,
-        { relative => 0, sorted => 1, follow_symlinks => 0 } );
-    my @files;
-    while ( defined( my $item = $next->() ) ) {
-        my $item = path $item;
-        next if $item->is_dir;
-        my $name = $item->basename;
-        my $path = $item->parent->relative( $abs_dir->parent )->stringify;
-        push @files, { name => $name, path => $path };
-    }
-    return \@files;
-}
-
-has open_editor => (
-    is       => 'ro',
-    isa      => 'Bool',
-    lazy     => 1,
-    default  => sub {
-        my $self = shift;
-        $self->config->get(
-            key => 'resu.open_editor',
-            as  => 'bool',
-        ) // 0;
-    },
-);
-
-__PACKAGE__->meta->make_immutable;
+no Moose::Role;
 
 1;
 
@@ -316,20 +317,11 @@ __END__
 
 =head1 Description
 
-The implementation of the C<resu> command.  TODO: change the name.
+Helper role the C<resu> command.  TODO: change the name.
 
 =head1 Interface
 
 =head2 Attributes
-
-=head3 project
-
-Required parameter attribute for the install command.  The name of the
-project - a directory name under C<repo_path>.
-
-=head3 resource_file
-
-A read only attributes that holds the resource files absolute path.
 
 =head3 resource_old
 
@@ -359,21 +351,9 @@ Returns an array reference of added items.
 
 =head2 Instance Methods
 
-=head3 run
+=head3 compact_path
 
-The method to be called when the C<resu> command is run.
-
-Builds three lists, one for the deleted items, one for the kept items
-and one for the added items.  Print this lists in order, and then
-prints the summary.
-
-=head3 print_summary
-
-Prints the summary of the command execution.
-
-=head3 note
-
-Print a note for the user.
+Replace C<$HOME> with C<~/> in the path.
 
 =head3 write_resource
 
@@ -385,5 +365,10 @@ L<App::PlannedCopy::Resource::Write> module.
 Recursively scan the project dir and get a list of the files,
 excepting the C<resource.yml> file if it exists and return the data as
 an array reference.
+
+=head3 update_resource
+
+Collect info about kept, added and removed files and create a new
+resource file.  Print a summary of the operations performed.
 
 =cut

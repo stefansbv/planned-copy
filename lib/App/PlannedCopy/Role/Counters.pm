@@ -47,6 +47,17 @@ has count_diff => (
     },
 );
 
+has count_found => (
+    traits  => ['Counter'],
+    is      => 'rw',
+    isa     => 'Int',
+    default => 0,
+    handles => {
+        inc_count_found   => 'inc',
+        reset_count_found => 'reset',
+    },
+);
+
 has count_skip => (
     traits  => ['Counter'],
     is      => 'rw',
@@ -128,6 +139,10 @@ records.
 =head3 count_diff
 
 A counter attribute for the diff-ed records.
+
+=head3 count_found
+
+A counter attribute for searcehed and found records and files.
 
 =head3 count_skip
 
