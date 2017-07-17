@@ -93,7 +93,7 @@ sub digest_local {
 
 sub copy_file {
     my ( $self, $verb, $res ) = @_;
-    die "res has to be a 'App::PlannedCopy::Resource::Element'"
+    die "\$res has to be a 'App::PlannedCopy::Resource::Element'"
         unless $res->isa('App::PlannedCopy::Resource::Element');
 	my ($src_path, $dst_path);
 	if ($verb eq 'install') {
@@ -118,6 +118,26 @@ sub copy_file {
     else {
         $self->copy_file_remote( $src_path, $dst_path );
     }
+    return;
+}
+
+sub make_path {
+    my ($self, $dir) = @_;
+    try   { $dir->mkpath }
+    catch {
+        my $err = $_;
+        my $logmsg = '';
+        if ( $err =~ m{Permission denied}i ) {
+            $logmsg = 'Permission denied';
+        }
+        else {
+            $logmsg = $err;
+        }
+        Exception::IO::SystemCmd->throw(
+            message => 'The mkpath command failed.',
+            logmsg  => $logmsg,
+        );
+    };
     return;
 }
 
@@ -565,6 +585,8 @@ and C<::Resource::Element::Destination>.
 
 The third argument is the remote host name, is optional and defaults
 to C<localhost>.
+
+=head3 make_path
 
 =head3 copy_file_local
 
