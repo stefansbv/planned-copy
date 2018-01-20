@@ -30,11 +30,12 @@ has '_issue_category_color_map' => (
         my $self = shift;
         return $self->config->get_section( section => 'color' )
             || {
-            info  => 'yellow2',
-            warn  => 'blue2',
-            error => 'red2',
-            done  => 'green2',
-            none  => 'clear',
+            info     => 'yellow2',
+            warn     => 'blue2',
+            error    => 'red2',
+            done     => 'green2',
+            none     => 'clear',
+            disabled => 'grey50',
         };
     },
     handles => { get_color => 'get', },
@@ -132,12 +133,19 @@ sub project_list_printer {
         my $path  = $item->{path};
         my $resu  = $item->{resource};
         my $scope = $item->{scope};
+        my $disab = $item->{disabled};
         my ( $color, $mesg );
-        if ( $resu == 1 ) {
-            $color = $scope eq 'system'
-                   ? $self->get_color('warn')
-                   : $self->get_color('done');
-            $mesg = "has $scope resource";
+        if ( $resu ) {
+            if ($disab) {
+                $color = $self->get_color('disabled') if $disab;
+                $mesg = "disabled";
+            }
+            else {
+                $color = $scope eq 'system'
+                    ? $self->get_color('warn')
+                    : $self->get_color('done');
+                $mesg = "has $scope resource";
+            }
         }
         else {
             $color = $self->get_color('info');

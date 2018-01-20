@@ -101,6 +101,16 @@ has 'resource_file_name' => (
     },
 );
 
+has 'resource_file_name_disabled' => (
+    is      => 'ro',
+    isa     => 'Str',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return $self->resource_file_name . '.off';
+    },
+);
+
 # From Sqitch ;)
 sub get_section {
     my ( $self, %p ) = @_;
@@ -171,6 +181,10 @@ It inherits from L<Config::GitLike>.
 =head3 resource_file_name
 
 Returns the name of the resource file.
+
+=head3 resource_file_name_disabled
+
+Returns the name of the disabled resource file.
 
 =head2 Instance Methods
 

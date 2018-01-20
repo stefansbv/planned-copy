@@ -87,15 +87,30 @@ sub _build_projects {
     while ( defined( my $item = $next->() ) ) {
         my $path = path($item);
         if ( $path->is_dir ) {
+            my $has_resu    = 0;
+            my $is_disabled = 0;
             my $res_file = path( $path, $self->config->resource_file_name );
-            my $has_resu = $res_file->is_file ? 1 : 0;
-            my $scope    = $has_resu ? $self->get_project_scope($res_file) : undef;
+            if ( $res_file->is_file ) {
+                $has_resu    = 1;
+                $is_disabled = 0;
+            }
+            my $res_file_disabled
+                = path( $path, $self->config->resource_file_name_disabled );
+            if ( $res_file_disabled->is_file ) {
+                $has_resu    = 1;
+                $is_disabled = 1;
+            }
+            my $scope
+                = ( $has_resu and !$is_disabled )
+                ? $self->get_project_scope($res_file)
+                : undef;
             $self->inc_count_proj if $has_resu;
             $self->inc_count_dirs;
             push @dirs, {
                 path     => $path->basename,
                 resource => $has_resu,
                 scope    => $scope,
+                disabled => $is_disabled,
             };
         }
     }
