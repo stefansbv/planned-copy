@@ -80,8 +80,9 @@ sub run {
         print "Checking " unless $self->verbose;
         foreach my $item ( $self->projects ) {
             my $path = $item->{path};
-            my $resu = $item->{resource};
-            next unless $resu == 1;
+            my $has_resu = $item->{resource};
+            my $disabled = $item->{disabled};
+            next if $disabled or ! $has_resu;
             $self->project($path); # set project
             $self->check_project( 'batch' );
             print "." unless $self->verbose;
