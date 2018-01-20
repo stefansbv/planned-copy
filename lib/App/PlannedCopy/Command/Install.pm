@@ -67,18 +67,17 @@ sub run {
     my $res  = $self->resource;
     my $iter = $res->resource_iter;
     my $name = $self->dst_name;
-
-    if (    $self->config->current_user ne 'root'
-        and $res->resource_scope eq 'system' )
-    {
+    my $user = $self->config->current_user;
+    my $scop = $res->resource_scope;
+    if ( ( $user ne 'root' ) && ( $scop eq 'system' ) ) {
         say "\nSkipping project: ", $self->project, ".";
-        die "Root privileges are required to install resources with 'system' scope.\n";
+        die
+            "Root privileges are required to install resources with 'system' scope.\n";
     }
-    if (    $self->config->current_user eq 'root'
-        and $res->resource_scope eq 'user' )
-    {
+    if ( ( $user eq 'root' ) && ( $scop eq 'user' ) ) {
         say "\nSkipping project: ", $self->project, ".";
-        die "\nRoot can't install resources with 'user' scope, unless '--force' is used (not implemented yet)\n";
+        die
+            "\nRoot can't install resources with 'user' scope, unless '--force' is used (not implemented yet)\n";
     }
 
     if ($name) {

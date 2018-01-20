@@ -79,12 +79,24 @@ sub run {
     else {
         print "Checking " unless $self->verbose;
         foreach my $item ( $self->projects ) {
-            my $path = $item->{path};
+            my $path     = $item->{path};
             my $has_resu = $item->{resource};
             my $disabled = $item->{disabled};
-            next if $disabled or ! $has_resu;
-            $self->project($path); # set project
-            $self->check_project( 'batch' );
+            my $scope    = $item->{scope};
+            my $user     = $self->config->current_user;
+            next if $disabled or !$has_resu;
+            if ( ( $user ne 'root' ) && ( $scope eq 'system' ) ) {
+                say '[', fg( 'yellow1', $path ), "] Skipping system project"
+                    if $self->verbose;
+                next;
+            }
+            if ( ( $user eq 'root' ) && ( $scope eq 'user' ) ) {
+                say '[', fg( 'yellow1', $path ), "] Skipping user project"
+                    if $self->verbose;
+                next;
+            }
+            $self->project($path);    # set project
+            $self->check_project('batch');
             print "." unless $self->verbose;
         }
         print " done\n" unless $self->verbose;
