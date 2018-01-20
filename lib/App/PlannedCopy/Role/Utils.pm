@@ -45,7 +45,7 @@ sub file_stat {
 sub file_perms {
     my ( $self, $res_sord ) = @_;
     my $stat = $self->file_stat($res_sord);
-    return $res_sord->is_local ? $stat->mode : $stat->perm;
+    return $stat->mode;
 }
 
 sub is_selfsame {
