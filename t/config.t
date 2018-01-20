@@ -28,6 +28,10 @@ subtest 'Test with no config files' => sub {
     qr/No remote.url is set/,
         'no remote.url set in config caught okay';
 
+    is $conf->current_user, $ENV{USER}, 'current user';
+    is $conf->resource_file_name, 'resource.yml', 'resource file name';
+    is $conf->resource_file_name_disabled, 'resource.yml.off',
+        'disabled resource file name';
 };
 
 subtest 'Test with empty config files' => sub {
@@ -44,6 +48,11 @@ subtest 'Test with empty config files' => sub {
 
     throws_ok { $conf->repo_path } 'Exception::Config::Error',
         'config error thrown';
+
+    is $conf->current_user, $ENV{USER}, 'current user';
+    is $conf->resource_file_name, 'resource.yml', 'resource file name';
+    is $conf->resource_file_name_disabled, 'resource.yml.off',
+        'disabled resource file name';
 };
 
 subtest 'Test with minimum system config and empty user config' => sub {
@@ -118,6 +127,10 @@ subtest 'Test with config files - renamed resource file' => sub {
     is $conf->resource_file('conf'),
         path( $repo_path, qw(conf resource-file.yml) ),
         'resource file path';
+    is $conf->current_user, $ENV{USER}, 'current user';
+    is $conf->resource_file_name, 'resource-file.yml', 'resource file name';
+    is $conf->resource_file_name_disabled, 'resource-file.yml.off',
+        'disabled resource file name';
 
     my $scheme_default = {
         info  => 'yellow2',

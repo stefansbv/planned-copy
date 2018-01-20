@@ -76,7 +76,8 @@ has 'current_user' => (
     isa      => 'Str',
     init_arg => undef,
     default  => sub {
-        return getpwuid($REAL_USER_ID);
+        my @user = getpwuid($REAL_USER_ID);
+        return $user[0];
     },
 );
 
