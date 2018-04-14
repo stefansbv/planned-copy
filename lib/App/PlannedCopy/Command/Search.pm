@@ -54,7 +54,8 @@ sub run {
     foreach my $item ( $self->projects ) {
         my $path = $item->{path};
         my $resu = $item->{resource};
-        unless ($resu == 1) {
+        my $disa = $item->{disabled};
+        if ($disa == 1 || $resu != 1) {
             push @{$non_projects}, $path;
             next;
         }
