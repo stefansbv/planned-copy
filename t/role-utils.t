@@ -28,7 +28,7 @@ my @methods    = (
         is_selfsame
         no_resource_message
         prevalidate_element
-		remote_host
+        remote_host
         quote_string
         set_owner
         set_perm
@@ -49,16 +49,16 @@ dircopy($dest_path_orig, $dest_path);
 
 subtest 'Utils Role - local' => sub {
 
-	my $cmd = TestCmd->new( project => $project );
-	my $args = {};
+    my $cmd = TestCmd->new( project => $project );
+    my $args = {};
     map has_attribute_ok( $cmd, $_ ), @attributes;
     map can_ok( $cmd, $_ ), @methods;
 
-	is $cmd->remote_host, undef, 'local host';
+    is $cmd->remote_host, undef, 'local host';
 
-	# Not installed, source does not exists
+    # Not installed, source does not exists
 
-	$args = {
+    $args = {
         destination => {
             name => 'nonexistent.file',
             path => 't/test-dst/install',
@@ -70,28 +70,28 @@ subtest 'Utils Role - local' => sub {
         },
     };
 
-	ok my $res1 = App::PlannedCopy::Resource::Element->new($args),
+    ok my $res1 = App::PlannedCopy::Resource::Element->new($args),
         'constructor';
     isa_ok $res1, 'App::PlannedCopy::Resource::Element', '$res1';
 
-	ok my $src1 = path($repo_path, q(nonexistent.file) ),
-		'source file path';
-	ok my $dst1 = path($dest_path, q(nonexistent.file)), 'destination dir';
+    ok my $src1 = path($repo_path, q(nonexistent.file) ),
+        'source file path';
+    ok my $dst1 = path($dest_path, q(nonexistent.file)), 'destination dir';
 
-	is !$src1->is_file, 1, 'src is not a file';
-	is !$dst1->is_file, 1, 'dst is not a file';
+    is !$src1->is_file, 1, 'src is not a file';
+    is !$dst1->is_file, 1, 'dst is not a file';
 
-	# Copy
+    # Copy
     throws_ok { $cmd->copy_file( 'install', $res1 ) }
     qr/No such file or directory/, 'no such file or directory caught okay';
 
-	# Perms
+    # Perms
     throws_ok { $cmd->get_perms($res1->dst) } qr/No such file or directory/,
         'no such file or directory caught okay';
 
-	# Not installed, but source exists
+    # Not installed, but source exists
 
-	$args = {
+    $args = {
         destination => {
             name => 'filename3',
             path => 't/test-dst/install',
@@ -107,7 +107,7 @@ subtest 'Utils Role - local' => sub {
         'constructor';
     isa_ok $res2, 'App::PlannedCopy::Resource::Element', '$res2';
 
-	ok my $src2 = path( $repo_path, q(filename3) ), 'source file path';
+    ok my $src2 = path( $repo_path, q(filename3) ), 'source file path';
     ok my $dst2 = path( $dest_path, q(filename3) ),
         'destination file path';
 
@@ -142,18 +142,18 @@ path($dest_path)->remove_tree( { safe => 0 } ); # force remove
 dircopy($dest_path_orig, $dest_path);
 
 subtest 'Utils Role - remote' => sub {
-	my $cmd = TestCmd->new(
-		project     => $project,
-		remote_host => 'master',
-	);
-	my $args = {};
+    my $cmd = TestCmd->new(
+        project     => $project,
+        remote_host => 'localhost',
+    );
+    my $args = {};
     map has_attribute_ok( $cmd, $_ ), @attributes;
     map can_ok( $cmd, $_ ), @methods;
 
-	ok $cmd->remote_host, 'remote host';
+    ok $cmd->remote_host, 'remote host';
 
-	# Not installed, source does not exists
-	$args = {
+    # Not installed, source does not exists
+    $args = {
         destination => {
             name => 'nonexistent.file',
             path => 't/test-dst/install',
@@ -165,28 +165,28 @@ subtest 'Utils Role - remote' => sub {
         },
     };
 
-	ok my $res1 = App::PlannedCopy::Resource::Element->new($args),
+    ok my $res1 = App::PlannedCopy::Resource::Element->new($args),
         'constructor';
     isa_ok $res1, 'App::PlannedCopy::Resource::Element', '$res1';
 
-	ok my $src1 = path($repo_path, q(nonexistent.file) ),
-		'source file path';
-	ok my $dst1 = path($dest_path, q(nonexistent.file)), 'destination dir';
+    ok my $src1 = path($repo_path, q(nonexistent.file) ),
+        'source file path';
+    ok my $dst1 = path($dest_path, q(nonexistent.file)), 'destination dir';
 
-	is !$src1->is_file, 1, 'src is not a file';
-	is !$dst1->is_file, 1, 'dst is not a file';
+    is !$src1->is_file, 1, 'src is not a file';
+    is !$dst1->is_file, 1, 'dst is not a file';
 
-	# Copy
+    # Copy
     throws_ok { $cmd->copy_file( 'install', $res1 ) }
     qr/No such file or directory/, 'no such file or directory caught okay';
 
-	# Perms
+    # Perms
     throws_ok { $cmd->get_perms($res1->dst) } qr/No such file or directory/,
         'no such file or directory caught okay';
 
-	# Not installed, but source exists
+    # Not installed, but source exists
 
-	$args = {
+    $args = {
         destination => {
             name => 'filename3',
             path => 't/test-dst/install',
@@ -202,7 +202,7 @@ subtest 'Utils Role - remote' => sub {
         'constructor';
     isa_ok $res2, 'App::PlannedCopy::Resource::Element', '$res2';
 
-	ok my $src2 = path( $repo_path, q(filename3) ), 'source file path';
+    ok my $src2 = path( $repo_path, q(filename3) ), 'source file path';
     ok my $dst2 = path( $dest_path, q(filename3) ),
         'destination file path';
 
