@@ -38,8 +38,7 @@ my @methods    = (
 
 local $ENV{PLCP_USR_CONFIG} = path( qw(t user.conf) );
 
-my $project   = 'check';
-my $repo_path = path( qw(t test-repo install) );
+my $repo_path = path(qw(t test-repo install));
 my $dest_path = path(qw(t test-dst install));
 my $dest_path_orig = path(qw(t test-dst install-orig));
 
@@ -49,12 +48,15 @@ dircopy($dest_path_orig, $dest_path);
 
 subtest 'Utils Role - local' => sub {
 
-    my $cmd = TestCmd->new( project => $project );
+    my $cmd = TestCmd->new( project => 'check' );
     my $args = {};
     map has_attribute_ok( $cmd, $_ ), @attributes;
     map can_ok( $cmd, $_ ), @methods;
 
-    is $cmd->remote_host, undef, 'local host';
+    is $cmd->check_project_name, 'check', 'check project name';
+
+    is $cmd->resource_file, 't/test-repo/check/resource.yml', 'resource file';
+    is $cmd->remote_host, 'localhost', 'local host';
 
     # Not installed, source does not exists
 
@@ -73,6 +75,14 @@ subtest 'Utils Role - local' => sub {
     ok my $res1 = App::PlannedCopy::Resource::Element->new($args),
         'constructor';
     isa_ok $res1, 'App::PlannedCopy::Resource::Element', '$res1';
+    is $cmd->check_res_user($res1), 1, 'check_res_user';
+    is $cmd->check_user, 1, 'check user';
+
+    # TODO: TESTs that need different project and configs
+    # compare
+    # copy_file
+    # is $cmd->exception_to_issue, '','';
+    # exceptions
 
     ok my $src1 = path($repo_path, q(nonexistent.file) ),
         'source file path';
@@ -123,6 +133,8 @@ subtest 'Utils Role - local' => sub {
     is $cmd->is_selfsame( $res2->src, $res2->dst ), 1, 'is the same';
     lives_ok { $cmd->is_selfsame( $res2->src, $res2->dst ) } 'is selfsame 2';
 
+    is ref $cmd->file_stat($res2->dst), 'File::stat';
+
     # Perms
     is $cmd->get_perms($res2->dst), '0644', 'the perms of the file';
     throws_ok { $cmd->set_perm( $dst1, oct(644) ) } qr/works only with files/,
@@ -143,14 +155,15 @@ dircopy($dest_path_orig, $dest_path);
 
 subtest 'Utils Role - remote' => sub {
     my $cmd = TestCmd->new(
-        project     => $project,
-        remote_host => 'localhost',
+        project => 'remote',
     );
     my $args = {};
     map has_attribute_ok( $cmd, $_ ), @attributes;
     map can_ok( $cmd, $_ ), @methods;
 
-    ok $cmd->remote_host, 'remote host';
+    is $cmd->host, undef, 'host option';
+    is $cmd->resource->resource_host, 'localhost', 'resource host';
+    is $cmd->remote_host, 'master', 'remote host';
 
     # Not installed, source does not exists
     $args = {
@@ -179,6 +192,13 @@ subtest 'Utils Role - remote' => sub {
     # Copy
     throws_ok { $cmd->copy_file( 'install', $res1 ) }
     qr/No such file or directory/, 'no such file or directory caught okay';
+
+    is $res1->src->is_local, 1, 'source is local';
+    is $res1->dst->is_local, undef, 'destination is not local';
+
+    # my @stat = $cmd->file_stat($res1->dst);
+    # use Data::Dump; dd @stat;
+    is ref $cmd->file_stat($res1->dst), 'File::stat';
 
     # Perms
     throws_ok { $cmd->get_perms($res1->dst) } qr/No such file or directory/,

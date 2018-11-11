@@ -94,6 +94,7 @@ has 'resource_host' => (
         my $self = shift;
         my $host = $self->get_resource_section('host');
         $host    = 'localhost' unless $host;
+        say "resource_host=$host";
         return $host;
     },
 );
@@ -106,14 +107,13 @@ has _resource => (
 );
 
 sub _build_resource {
-    my $self  = shift;
+    my $self      = shift;
     my $resources = $self->get_resource_section('resources');
-    $resources    = [] unless ref $resources;
-    my $records   = [];
+    $resources = [] unless ref $resources;
+    my $records = [];
     foreach my $res ( @{$resources} ) {
-        $res->{destination}{location}
-            = $self->resource_host eq 'localhost' ? 'local' : 'remote';
-		$res->{source}{location} = 'local';
+        $res->{destination}{location} = $self->resource_host;
+        $res->{source}{location}      = 'local';
         push @{$records}, App::PlannedCopy::Resource::Element->new($res);
         $self->inc_counter;
     }

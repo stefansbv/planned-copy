@@ -88,12 +88,12 @@ has '_location' => (
     is       => 'ro',
     isa      => 'Str',
     required => 0,
-	init_arg => 'location',
+    init_arg => 'location',
     default  => sub {'local'},
 );
 
 sub is_local {
-	my $self = shift;
+    my $self = shift;
     return 1 if $self->_location eq 'local';
     return;
 }

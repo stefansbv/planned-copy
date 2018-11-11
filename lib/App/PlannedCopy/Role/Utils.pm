@@ -6,7 +6,7 @@ use 5.0100;
 use utf8;
 use Carp;
 use Moose::Role;
-use Path::Tiny;
+use Path::Tiny;                              # File::stat
 use Path::Iterator::Rule;
 use Try::Tiny;
 use Capture::Tiny ':all';
@@ -35,23 +35,28 @@ has 'resource' => (
 );
 
 sub file_stat {
-    my ( $self, $res_sord ) = @_;
-    return $res_sord->_abs_path->stat if $res_sord->is_local;
-    my $path = $res_sord->_abs_path;
-    die "No such file or directory: $path" unless $self->sftp->stat($path);
+    my ( $self, $res ) = @_;
+    die "file_stat: resource source or destination parameter missing\n"
+        unless $res;
+    return $res->_abs_path->stat if $res->is_local;
+    my $path = $res->_abs_path;
+    die "No such file or directory: $path" unless
+    $self->sftp->stat($path);
     return $self->sftp->stat($path);
 }
 
 sub file_perms {
-    my ( $self, $res_sord ) = @_;
-    my $stat = $self->file_stat($res_sord);
+    my ( $self, $res ) = @_;
+    die "file_perms: resource source or destination parameter missing\n"
+        unless $res;
+    my $stat = $self->file_stat($res);
     return $stat->mode;
 }
 
 sub is_selfsame {
     my ( $self, $src_sord, $dst_sord ) = @_;
 
-	my $src_path = $src_sord->_abs_path;
+    my $src_path = $src_sord->_abs_path;
     my $dst_path = $dst_sord->_abs_path;
 
     if ( $dst_path =~ m{undef}i ) {
@@ -65,7 +70,7 @@ sub is_selfsame {
     }
 
     # Compare sizes
-	return 0 if $self->file_stat($src_sord)->size != $self->file_stat($dst_sord)->size;
+    return 0 if $self->file_stat($src_sord)->size != $self->file_stat($dst_sord)->size;
 
     # Check contents
     my $digest_src = $self->digest_local($src_path);
@@ -95,23 +100,23 @@ sub copy_file {
     my ( $self, $verb, $res ) = @_;
     die "\$res has to be a 'App::PlannedCopy::Resource::Element'"
         unless $res->isa('App::PlannedCopy::Resource::Element');
-	my ($src_path, $dst_path);
-	if ($verb eq 'install') {
-		$src_path = $res->src->_abs_path;
-		$dst_path = $res->dst->_abs_path;
-	}
-	elsif ($verb eq 'backup') {
-		$src_path = $res->dst->_abs_path;
-		$dst_path = $res->dst->_abs_path_bak;
-	}
-	elsif ($verb eq 'sync') {
-		$src_path = $res->dst->_abs_path;
-		$dst_path = $res->src->_abs_path;
-	}
-	else {
-		die "unknown verb: $verb";
-	}
-	my $host = $self->remote_host;
+    my ($src_path, $dst_path);
+    if ($verb eq 'install') {
+        $src_path = $res->src->_abs_path;
+        $dst_path = $res->dst->_abs_path;
+    }
+    elsif ($verb eq 'backup') {
+        $src_path = $res->dst->_abs_path;
+        $dst_path = $res->dst->_abs_path_bak;
+    }
+    elsif ($verb eq 'sync') {
+        $src_path = $res->dst->_abs_path;
+        $dst_path = $res->src->_abs_path;
+    }
+    else {
+        die "unknown verb: $verb";
+    }
+    my $host = $self->remote_host;
     if (!$host or $host eq 'localhost') {
         $self->copy_file_local( $src_path, $dst_path );
     }
@@ -163,16 +168,16 @@ sub copy_file_local {
 
 sub copy_file_remote {
     my ( $self, $src, $dst ) = @_;
-	my $sftp = try { $self->sftp }
-	catch {
+    my $sftp = try { $self->sftp }
+    catch {
         my $err = $_;
         Exception::IO::SystemCmd->throw(
             message => 'The sftp command failed.',
             logmsg  => $err,
         );
-	};
+    };
     try {
-		# $sftp->setcwd( $dst->parent )
+        # $sftp->setcwd( $dst->parent )
         #     or die "Unable to change cwd " . $sftp->error . "\n";
         $sftp->put( $src, $dst, late_set_perm => 1 )
             or die "put failed: " . $sftp->error . "\n";
@@ -182,8 +187,8 @@ sub copy_file_remote {
         Exception::IO::SystemCmd->throw(
             message => 'The sftp command failed.',
             logmsg  => $err,
-		);
-	};
+        );
+    };
     return;
 }
 
@@ -424,20 +429,20 @@ sub prevalidate_element {
 }
 
 sub get_perms {
-    my ( $self, $res_sord ) = @_;
-	my $mode = try { $self->file_perms($res_sord) }
+    my ( $self, $res ) = @_;
+    my $mode = try { $self->file_perms($res) }
     catch  {
         my $err = $_;
         if ( $err =~ m/Permission denied/i ) {
             Exception::IO::PermissionDenied->throw(
                 message  => 'Permision denied for path:',
-                pathname => $res_sord->_name,
+                pathname => $res->_name,
             );
         }
         elsif ( $err =~ m/No such file or directory/i ) {
             Exception::IO::FileNotFound->throw(
                 message  => 'No such file or directory',
-                pathname => $res_sord->_name,
+                pathname => $res->_name,
             );
         }
         else {
@@ -487,6 +492,7 @@ sub check_project_name {
     unless ( $self->is_project($project) ) {
         die "\n[EE] No project named '$project' found.\n     Check the spelling or use the 'list' command.\n\n";
     }
+    return $project;
 }
 
 sub project_path {
@@ -509,7 +515,7 @@ sub is_project {
 }
 
 sub make_dst_path {
-	my ($self, $res) = @_;
+    my ($self, $res) = @_;
     my $parent_dir = $res->dst->_parent_dir;
     if ( $res->dst->is_local ) {
         if ( !$parent_dir->is_dir ) {
@@ -554,7 +560,7 @@ by the command modules.
 
 The argument must be a resource source or destination object.
 
-	my $mode = $self->file_perms($res_sord);
+    my $mode = $self->file_perms($res);
 
 =head3 is_selfsame
 
@@ -601,9 +607,27 @@ C<Exception::IO::SystemCmd> if the operation fails.
 
 =head3 set_owner
 
+Change the owner of a file.
+
 =head3 handle_exception
 
+Catch known exceptions and make issues from them, or throw
+an C<Unhandled/Unknown exception:> exception message.
+
 =head3 exception_to_issue
+
+Adds an issue ( L<App::PlannedCopy::Issue> ) to the resource
+translated from an exception.
+
+The parameters are:
+
+=over
+
+=item An exception object
+
+=item A resource object
+
+=back
 
 =head3 no_resource_message
 

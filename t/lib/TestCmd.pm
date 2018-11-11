@@ -3,6 +3,7 @@ package TestCmd;
 use MooseX::App::Command;
 use namespace::autoclean;
 
+use lib 'lib';
 extends qw(App::PlannedCopy);
 
 with qw( App::PlannedCopy::Role::Printable
@@ -10,7 +11,7 @@ with qw( App::PlannedCopy::Role::Printable
          App::PlannedCopy::Role::Resource::Utils
          App::PlannedCopy::Role::Remote );
 
-has [qw{remote_host user pass}] => (
+has [qw{host user pass}] => (
     is  => 'ro',
     isa => 'Str',
 );

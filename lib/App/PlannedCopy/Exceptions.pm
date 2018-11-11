@@ -69,6 +69,11 @@ use Exception::Base (
         has               => [qw( pathname )],
         string_attributes => [qw( message pathname )],
     },
+    'Exception::IO::SFTP' => {
+        isa               => 'Exception::IO',
+        has               => [qw( logmsg )],
+        string_attributes => [qw( message logmsg )],
+    },
 );
 
 1;

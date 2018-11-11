@@ -6,7 +6,10 @@ use 5.0100;
 use utf8;
 use Moose::Role;
 use Path::Tiny;
+use Try::Tiny;
 use Net::SFTP::Foreign;
+
+use App::PlannedCopy::Exceptions;
 
 has 'remote_host' => (
     is      => 'ro',
@@ -29,19 +32,24 @@ has 'sftp' => (
         return if $host eq 'localhost';
         my $user = $self->user;
         my $pass = $self->pass;
-        my $sftp = Net::SFTP::Foreign->new(
-            $host,
-            backend  => 'Net_SSH2',
-            username => $user,
-            password => $pass,
-        );
+        my $sftp;
+        try {
+            $sftp = Net::SFTP::Foreign->new(
+                $host,
+                backend  => 'Net_SSH2',
+                username => $user,
+                password => $pass,
+            );
+            $sftp->setcwd('/') or die "Unable to change cwd: " . $sftp->error . "\n";
+        }
+        catch {
+            Exception::IO::SFTP->throw(
+                message => 'The SFTP command failed',
+                logmsg  => $sftp->error,
+            );
+        };
         say "[sftp] Connecting as ", $user ? "'$user'" : "'default'" if $self->verbose;
-        $sftp->error
-            and die "Unable to establish SFTP connection: " . $sftp->error . "\n";
-
-        $sftp->setcwd('/') or die "Unable to change cwd: " . $sftp->error . "\n";
         say "[sftp] CWD is ", $sftp->cwd if $self->verbose;
-
         return $sftp;
     },
 );
