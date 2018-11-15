@@ -34,25 +34,6 @@ has 'resource' => (
     },
 );
 
-sub file_stat {
-    my ( $self, $res ) = @_;
-    die "file_stat: resource source or destination parameter missing\n"
-        unless $res;
-    return $res->_abs_path->stat if $res->is_local;
-    my $path = $res->_abs_path;
-    die "No such file or directory: $path" unless
-    $self->sftp->stat($path);
-    return $self->sftp->stat($path);
-}
-
-sub file_perms {
-    my ( $self, $res ) = @_;
-    die "file_perms: resource source or destination parameter missing\n"
-        unless $res;
-    my $stat = $self->file_stat($res);
-    return $stat->mode;
-}
-
 sub is_selfsame {
     my ( $self, $src_sord, $dst_sord ) = @_;
 
@@ -116,7 +97,7 @@ sub copy_file {
     else {
         die "unknown verb: $verb";
     }
-    my $host = $self->remote_host;
+    my $host = $self->host;
     if (!$host or $host eq 'localhost') {
         $self->copy_file_local( $src_path, $dst_path );
     }
@@ -146,51 +127,27 @@ sub make_path {
     return;
 }
 
-sub copy_file_local {
-    my ( $self, $src, $dst ) = @_;
-    try { $src->copy($dst) }
-    catch {
-        my $err    = $_;
-        my $logmsg = '';
-        if ( $err =~ m{Permission denied}i ) {
-            $logmsg = 'Permission denied';
-        }
-        else {
-            $logmsg = $err;
-        }
-        Exception::IO::SystemCmd->throw(
-            message => 'The copy command failed.',
-            logmsg  => $logmsg,
-        );
-    };
-    return;
-}
-
-sub copy_file_remote {
-    my ( $self, $src, $dst ) = @_;
-    my $sftp = try { $self->sftp }
-    catch {
-        my $err = $_;
-        Exception::IO::SystemCmd->throw(
-            message => 'The sftp command failed.',
-            logmsg  => $err,
-        );
-    };
-    try {
-        # $sftp->setcwd( $dst->parent )
-        #     or die "Unable to change cwd " . $sftp->error . "\n";
-        $sftp->put( $src, $dst, late_set_perm => 1 )
-            or die "put failed: " . $sftp->error . "\n";
-    }
-    catch {
-        my $err = $_;
-        Exception::IO::SystemCmd->throw(
-            message => 'The sftp command failed.',
-            logmsg  => $err,
-        );
-    };
-    return;
-}
+# sub copy_file_remote {
+#     my ( $self, $src, $dst ) = @_;
+#     my $sftp = try { $self->sftp }
+#     catch {
+#         my $err = $_;
+#         Exception::IO::SFTP->throw(
+#             message => 'The SFTP command failed.',
+#             logmsg  => $err,
+#         );
+#     };
+#     try {
+#     }
+#     catch {
+#         my $err = $_;
+#         Exception::IO::SFTP->throw(
+#             message => 'The SFTP put command failed.',
+#             logmsg  => $err,
+#         );
+#     };
+#     return;
+# }
 
 sub set_perm {
     my ($self, $file, $perm) = @_;
@@ -426,30 +383,6 @@ sub prevalidate_element {
         $self->handle_exception($exc, $res);
     };
     return;
-}
-
-sub get_perms {
-    my ( $self, $res ) = @_;
-    my $mode = try { $self->file_perms($res) }
-    catch  {
-        my $err = $_;
-        if ( $err =~ m/Permission denied/i ) {
-            Exception::IO::PermissionDenied->throw(
-                message  => 'Permision denied for path:',
-                pathname => $res->_name,
-            );
-        }
-        elsif ( $err =~ m/No such file or directory/i ) {
-            Exception::IO::FileNotFound->throw(
-                message  => 'No such file or directory',
-                pathname => $res->_name,
-            );
-        }
-        else {
-            die "Unknown stat ERROR: $err";
-        }
-    };
-    return sprintf "%04o", $mode & 07777;
 }
 
 sub get_owner {

@@ -133,7 +133,7 @@ subtest 'Utils Role - local' => sub {
     is $cmd->is_selfsame( $res2->src, $res2->dst ), 1, 'is the same';
     lives_ok { $cmd->is_selfsame( $res2->src, $res2->dst ) } 'is selfsame 2';
 
-    is ref $cmd->file_stat($res2->dst), 'File::stat';
+    is ref $cmd->file_stat($res2->dst), 'File::stat', 'file stat';
 
     # Perms
     is $cmd->get_perms($res2->dst), '0644', 'the perms of the file';
@@ -162,8 +162,8 @@ subtest 'Utils Role - remote' => sub {
     map can_ok( $cmd, $_ ), @methods;
 
     is $cmd->host, undef, 'host option';
-    is $cmd->resource->resource_host, 'localhost', 'resource host';
-    is $cmd->remote_host, 'master', 'remote host';
+    is $cmd->resource->resource_host, 'remote', 'resource host';
+    is $cmd->remote_host, 'remote', 'remote host';
 
     # Not installed, source does not exists
     $args = {

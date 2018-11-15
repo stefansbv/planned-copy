@@ -15,10 +15,10 @@ extends qw(App::PlannedCopy);
 with qw(App::PlannedCopy::Role::Printable
         App::PlannedCopy::Role::Utils
         App::PlannedCopy::Role::Validate::Install
-        App::PlannedCopy::Role::Remote
        );
 
 use App::PlannedCopy::Resource;
+use App::PlannedCopy::Utils::SFTP;
 
 command_long_description q[Install the configuration files of the selected <project>.];
 
@@ -42,6 +42,7 @@ option 'host' => (
     isa           => 'Str',
     cmd_aliases   => [qw(H)],
     documentation => q[Remote host name.],
+    default => sub {'localhost'},
 );
 
 option 'user' => (
@@ -56,6 +57,21 @@ option 'pass' => (
     isa           => 'Str',
     cmd_aliases   => [qw(p)],
     documentation => q[Password.],
+);
+
+has 'sftp' => (
+    is       => 'ro',
+    isa      => 'App::PlannedCopy::SFTP',
+    lazy     => 1,
+    required => 0,
+    default => sub {
+        my $self = shift;
+        my $aps = App::PlannedCopy::SFTP->new(
+            host => $self->host,
+            user => $self->user,
+            pass => $self->pass,
+        );
+    },
 );
 
 sub run {
@@ -182,10 +198,10 @@ sub run {
 sub install_file {
     my ( $self, $res ) = @_;
     return if $self->dryrun;
-	$self->make_dst_path($res);
-    $self->copy_file( 'backup', $res, $self->remote_host )
+    $self->make_dst_path($res);
+    $self->copy_file( 'backup', $res )
         if $res->has_action('update');
-    $self->copy_file( 'install', $res, $self->remote_host );
+    $self->copy_file( 'install', $res );
     $res->remove_issue_by_action( $res, 'install' );
     $res->remove_issue_by_action( $res, 'update' );
     $res->issues_category('done');
