@@ -29,10 +29,10 @@ my @methods = (
         get_project_files
         check_res_user
         check_user
-        src_file_readable
-        src_file_writeable
-        dst_file_defined
-        dst_file_readable
+        is_src_file_readable
+        is_src_file_writable
+        is_dst_file_defined
+        is_dst_file_readable
         dst_path_exists
         is_mode_default
         get_perms

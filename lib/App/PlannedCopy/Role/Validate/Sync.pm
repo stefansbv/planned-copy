@@ -21,8 +21,8 @@ has 'command' => (
 
 sub validate_element {
     my ($self, $res) = @_;
-    $self->dst_file_defined($res);
-    $self->src_file_readable($res);
+    $self->is_dst_file_defined($res);
+    $self->is_src_file_readable($res);
     if ( $res->src->type_is('archive') ) {
         $res->add_issue(
             App::PlannedCopy::Issue->new(
@@ -33,8 +33,8 @@ sub validate_element {
         );
     }
     else {
-        $self->dst_file_readable($res);
-        $self->src_file_writeable($res);
+        $self->is_dst_file_readable($res);
+        $self->is_src_file_writable($res);
         if ( !$res->has_action('skip') ) {
             $self->is_src_and_dst_different($res);
         }

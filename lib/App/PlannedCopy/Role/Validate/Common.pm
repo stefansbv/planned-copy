@@ -12,7 +12,7 @@ use Moose::Role;
 
 use App::PlannedCopy::Exceptions;
 
-sub src_file_readable {
+sub is_src_file_readable {
     my ( $self, $res ) = @_;
     my $readable = try { $res->src->_abs_path->stat->cando(S_IRUSR, 1) }
     catch  {
@@ -42,7 +42,7 @@ sub src_file_readable {
     return;
 }
 
-sub src_file_writeable {
+sub is_src_file_writable {
     my ( $self, $res ) = @_;
     my $writeable = try { $res->src->_abs_path->stat->cando(S_IWUSR, 1) }
     catch  {
@@ -72,7 +72,7 @@ sub src_file_writeable {
     return;
 }
 
-sub dst_file_defined {
+sub is_dst_file_defined {
     my ( $self, $res ) = @_;
     if ( $res->dst->_path =~ m/^{\s?undef\s?}/ ) {
         Exception::IO::PathNotDefined->throw(
@@ -83,7 +83,7 @@ sub dst_file_defined {
     return;
 }
 
-sub dst_file_readable {
+sub is_dst_file_readable {
     my ( $self, $res ) = @_;
     my $readable = try { $res->dst->_abs_path->stat->cando( S_IRUSR, 1 ) }
     catch {
@@ -333,10 +333,10 @@ __END__
     sub validate_element {
         my ($self, $res) = @_;
 
-        $self->dst_file_defined($res);
+        $self->is_dst_file_defined($res);
         $self->dst_path_exists($res);
         $self->dst_isfile($res);
-        $self->dst_file_readable($res);
+        $self->is_dst_file_readable($res);
 
         return 1;
     }
@@ -350,7 +350,7 @@ roles must owerride C<validate_element> method.
 
 =head2 Instance Methods
 
-=head3 src_file_readable
+=head3 is_src_file_readable
 
 Checks the source L<_abs_path> of a resource element using
 C<File::stat> and thows an L<Exception::IO::PermissionDenied>
@@ -360,7 +360,7 @@ such file or directory> error or dies on other unhandled exceptions.
 
 Returns true if the file is readable.
 
-=head3 src_file_writeable
+=head3 is_src_file_writable
 
 Checks source L<_abs_path> of a resource element using C<File::stat>
 and thows an L<Exception::IO::PermissionDenied> exception on a
@@ -368,7 +368,7 @@ C<Permission denied> error or if the file is not writeable.
 
 It is used only by the C<sync> command.
 
-=head3 dst_file_defined
+=head3 is_dst_file_defined
 
 Checks the destination path of a resource element and returns true or
 throws an L<Exception::IO::PathNotDefined> exception if is not defined
@@ -381,7 +381,7 @@ in the resource file, for example:
           ...
 
 
-=head3 dst_file_readable
+=head3 is_dst_file_readable
 
 Checks the source parent dir of a resource element to see if it's
 readable, using the L<File::stat> function, and throws an

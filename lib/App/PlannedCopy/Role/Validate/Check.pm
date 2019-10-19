@@ -22,14 +22,15 @@ has 'command' => (
 
 sub validate_element {
     my ( $self, $res ) = @_;
-    $self->dst_file_defined($res);
-    $self->src_file_readable($res);
+    $self->is_dst_file_defined($res);
+    $self->is_src_file_readable($res);
     if ( $res->src->type_is('archive') ) {
         $self->archive_is_unpacked($res);
     }
     else {
-        $self->dst_file_readable($res);
+        $self->is_dst_file_readable($res);
         if ( $res->has_action('install') ) {
+            # do nothing
         }
         elsif ( $res->has_action('skip') ) {
             # do nothing
