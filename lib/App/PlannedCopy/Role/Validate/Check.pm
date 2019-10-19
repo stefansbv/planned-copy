@@ -30,8 +30,9 @@ sub validate_element {
     else {
         $self->dst_file_readable($res);
         if ( $res->has_action('install') ) {
-            $self->is_owner_default($res);
-            $self->is_mode_default($res);
+        }
+        elsif ( $res->has_action('skip') ) {
+            # do nothing
         }
         else {
             $self->is_src_and_dst_different($res);
