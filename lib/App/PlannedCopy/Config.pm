@@ -32,19 +32,30 @@ sub user_dir {
     return path $hd;
 }
 
-sub dir_file { undef }
+my $SYSTEM_DIR = undef;                      # works ok for Linux ;)
 
-override global_file => sub {
+sub system_dir {
+    path $SYSTEM_DIR || do {
+        require Config;
+        $Config::Config{prefix}, 'etc', 'plannedcopy';
+    };
+}
+
+# sub dir_file { undef }
+
+sub system_file {
     my $self = shift;
     return path $ENV{PLCP_SYS_CONFIG}
-        || $self->SUPER::global_file(@_);
-};
+        || $self->system_dir->path( $self->confname );
+}
 
-override user_file => sub {
+sub global_file { shift->system_file }
+
+sub user_file {
     my $self = shift;
     return path $ENV{PLCP_USR_CONFIG}
-        || $self->SUPER::user_file(@_);
-};
+        || path( $self->user_dir, $self->confname );
+}
 
 has 'repo_path' => (
     is      => 'ro',
@@ -52,10 +63,11 @@ has 'repo_path' => (
     lazy    => 1,
     default => sub {
         my $self = shift;
+        my $conf = $self->user_file;
         return $ENV{PLCP_REPO_PATH}
             || $self->get( key => 'local.path' )
             || Exception::Config::Error->throw(
-                message => 'No local.path is set in config!',
+                message => "No 'local.path' is set in config! ($conf)",
                 logmsg  => "Config error.\n",
             );
     },
@@ -181,7 +193,21 @@ It inherits from L<Config::GitLike>.
 
 =head2 Attributes
 
+=head3 system_dir
+
+Returns the path to the system configuration directory, which is
+C<$Config{prefix}/etc/palnnedcopy/>.
+
 =head3 user_dir
+
+Returns the path to the user configuration directory, which is user's
+home.
+
+=head3 C<system_file>
+
+Returns the path to the system configuration file. The value returned
+will be the contents of the C<$PLCP_SYS_CONFIG> environment variable,
+if it's defined, or else C<$Config{prefix}etc/plannedcopy/plannedcopyrc>.
 
 =head3 confname
 
@@ -241,5 +267,3 @@ Returns a stringified representation of an L<Path::Tiny> object
 representing a resource file path for a particular project.
 
 =cut
-
-TODO: POD

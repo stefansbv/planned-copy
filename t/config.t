@@ -14,6 +14,16 @@ BEGIN {
     delete $ENV{PLCP_USR_CONFIG};
 }
 
+subtest 'Test with default config files and paths' => sub {
+    ok my $conf = App::PlannedCopy::Config->new, 'constructor';
+
+    like $conf->system_dir, qr{etc/plannedcopy}, 'default system dir';
+    like $conf->system_file, qr{etc/plannedcopy/plannedcopyrc},
+      'default system file';
+    is $conf->global_file, $conf->system_file, 'global_file is system_file';
+    like $conf->user_file, qr{plannedcopyrc$}, 'default user file';
+};
+
 subtest 'Test with no config files' => sub {
 
     local $ENV{PLCP_SYS_CONFIG} = path(qw(t nonexistent.conf));
@@ -24,7 +34,7 @@ subtest 'Test with no config files' => sub {
     throws_ok { $conf->repo_path } 'Exception::Config::Error',
         'config error thrown';
     throws_ok { $conf->repo_path }
-    qr/No local.path is set/,
+    qr/No 'local.path' is set/,
         'no local.path set in config caught okay';
 
     throws_ok { $conf->repo_url } 'Exception::Config::Error',
