@@ -38,6 +38,35 @@ has 'resource' => (
     },
 );
 
+has 'repo_owner' => (
+    is       => 'ro',
+    isa      => 'Maybe[Str]',
+    init_arg => undef,
+    lazy     => 1,
+    default  => sub {
+        my $self = shift;
+        my $repo_path;
+        try {
+            $repo_path = $self->config->repo_path;
+        }
+        catch {
+            if ( my $e = Exception::Base->catch($_) ) {
+                if ( $e->isa('Exception::Config') ) {
+                    say "[EE] ", $e->message;
+                }
+                die "\n";
+            }
+        };
+        return unless $repo_path;
+        my ($user) = $repo_path =~ m{^/home/(\w+)/}xmg;
+        unless ($user) {
+            # Ugly workaround for tests :(
+            $user = 'plcp-test-user' if $repo_path =~ m{^t/}xmg;
+        }
+        return $user;
+    },
+);
+
 sub file_stat {
     my ( $self, $res_sord ) = @_;
     return $res_sord->_abs_path->stat if $res_sord->is_local;

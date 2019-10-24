@@ -36,23 +36,7 @@ has config => (
     isa     => 'App::PlannedCopy::Config',
     lazy    => 1,
     default => sub {
-        App::PlannedCopy::Config->new;
-    }
-);
-
-has 'repo_owner' => (
-    is       => 'ro',
-    isa      => 'Maybe[Str]',
-    init_arg => undef,
-    default  => sub {
-        my $self = shift;
-        my $repo_path = $self->config->repo_path;
-        my ($user) = $repo_path =~ m{^/home/(\w+)/}xmg;
-        unless ($user) {
-            # Ugly workaround for tests :(
-            $user = 'plcp-test-user' if $repo_path =~ m{^t/}xmg;
-        }
-        return $user;
+        return App::PlannedCopy::Config->new;
     },
 );
 
