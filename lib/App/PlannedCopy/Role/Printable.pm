@@ -6,8 +6,9 @@ use 5.0100;
 use utf8;
 use Moose::Role;
 use Term::ReadKey;
-use Term::ExtendedColor qw(fg);
+use Term::ExtendedColor qw/fg/;
 use IO::Handle;
+use Hash::Merge::Simple qw/merge/;
 
 STDOUT->autoflush(1);
 
@@ -27,9 +28,8 @@ has '_issue_category_color_map' => (
     is      => 'ro',
     isa     => 'HashRef[Str]',
     default => sub {
-        my $self = shift;
-        return $self->config->get_section( section => 'color' )
-            || {
+        my $self  = shift;
+        my $default = {
             info     => 'yellow2',
             warn     => 'blue2',
             error    => 'red2',
@@ -37,6 +37,10 @@ has '_issue_category_color_map' => (
             none     => 'clear',
             disabled => 'grey50',
         };
+        my $color = $self->config->get_section( section => 'color' );
+        # return $color if scalar keys %{$color} > 0;
+        my $merged = merge $color, $default;
+        return $merged;
     },
     handles => { get_color => 'get', },
 );

@@ -13,6 +13,10 @@ use Capture::Tiny ':all';
 
 use App::PlannedCopy::Exceptions;
 
+sub is_msw {
+    return $^O eq 'MSWin32';
+}
+
 has 'resource_file' => (
     is      => 'ro',
     isa     => 'Str',
@@ -51,7 +55,7 @@ sub file_perms {
 sub is_selfsame {
     my ( $self, $src_sord, $dst_sord ) = @_;
 
-	my $src_path = $src_sord->_abs_path;
+    my $src_path = $src_sord->_abs_path;
     my $dst_path = $dst_sord->_abs_path;
 
     if ( $dst_path =~ m{undef}i ) {
@@ -65,7 +69,7 @@ sub is_selfsame {
     }
 
     # Compare sizes
-	return 0 if $self->file_stat($src_sord)->size != $self->file_stat($dst_sord)->size;
+    return 0 if $self->file_stat($src_sord)->size != $self->file_stat($dst_sord)->size;
 
     # Check contents
     my $digest_src = $self->digest_local($src_path);
@@ -95,23 +99,23 @@ sub copy_file {
     my ( $self, $verb, $res ) = @_;
     die "\$res has to be a 'App::PlannedCopy::Resource::Element'"
         unless $res->isa('App::PlannedCopy::Resource::Element');
-	my ($src_path, $dst_path);
-	if ($verb eq 'install') {
-		$src_path = $res->src->_abs_path;
-		$dst_path = $res->dst->_abs_path;
-	}
-	elsif ($verb eq 'backup') {
-		$src_path = $res->dst->_abs_path;
-		$dst_path = $res->dst->_abs_path_bak;
-	}
-	elsif ($verb eq 'sync') {
-		$src_path = $res->dst->_abs_path;
-		$dst_path = $res->src->_abs_path;
-	}
-	else {
-		die "unknown verb: $verb";
-	}
-	my $host = $self->remote_host;
+    my ($src_path, $dst_path);
+    if ($verb eq 'install') {
+        $src_path = $res->src->_abs_path;
+        $dst_path = $res->dst->_abs_path;
+    }
+    elsif ($verb eq 'backup') {
+        $src_path = $res->dst->_abs_path;
+        $dst_path = $res->dst->_abs_path_bak;
+    }
+    elsif ($verb eq 'sync') {
+        $src_path = $res->dst->_abs_path;
+        $dst_path = $res->src->_abs_path;
+    }
+    else {
+        die "unknown verb: $verb";
+    }
+    my $host = $self->remote_host;
     if (!$host or $host eq 'localhost') {
         $self->copy_file_local( $src_path, $dst_path );
     }
@@ -163,16 +167,16 @@ sub copy_file_local {
 
 sub copy_file_remote {
     my ( $self, $src, $dst ) = @_;
-	my $sftp = try { $self->sftp }
-	catch {
+    my $sftp = try { $self->sftp }
+    catch {
         my $err = $_;
         Exception::IO::SystemCmd->throw(
             message => 'The sftp command failed.',
             logmsg  => $err,
         );
-	};
+    };
     try {
-		# $sftp->setcwd( $dst->parent )
+        # $sftp->setcwd( $dst->parent )
         #     or die "Unable to change cwd " . $sftp->error . "\n";
         $sftp->put( $src, $dst, late_set_perm => 1 )
             or die "put failed: " . $sftp->error . "\n";
@@ -182,8 +186,8 @@ sub copy_file_remote {
         Exception::IO::SystemCmd->throw(
             message => 'The sftp command failed.',
             logmsg  => $err,
-		);
-	};
+        );
+    };
     return;
 }
 
@@ -212,15 +216,20 @@ sub set_owner {
     my ( $self, $file, $user ) = @_;
     die "The 'change_owner' method works only with files."
         unless $file->is_file;
-    my ( $login, $pass, $uid, $gid ) = getpwnam($user)
-        or die "$user not in passwd file";
-    try   { chown $uid, $gid, $file->stringify }
-    catch {
-        Exception::IO::SystemCmd->throw(
-            message => 'The chown command failed.',
-            logmsg  => $_,
-        );
-    };
+    if ( $self->is_msw ) {
+        # do nothing
+    }
+    else {
+        my ( undef, undef, $uid, $gid ) = getpwnam($user)
+            or die "$user not in passwd file";
+        try { chown $uid, $gid, $file->stringify }
+        catch {
+            Exception::IO::SystemCmd->throw(
+                message => 'The chown command failed.',
+                logmsg  => $_,
+            );
+        };
+    }
     return;
 }
 
@@ -393,6 +402,10 @@ sub check_res_user {
 
 sub check_user {
     my $self = shift;
+    if ( $self->is_msw ) {
+        # do nothing
+        return 1;
+    }
     return 1 if $self->repo_owner eq 'plcp-test-user'; # Ugly workaround for tests :(
     if ( $self->config->current_user ne $self->repo_owner ) {
         Exception::IO::WrongUser->throw(
@@ -425,7 +438,7 @@ sub prevalidate_element {
 
 sub get_perms {
     my ( $self, $res_sord ) = @_;
-	my $mode = try { $self->file_perms($res_sord) }
+    my $mode = try { $self->file_perms($res_sord) }
     catch  {
         my $err = $_;
         if ( $err =~ m/Permission denied/i ) {
@@ -468,9 +481,15 @@ sub get_owner {
             die "Unknown stat ERROR: $err";
         }
     };
-    # my $user = ( getpwuid $uid )[0];
-    return ( getpwuid $uid )[0];
-    # return $user;
+    if ( $self->is_msw ) {
+        require Win32;
+        my $user = Win32::LoginName();
+        print " user is $user\n";
+        return $user;
+    }
+    else {
+        return ( getpwuid $uid )[0];
+    }
 }
 
 sub check_dir_name {
@@ -509,7 +528,7 @@ sub is_project {
 }
 
 sub make_dst_path {
-	my ($self, $res) = @_;
+    my ($self, $res) = @_;
     my $parent_dir = $res->dst->_parent_dir;
     if ( $res->dst->is_local ) {
         if ( !$parent_dir->is_dir ) {
@@ -548,13 +567,15 @@ by the command modules.
 
 =head2 Instance Methods
 
+=head3 is_msw
+
 =head3 file_stat
 
 =head3 file_perms
 
 The argument must be a resource source or destination object.
 
-	my $mode = $self->file_perms($res_sord);
+    my $mode = $self->file_perms($res_sord);
 
 =head3 is_selfsame
 

@@ -5,9 +5,14 @@ use Test::More;
 use Test::Exception;
 
 use Path::Tiny;
-use File::HomeDir;
 
 use App::PlannedCopy::Config;
+
+BEGIN {
+    delete $ENV{PLCP_REPO_PATH};
+    delete $ENV{PLCP_SYS_CONFIG};
+    delete $ENV{PLCP_USR_CONFIG};
+}
 
 subtest 'Test with no config files' => sub {
 
@@ -28,15 +33,15 @@ subtest 'Test with no config files' => sub {
     qr/No remote.url is set/,
         'no remote.url set in config caught okay';
 
-    is $conf->current_user, $ENV{USER}, 'current user';
+    like $conf->current_user, qr/\w+/, 'current user';
     is $conf->resource_file_name, 'resource.yml', 'resource file name';
     is $conf->resource_file_name_disabled, 'resource.yml.off',
         'disabled resource file name';
+
+    like $conf->user_dir, qr/\//, 'user dir';
 };
 
 subtest 'Test with empty config files' => sub {
-
-    my $repo_path = path(qw(t configs));
 
     local $ENV{PLCP_SYS_CONFIG} = path(qw(t system0.conf));
     local $ENV{PLCP_USR_CONFIG} = path(qw(t user0.conf));
@@ -49,7 +54,7 @@ subtest 'Test with empty config files' => sub {
     throws_ok { $conf->repo_path } 'Exception::Config::Error',
         'config error thrown';
 
-    is $conf->current_user, $ENV{USER}, 'current user';
+    like $conf->current_user, qr/\w+/, 'current user';
     is $conf->resource_file_name, 'resource.yml', 'resource file name';
     is $conf->resource_file_name_disabled, 'resource.yml.off',
         'disabled resource file name';
@@ -57,10 +62,11 @@ subtest 'Test with empty config files' => sub {
 
 subtest 'Test with minimum system config and empty user config' => sub {
 
-    my $repo_path = path(qw(t configs));
-
+    local $ENV{PLCP_REPO_PATH}  = path(qw(t configs));
     local $ENV{PLCP_SYS_CONFIG} = path(qw(t system1.conf));
     local $ENV{PLCP_USR_CONFIG} = path(qw(t user0.conf));
+
+    my $repo_path = $ENV{PLCP_REPO_PATH};
 
     ok $conf = App::PlannedCopy::Config->new, 'constructor';
 
@@ -79,10 +85,11 @@ subtest 'Test with minimum system config and empty user config' => sub {
 
 subtest 'Test with config files' => sub {
 
-    my $repo_path = path(qw(t test-repo));
-
+    local $ENV{PLCP_REPO_PATH}  = path(qw(t test-repo));
     local $ENV{PLCP_SYS_CONFIG} = path(qw(t system.conf));
     local $ENV{PLCP_USR_CONFIG} = path(qw(t user.conf));
+
+    my $repo_path = $ENV{PLCP_REPO_PATH};
 
     ok $conf = App::PlannedCopy::Config->new, 'constructor';
 
@@ -110,10 +117,11 @@ subtest 'Test with config files' => sub {
 
 subtest 'Test with config files - renamed resource file' => sub {
 
-    my $repo_path = path(qw(t test-repo));
-
+    local $ENV{PLCP_REPO_PATH}  = path(qw(t test-repo));
     local $ENV{PLCP_SYS_CONFIG} = path(qw(t system.conf));
     local $ENV{PLCP_USR_CONFIG} = path(qw(t user2.conf));
+
+    my $repo_path = $ENV{PLCP_REPO_PATH};
 
     ok $conf = App::PlannedCopy::Config->new, 'constructor';
 
@@ -127,7 +135,7 @@ subtest 'Test with config files - renamed resource file' => sub {
     is $conf->resource_file('conf'),
         path( $repo_path, qw(conf resource-file.yml) ),
         'resource file path';
-    is $conf->current_user, $ENV{USER}, 'current user';
+    like $conf->current_user, qr/\w+/, 'current user';
     is $conf->resource_file_name, 'resource-file.yml', 'resource file name';
     is $conf->resource_file_name_disabled, 'resource-file.yml.off',
         'disabled resource file name';

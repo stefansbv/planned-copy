@@ -2,11 +2,18 @@
 # Test the Resource::Element object container
 #
 use Test::More;
+use Path::Tiny;
 
 use App::PlannedCopy::Resource::Element;
 use App::PlannedCopy::Issue;
 
+BEGIN {
+    delete $ENV{PLCP_REPO_PATH};
+}
+
 subtest 'Minimum configuration - common file' => sub {
+    local $ENV{PLCP_REPO_PATH} = path(qw(t test-repo));
+
     my $args = {
         destination => {
             name => 'lircd.conf',
@@ -54,6 +61,8 @@ subtest 'Minimum configuration - common file' => sub {
 };
 
 subtest 'Maximum configuration - archive file' => sub {
+    local $ENV{PLCP_REPO_PATH} = path(qw(t test-repo));
+
     my $args = {
         destination => {
             name => 'icons.tar.gz',

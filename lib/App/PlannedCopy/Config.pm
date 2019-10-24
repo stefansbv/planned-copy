@@ -6,11 +6,12 @@ use 5.010001;
 use utf8;
 use English;
 use Moose;
-use File::HomeDir;
 use Path::Tiny;
 use Config::GitLike 1.11;
 use URI;
 use namespace::autoclean;
+
+use constant ISMSW => $^O eq 'MSWin32';
 
 extends 'Config::GitLike';
 
@@ -18,6 +19,18 @@ use App::PlannedCopy::Exceptions;
 
 has '+confname' => ( default => 'plannedcopyrc' );
 has '+encoding' => ( default => 'UTF-8' );
+
+sub user_dir {
+    my $hd
+        = ISMSW && "$]" < '5.016'
+        ? $ENV{HOME} || $ENV{USERPROFILE}
+        : ( glob('~') )[0];
+    Exception::Config::Error->throw(
+        message => 'Could not determine home directory',
+        logmsg  => "System error.\n",
+    ) if not $hd;
+    return path $hd;
+}
 
 sub dir_file { undef }
 
@@ -35,11 +48,12 @@ override user_file => sub {
 
 has 'repo_path' => (
     is      => 'ro',
-    isa     => 'Str',
+    isa     => 'Maybe[Str]',
     lazy    => 1,
     default => sub {
         my $self = shift;
-        return $self->get( key => 'local.path' )
+        return $ENV{PLCP_REPO_PATH}
+            || $self->get( key => 'local.path' )
             || Exception::Config::Error->throw(
                 message => 'No local.path is set in config!',
                 logmsg  => "Config error.\n",
@@ -76,8 +90,14 @@ has 'current_user' => (
     isa      => 'Str',
     init_arg => undef,
     default  => sub {
-        my @user = getpwuid($REAL_USER_ID);
-        return $user[0];
+        if ( ISMSW ) {
+            require Win32;
+            return Win32::LoginName();
+        }
+        else {
+            return ( getpwuid($REAL_USER_ID) )[0];
+        }
+        return;
     },
 );
 
@@ -161,6 +181,8 @@ It inherits from L<Config::GitLike>.
 
 =head2 Attributes
 
+=head3 user_dir
+
 =head3 confname
 
 =head3 encoding
@@ -188,6 +210,8 @@ Returns the name of the resource file.
 Returns the name of the disabled resource file.
 
 =head2 Instance Methods
+
+=head3 ISMSW
 
 =head3 dir_file
 

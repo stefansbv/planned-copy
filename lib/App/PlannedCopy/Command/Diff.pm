@@ -160,7 +160,13 @@ sub diff_files {
     }
 
     if ( $self->prompting ) {
-        my $cmd    = $self->diff_cmd;
+        my $cmd = try { $self->diff_cmd }
+        catch {
+            say "$_";
+
+        };
+        return unless $cmd;
+
         my $answer = prompt( "       Run $cmd? (Y/n/q)", "y" );
         if ( $answer =~ m{[yY]} ) {
             $self->compare( $src_path, $dst_path, $binary );

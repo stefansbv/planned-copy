@@ -70,7 +70,7 @@ has '_user' => (
     required => 0,
     init_arg => 'user',
     default  => sub {
-        return getpwuid($<);
+        return 0;
     },
     trigger => sub {
         my ( $self, $new, $old ) = @_;
@@ -88,12 +88,12 @@ has '_location' => (
     is       => 'ro',
     isa      => 'Str',
     required => 0,
-	init_arg => 'location',
+    init_arg => 'location',
     default  => sub {'local'},
 );
 
 sub is_local {
-	my $self = shift;
+    my $self = shift;
     return 1 if $self->_location eq 'local';
     return;
 }
@@ -131,6 +131,8 @@ The parent dir of the C<_abs_path> as returned by the C<parent>
 instance method of the L<Path::Tiny> object.
 
 =head2 _user_isnot_default
+
+Attribute flag for user is default.
 
 =head2 _user
 

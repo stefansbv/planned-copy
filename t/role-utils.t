@@ -8,6 +8,11 @@ use File::Copy::Recursive qw(dircopy);
 use lib 't/lib';
 use TestCmd;
 
+if ( $^O eq 'MSWin32' ) {
+    $ENV{COLUMNS} = 80;
+    $ENV{LINES}   = 25;
+}
+
 my @attributes = ( qw() );
 my @methods    = (
     qw(
@@ -124,7 +129,8 @@ subtest 'Utils Role - local' => sub {
     lives_ok { $cmd->is_selfsame( $res2->src, $res2->dst ) } 'is selfsame 2';
 
     # Perms
-    is $cmd->get_perms($res2->dst), '0644', 'the perms of the file';
+    my $exp_perm = ( $^O eq 'MSWin32' ) ? '0666' : '0644';
+    is $cmd->get_perms($res2->dst), $exp_perm, 'the perms of the file';
     throws_ok { $cmd->set_perm( $dst1, oct(644) ) } qr/works only with files/,
         'works only with files caught';
     lives_ok { $cmd->set_perm( $dst2, oct(644) ) } 'file set perm';
@@ -219,7 +225,8 @@ subtest 'Utils Role - remote' => sub {
     lives_ok { $cmd->is_selfsame( $res2->src, $res2->dst ) } 'is selfsame 2';
 
     # Perms
-    is $cmd->get_perms($res2->dst), '0644', 'the perms of the file';
+    my $exp_perm = ( $^O eq 'MSWin32' ) ? '0666' : '0644';
+    is $cmd->get_perms($res2->dst), $exp_perm, 'the perms of the file';
     throws_ok { $cmd->set_perm( $dst1, oct(644) ) } qr/works only with files/,
         'works only with files caught';
     lives_ok { $cmd->set_perm( $dst2, oct(644) ) } 'file set perm';

@@ -28,7 +28,7 @@ has '_abs_path' => (
         my $self = shift;
         unless ( $self->config->repo_path ) {
             Exception::Config::Error->throw(
-                message => "No 'repo_path' is set!",
+                message => "No 'local.path' is set!",
                 logmsg  => "Config error.\n",
             );
         }

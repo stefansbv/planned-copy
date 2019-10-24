@@ -15,6 +15,11 @@ my $repo2_path = path(qw(t test-repo install));
 my $dest_path  = path(qw(t test-dst install));
 my $dest_path_orig = path(qw(t test-dst install-orig));
 
+if ( $^O eq 'MSWin32' ) {
+    $ENV{COLUMNS} = 80;
+    $ENV{LINES}   = 25;
+}
+
 local $ENV{PLCP_USR_CONFIG} = path( qw(t user.conf) );
 
 # Cleanup
@@ -138,13 +143,15 @@ subtest 'With a resource file - filename4' => sub {
         qr/Job: 1 file to check and install/,
         'run should work';
 
-    is capture_stdout { $inst->print_summary }, '
+    my $s = $inst->is_msw ? 1 : 1;
+    my $i = $inst->is_msw ? 0 : 0;
+    is capture_stdout { $inst->print_summary }, "
 Summary:
  - processed: 1 records
- - skipped  : 0
- - installed: 0
+ - skipped  : $s
+ - installed: $i
 
-', 'print_summary should work';
+", 'print_summary should work';
 };
 
 # Not installed - skip
@@ -377,13 +384,15 @@ subtest 'With a resource file - all' => sub {
         qr/Job: 12 files to check and install/,
         'run should work';
 
-    is capture_stdout { $inst->print_summary }, '
+    my $s = $inst->is_msw ? 5 : 5;
+    my $i = $inst->is_msw ? 7 : 7;
+    is capture_stdout { $inst->print_summary }, "
 Summary:
  - processed: 12 records
- - skipped  : 4
- - installed: 7
+ - skipped  : $s
+ - installed: $i
 
-', 'print_summary should work';
+", 'print_summary should work';
 };
 
 
@@ -407,13 +416,16 @@ subtest 'With a resource file - all verbose' => sub {
     like uncolor ( capture_stdout { $inst->run } ),
         qr/Job: 12 files to check and install/,
         'run should work';
-    is capture_stdout { $inst->print_summary }, '
+
+    my $s = $inst->is_msw ? 5 : 5;
+    my $i = $inst->is_msw ? 7 : 7;
+    is capture_stdout { $inst->print_summary }, "
 Summary:
  - processed: 12 records
- - skipped  : 4
- - installed: 7
+ - skipped  : $s
+ - installed: $i
 
-', 'print_summary should work';
+", 'print_summary should work';
 };
 
 done_testing;

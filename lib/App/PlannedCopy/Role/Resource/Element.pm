@@ -7,7 +7,6 @@ use utf8;
 use Moose::Role;
 use MooseX::Types::Path::Tiny qw(Path);
 use Path::Tiny;
-use File::HomeDir;
 use namespace::autoclean;
 use Carp;
 
@@ -59,7 +58,7 @@ has '_full_path_bak' => (
 sub short_path {
     my $self = shift;
     my $path = $self->_full_path;
-    my $home = File::HomeDir->my_home;
+    my $home = $self->_user_dir;
     $path = $path->relative($home) if $path->stringify =~ m{^$home};
     return $path;
 }
@@ -76,12 +75,25 @@ around BUILDARGS => sub {
             # to $HOME/ like the bash shell does.
             my $path = $args->{$arg};
             if ( $path =~ s{^~/}{} ) {
-                $args->{$arg} = path( File::HomeDir->my_home, $path );
+                $args->{$arg} = path( $self->config->home_dir, $path );
             }
         }
     }
     return $args;
 };
+
+# TODO: should use the user_dir from config
+sub _user_dir {
+    my $hd
+        = $^O eq 'MSWin32' && "$]" < '5.016'
+        ? $ENV{HOME} || $ENV{USERPROFILE}
+        : ( glob('~') )[0];
+    Exception::Config::Error->throw(
+        message => 'Could not determine home directory',
+        logmsg  => "System error.\n",
+    ) if not $hd;
+    return path $hd;
+}
 
 no Moose::Role;
 

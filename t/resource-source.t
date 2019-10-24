@@ -3,7 +3,6 @@
 #
 use Test::Most;
 use Path::Tiny;
-use File::HomeDir;
 
 use App::PlannedCopy::Resource::Element::Source;
 

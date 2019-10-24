@@ -7,6 +7,11 @@ use Path::Tiny;
 use lib 't/lib';
 use TestCmd;
 
+if ( $^O eq 'MSWin32' ) {
+    $ENV{COLUMNS} = 80;
+    $ENV{LINES}   = 25;
+}
+
 local $ENV{PLCP_USR_CONFIG} = path( qw(t user.conf) );
 
 my @attributes = ( qw(

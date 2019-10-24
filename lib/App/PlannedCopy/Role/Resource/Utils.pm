@@ -7,7 +7,6 @@ use utf8;
 use Moose::Role;
 use Try::Tiny;
 use Path::Tiny;
-use File::HomeDir;
 use Path::Iterator::Rule;
 use List::Compare;
 use Moose::Util::TypeConstraints;
@@ -202,7 +201,8 @@ has '_added' => (
 sub compact_path {
     my ($self, $subd) = @_;
     my $dest = path($self->destination_path, $subd)->stringify;
-    my $home = File::HomeDir->my_home;
+    my $home = $self->config->user_dir;
+    $dest =~ s{\\}{/};                       # replace '\' with '/'
     $dest =~ s{^$home}{~};                   # replace $HOME with '~/'
     return $dest;
 }

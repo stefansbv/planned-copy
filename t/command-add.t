@@ -14,6 +14,11 @@ my $add_repo_dir = path( $local_path, 'add' );
 my $dest_path    = path( qw(t test-dst add) );
 my $path_orig    = path( qw(t test-repo add-orig) );
 
+if ( $^O eq 'MSWin32' ) {
+    $ENV{COLUMNS} = 80;
+    $ENV{LINES}   = 25;
+}
+
 local $ENV{PLCP_USR_CONFIG} = path( qw(t user.conf) );
 
 # Cleanup and init

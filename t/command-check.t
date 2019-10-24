@@ -13,6 +13,11 @@ my $repo1_path = path( qw(t test-repo check-no-resu) );
 my $repo2_path = path( qw(t test-repo check) );
 my $dest_path  = path( qw(t test-dst check) );
 
+if ( $^O eq 'MSWin32' ) {
+    $ENV{COLUMNS} = 80;
+    $ENV{LINES}   = 25;
+}
+
 local $ENV{PLCP_USR_CONFIG} = path( qw(t user.conf) );
 
 ok my $conf = App::PlannedCopy::Config->new, 'config constructor';
@@ -139,14 +144,16 @@ subtest 'With a resource file - filename4' => sub {
         qr/Job: 1 file to check/,
         'run should work';
 
-    is capture_stdout { $check->print_summary }, '
+    my $s = $check->is_msw ? 1 : 0;
+    my $d = $check->is_msw ? 0 : 1;
+    is capture_stdout { $check->print_summary }, "
 Summary:
  - processed: 1 records
  - skipped  : 0
- - same     : 0
- - different: 1
+ - same     : $s
+ - different: $d
 
-', 'print_summary should work';
+", 'print_summary should work';
 };
 
 # Not installed
@@ -381,14 +388,16 @@ subtest 'With a resource file - all' => sub {
         qr/Job: 12 files to check/,
         'run should work';
 
-    is capture_stdout { $check->print_summary }, '
+    my $s = $check->is_msw ? 3 : 2;
+    my $d = $check->is_msw ? 7 : 8;
+    is capture_stdout { $check->print_summary }, "
 Summary:
  - processed: 12 records
  - skipped  : 2
- - same     : 2
- - different: 8
+ - same     : $s
+ - different: $d
 
-', 'print_summary should work';
+", 'print_summary should work';
 };
 
 # Again, all together now, verbose...
@@ -407,14 +416,16 @@ subtest 'With a resource file - all verbose' => sub {
         qr/Job: 12 files to check/,
         'run should work';
 
-    is capture_stdout { $check->print_summary }, '
+    my $s = $check->is_msw ? 3 : 2;
+    my $d = $check->is_msw ? 7 : 8;
+    is capture_stdout { $check->print_summary }, "
 Summary:
  - processed: 12 records
  - skipped  : 2
- - same     : 2
- - different: 8
+ - same     : $s
+ - different: $d
 
-', 'print_summary should work';
+", 'print_summary should work';
 };
 
 done_testing;

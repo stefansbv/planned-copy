@@ -266,6 +266,9 @@ sub is_owner_default {
 
 sub is_owner_different {
     my ( $self, $res ) = @_;
+
+    return if $self->is_msw;
+
     if ( $res->dst->_user_isnot_default ) {
         if ( $self->get_owner( $res->dst->_abs_path ) ne $res->dst->_user ) {
             $res->add_issue(
@@ -282,6 +285,9 @@ sub is_owner_different {
 
 sub is_mode_different {
     my ( $self, $res ) = @_;
+
+    return if $self->is_msw;
+
     my $perms = $self->get_perms( $res->dst );
     if ( $perms ne $res->dst->_perm ) {
         if ( $self->command eq 'install' ) {
