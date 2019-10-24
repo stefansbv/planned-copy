@@ -72,7 +72,7 @@ sub run {
         my $path      = $self->local_path;
         my $diff_tool = $self->diff_tool;
         if ( $url or $path or $diff_tool) {
-            $self->create_config($url, $path, $diff_tool);
+             $self->create_config($url, $path, $diff_tool);
         }
         else {
             say "[II] Run the 'set' command with the '--url' and/or '--path' options, to create/update the config file.";
@@ -81,14 +81,25 @@ sub run {
 
     # Dump
     if ( $self->action eq 'dump' ) {
-        my %conf = $self->config->dump;
-        say "Current config:";
-        say " none!" if scalar keys %conf == 0;
-        while ( my ( $key, $value ) = each %conf ) {
-            print " $key = $value\n";
-        }
+        $self->config_dump;
     }
 
+    return;
+}
+
+sub config_dump {
+    my $self = shift;
+    my $cfg  = $self->config;
+    my %conf = $cfg->dump;
+    print "Current config:\n";
+    print " none!\n" if scalar keys %conf == 0;
+    while ( my ( $key, $value ) = each %conf ) {
+        print " $key = $value\n";
+    }
+    return if !$self->verbose;
+    print "Config files:\n";
+    print " system file = ", $cfg->system_file, "\n";
+    print "   user file = ", $cfg->user_file, "\n";
     return;
 }
 
