@@ -7,6 +7,7 @@ use utf8;
 use Carp;
 use Moose;
 use Path::Tiny;
+use Try::Tiny;
 use Path::Iterator::Rule;
 use IPC::System::Simple 1.17 qw(run);
 use MooseX::App qw(Color Version);
@@ -56,17 +57,27 @@ has '_projects' => (
 
 sub _build_projects {
     my $self = shift;
-
-    die
-        "Not configured!\n  Please, use the config command to configure planned-copy.\n"
-        unless defined $self->config->repo_path;
+    my $repo_path = try {
+        $self->config->repo_path;
+    }
+    catch {
+        if ( my $e = Exception::Base->catch($_) ) {
+            if ( $e->isa('Exception::Config::Error') ) {
+                die "\n[EE] ", $e->logmsg, $e->message, "\n";
+            }
+            else {
+                die "[EE] Unknown exception: $_", "\n";
+            }
+        }
+        return;
+    };
 
     my $rule = Path::Iterator::Rule->new;
     $rule->skip_vcs;
     $rule->min_depth(1);
     $rule->max_depth(1);
 
-    my $next = $rule->iter( $self->config->repo_path );
+    my $next = $rule->iter($repo_path);
     my @dirs;
     while ( defined( my $item = $next->() ) ) {
         my $path = path($item);
