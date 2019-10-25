@@ -1,12 +1,12 @@
 Planned Copy
 ============
 Ștefan Suciu
-2019-10-19
+2019-10-25
 
-Version: 0.918
+Version: 0.920
 
-Planned Copy - a smarter copy application for your Linux box.  See the
-manual for details.
+Planned Copy - an automated install/sync application for files on your
+Linux/Windows box.  See the manual for details.
 
 
 Install
