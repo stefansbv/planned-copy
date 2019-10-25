@@ -38,7 +38,6 @@ has '_issue_category_color_map' => (
             disabled => 'grey50',
         };
         my $color = $self->config->get_section( section => 'color' );
-        # return $color if scalar keys %{$color} > 0;
         my $merged = merge $color, $default;
         return $merged;
     },

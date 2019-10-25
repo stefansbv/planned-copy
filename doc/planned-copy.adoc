@@ -191,9 +191,6 @@ in the editor after it is updated.
 
 The colors are those provided by the `Term::ExtendedColor` module.
 
-WARNING: The configuration must (re)define the entire set of colors
-         or none, the colors above are the default colors.
-
 
 == Commands
 
