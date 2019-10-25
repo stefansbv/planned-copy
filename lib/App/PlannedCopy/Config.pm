@@ -17,7 +17,7 @@ extends 'Config::GitLike';
 
 use App::PlannedCopy::Exceptions;
 
-has '+confname' => ( default => 'plannedcopyrc' );
+has '+confname' => ( default => 'plannedcopy.conf' );
 has '+encoding' => ( default => 'UTF-8' );
 
 sub user_dir {
@@ -29,7 +29,7 @@ sub user_dir {
         message => 'Could not determine home directory',
         logmsg  => "System error.\n",
     ) if not $hd;
-    return path $hd;
+    return path $hd, '.plannedcopy';;
 }
 
 my $SYSTEM_DIR = undef;                      # works ok for Linux ;)

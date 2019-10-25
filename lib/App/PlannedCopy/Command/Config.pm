@@ -11,6 +11,8 @@ use namespace::autoclean;
 
 extends qw(App::PlannedCopy);
 
+with qw(App::PlannedCopy::Role::Utils);
+
 use App::PlannedCopy::Exceptions;
 
 command_long_description q[Install the application configuration file.];
@@ -126,20 +128,26 @@ sub _set {
     die "Wrong number of arguments."
         if !defined $key || $key eq '' || !defined $value;
 
+    my $dir = $self->file->parent;
+    $self->make_path( $self->file->parent ) if !$dir->is_dir; 
+
     print "Config write to ", $self->file, "...\r";
 
-    try {
+    my $success = try {
         $self->config->set(
             key      => $key,
             value    => $value,
             filename => $self->file,
         );
+        1;
     }
     catch {
-        # print "cConfig write to ", $self->file, "...failed\n";
-        # say "[EE] Config: $_";
+        print "Config write to ", $self->file, "...failed\n";
+        print "[EE] Config: $_\n";
+        return;
     };
-
+    return unless $success;
+    
     print "Config write to ", $self->file, "...done\n";
 
     return $self;
