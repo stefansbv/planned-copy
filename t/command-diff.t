@@ -143,15 +143,14 @@ subtest 'With a resource file - filename4' => sub {
         verbose  => 1,
         diff_cmd => 'diff',
         dst_name => 'filename4',
-        ),
-        'command constructor';
+        ), 'command constructor';
 
     like capture_stdout { $diff->run },
         qr/Job: 1 file to diff/,
         'run should work';
 
-    my $sk = $diff->is_msw ? 0 : 0;
-    my $sa = $diff->is_msw ? 1 : 1;
+    my $sk = $diff->is_msw ? 0 : 1;          # different perms
+    my $sa = $diff->is_msw ? 1 : 0;
     my $di = $diff->is_msw ? 0 : 0;
     is capture_stdout { $diff->print_summary }, "
 Summary:
@@ -407,8 +406,8 @@ subtest 'With a resource file - all' => sub {
         qr/Job: 12 files to diff:/,
         'run should work';
 
-    my $sk = $diff->is_msw ? 6 : 6;
-    my $sa = $diff->is_msw ? 3 : 3;
+    my $sk = $diff->is_msw ? 6 : 7;
+    my $sa = $diff->is_msw ? 3 : 2;
     my $di = $diff->is_msw ? 3 : 3;
     is capture_stdout { $diff->print_summary }, "
 Summary:

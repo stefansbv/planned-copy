@@ -105,14 +105,18 @@ sub run {
 
         $self->prevalidate_element($res);
 
+        my ( $inst, $skip, $cho, $chm ) = ( 0, 0, 0, 0 );
+
         if ( $res->has_no_issues ) {
             $self->item_printer($res) if $self->verbose;
-            $self->inc_count_skip;
+            # $self->inc_count_skip;
+            $skip++;
         }
         else {
             if ( $res->has_action('skip') ) {
                 $self->item_printer($res);
-                $self->inc_count_skip;
+                # $self->inc_count_skip;
+                $skip++;
             }
             else {
 
@@ -122,11 +126,13 @@ sub run {
                 {
                     try {
                         $self->install_file($res);
-                        $self->inc_count_inst;
+                        # $self->inc_count_inst;
+                        $inst++;
                     }
                     catch {
                         $self->exceptions( $_, $res );
-                        $self->inc_count_skip;
+                        # $self->inc_count_skip;
+                        $skip++;
                     };
                 }
 
@@ -134,11 +140,13 @@ sub run {
                 if ( $res->has_action('update') ) {
                     try {
                         $self->install_file($res);
-                        $self->inc_count_inst;
+                        # $self->inc_count_inst;
+                        $inst++;
                     }
                     catch {
                         $self->exceptions( $_, $res );
-                        $self->inc_count_skip;
+                        # $self->inc_count_skip;
+                        $skip++;
                     };
                 }
 
@@ -146,6 +154,7 @@ sub run {
                 if ( $res->has_action('chmod') ) {
                     try {
                         $self->change_perms($res);
+                        $chm++;
                     }
                     catch { $self->exceptions( $_, $res ) };
                 }
@@ -154,6 +163,7 @@ sub run {
                 if ( $res->has_action('chown') ) {
                     try {
                         $self->change_owner($res);
+                        $cho++;
                     }
                     catch { $self->exceptions( $_, $res ) };
                 }
@@ -171,6 +181,14 @@ sub run {
                 $self->item_printer($res);
             }
         }
+
+        # counters
+        if ( $inst || $chm || $cho ) {
+            $self->inc_count_inst;
+        }
+        if ($skip) {
+            $self->inc_count_skip;
+        }
         $self->inc_count_proc;
     }
 
@@ -182,7 +200,7 @@ sub run {
 sub install_file {
     my ( $self, $res ) = @_;
     return if $self->dryrun;
-	$self->make_dst_path($res);
+    $self->make_dst_path($res);
     $self->copy_file( 'backup', $res, $self->remote_host )
         if $res->has_action('update');
     $self->copy_file( 'install', $res, $self->remote_host );

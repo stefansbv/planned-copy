@@ -143,8 +143,8 @@ subtest 'With a resource file - filename4' => sub {
         qr/Job: 1 file to check and install/,
         'run should work';
 
-    my $s = $inst->is_msw ? 1 : 1;
-    my $i = $inst->is_msw ? 0 : 0;
+    my $s = $inst->is_msw ? 1 : 0;
+    my $i = $inst->is_msw ? 0 : 1;
     is capture_stdout { $inst->print_summary }, "
 Summary:
  - processed: 1 records
@@ -384,8 +384,8 @@ subtest 'With a resource file - all' => sub {
         qr/Job: 12 files to check and install/,
         'run should work';
 
-    my $s = $inst->is_msw ? 5 : 5;
-    my $i = $inst->is_msw ? 7 : 7;
+    my $s = $inst->is_msw ? 5 : 4;
+    my $i = $inst->is_msw ? 7 : 8;
     is capture_stdout { $inst->print_summary }, "
 Summary:
  - processed: 12 records
@@ -417,13 +417,13 @@ subtest 'With a resource file - all verbose' => sub {
         qr/Job: 12 files to check and install/,
         'run should work';
 
-    my $s = $inst->is_msw ? 5 : 5;
-    my $i = $inst->is_msw ? 7 : 7;
+    my $es = $inst->is_msw ? 5 : 4;
+    my $ei = $inst->is_msw ? 7 : 8;
     is capture_stdout { $inst->print_summary }, "
 Summary:
  - processed: 12 records
- - skipped  : $s
- - installed: $i
+ - skipped  : $es
+ - installed: $ei
 
 ", 'print_summary should work';
 };
