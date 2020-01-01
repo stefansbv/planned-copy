@@ -68,6 +68,7 @@ has 'prompting' => (
 has 'diff_cmd' => (
     is      => 'rw',
     isa     => 'Str',
+    lazy    => 1,
     default => sub {
         my $self = shift;
         my $cmd  = $self->config->diff_tool;
