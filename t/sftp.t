@@ -12,7 +12,6 @@ my $dst = path(qw(/ tmp copyed.yml));
 my $src = 't/new-resource.yml';
 
 subtest 'Test SFTP utils' => sub {
-
     ok my $aps = App::PlannedCopy::Util::SFTP->new(
         host => 'localhost',
     ), 'constructor';

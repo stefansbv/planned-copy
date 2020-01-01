@@ -32,8 +32,9 @@ has 'pass' => (
 
 has 'verbose' => (
     is       => 'ro',
-    isa      => 'Bpool',
+    isa      => 'Bool',
     required => 0,
+    default  => sub {0},
 );
 
 has 'sftp' => (
