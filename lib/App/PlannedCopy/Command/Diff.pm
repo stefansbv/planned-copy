@@ -151,8 +151,10 @@ sub diff_files {
 
     my $binary = 0;
     my $mt = MIME::Types->new;
+    # BUG: For .org files returns -> application/vnd.lotus-organizer
+    #      and isBinary true
     if ( my $type = $mt->mimeTypeOf($src_path) ) {
-        # say "Type of $src_path is $type";
+        say "Type of $src_path is $type";
         $binary = 1 if $type->isBinary;
     }
 
