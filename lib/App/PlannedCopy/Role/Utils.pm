@@ -663,6 +663,9 @@ Prints a message if there is no resource file in the project dir.
 
 =head3 compare
 
+Run the configured diff command against the source and destination
+files.  Uses L<cmp> if the files are binary.
+
 =head3 get_project_files
 
 Recursively scan the project dir and get a list of the files,
