@@ -32,16 +32,7 @@ sub user_dir {
     return path $hd, '.plannedcopy';;
 }
 
-my $SYSTEM_DIR = undef;                      # works ok for Linux ;)
-
-sub system_dir {
-    path $SYSTEM_DIR || do {
-        require Config;
-        $Config::Config{prefix}, 'etc', 'plannedcopy';
-    };
-}
-
-# sub dir_file { undef }
+sub system_dir { path 'etc'; }
 
 sub system_file {
     my $self = shift;

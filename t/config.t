@@ -17,8 +17,8 @@ BEGIN {
 subtest 'Test with default config files and paths' => sub {
     ok my $conf = App::PlannedCopy::Config->new, 'constructor';
 
-    like $conf->system_dir, qr{etc/plannedcopy}, 'default system dir';
-    like $conf->system_file, qr{etc/plannedcopy/plannedcopy.conf},
+    like $conf->system_dir, qr{etc}, 'default system dir';
+    like $conf->system_file, qr{etc/plannedcopy.conf},
       'default system file';
     is $conf->global_file, $conf->system_file, 'global_file is system_file';
     like $conf->user_file, qr{plannedcopy.conf$}, 'default user file';
