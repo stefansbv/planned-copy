@@ -7,8 +7,14 @@ use Capture::Tiny 0.12 qw(capture_stdout);
 use Path::Tiny;
 use App::PlannedCopy::Config;
 use App::PlannedCopy::Command::Diff;
+use File::Which qw(which where);
 
-my $repo_path  = path( qw(t test-repo) );
+BEGIN {
+    my $exe_path = which 'diff';
+    plan skip_all => 'Needs diff' unless $exe_path;
+}
+
+my $repo_path  = path(qw(t test-repo));
 my $repo1_path = path(qw(t test-repo check-no-resu));
 my $repo2_path = path(qw(t test-repo check));
 my $dest_path  = path(qw(t test-dst check));
