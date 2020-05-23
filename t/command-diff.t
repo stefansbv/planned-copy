@@ -10,8 +10,11 @@ use App::PlannedCopy::Command::Diff;
 use File::Which qw(which where);
 
 BEGIN {
-    my $exe_path = which 'diff';
-    plan skip_all => 'Needs diff' unless $exe_path;
+    delete $ENV{PLCP_REPO_PATH};
+    delete $ENV{PLCP_SYS_CONFIG};
+    delete $ENV{PLCP_USR_CONFIG};
+
+    plan skip_all => 'Needs diff' unless which 'diff';
 }
 
 my $repo_path  = path(qw(t test-repo));
