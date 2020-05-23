@@ -3,7 +3,6 @@
 #
 use Test::More;
 use Test::Exception;
-
 use Path::Tiny;
 
 use App::PlannedCopy::Config;
@@ -18,14 +17,12 @@ subtest 'Test with default config files and paths' => sub {
     ok my $conf = App::PlannedCopy::Config->new, 'constructor';
 
     like $conf->system_dir, qr{etc}, 'default system dir';
-    like $conf->system_file, qr{etc/plannedcopy.conf},
-      'default system file';
+    like $conf->system_file, qr{etc/plannedcopy.conf}, 'default system file';
     is $conf->global_file, $conf->system_file, 'global_file is system_file';
     like $conf->user_file, qr{plannedcopy.conf$}, 'default user file';
 };
 
 subtest 'Test with no config files' => sub {
-
     local $ENV{PLCP_SYS_CONFIG} = path(qw(t nonexistent.conf));
     local $ENV{PLCP_USR_CONFIG} = path(qw(t nonexistent.conf));
 
@@ -52,7 +49,6 @@ subtest 'Test with no config files' => sub {
 };
 
 subtest 'Test with empty config files' => sub {
-
     local $ENV{PLCP_SYS_CONFIG} = path(qw(t system0.conf));
     local $ENV{PLCP_USR_CONFIG} = path(qw(t user0.conf));
 
@@ -71,12 +67,10 @@ subtest 'Test with empty config files' => sub {
 };
 
 subtest 'Test with minimum system config and empty user config' => sub {
-
-    local $ENV{PLCP_REPO_PATH}  = path(qw(t configs));
     local $ENV{PLCP_SYS_CONFIG} = path(qw(t system1.conf));
     local $ENV{PLCP_USR_CONFIG} = path(qw(t user0.conf));
 
-    my $repo_path = $ENV{PLCP_REPO_PATH};
+    my $repo_path = path(qw(t test-repo));
 
     ok $conf = App::PlannedCopy::Config->new, 'constructor';
 
@@ -94,12 +88,10 @@ subtest 'Test with minimum system config and empty user config' => sub {
 };
 
 subtest 'Test with config files' => sub {
-
-    local $ENV{PLCP_REPO_PATH}  = path(qw(t test-repo));
     local $ENV{PLCP_SYS_CONFIG} = path(qw(t system.conf));
     local $ENV{PLCP_USR_CONFIG} = path(qw(t user.conf));
 
-    my $repo_path = $ENV{PLCP_REPO_PATH};
+    my $repo_path = path(qw(t test-repo));
 
     ok $conf = App::PlannedCopy::Config->new, 'constructor';
 
@@ -126,12 +118,10 @@ subtest 'Test with config files' => sub {
 };
 
 subtest 'Test with config files - renamed resource file' => sub {
-
-    local $ENV{PLCP_REPO_PATH}  = path(qw(t test-repo));
     local $ENV{PLCP_SYS_CONFIG} = path(qw(t system.conf));
     local $ENV{PLCP_USR_CONFIG} = path(qw(t user2.conf));
 
-    my $repo_path = $ENV{PLCP_REPO_PATH};
+    my $repo_path = path(qw(t test-repo));
 
     ok $conf = App::PlannedCopy::Config->new, 'constructor';
 

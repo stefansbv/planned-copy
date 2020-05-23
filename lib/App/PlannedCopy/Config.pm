@@ -29,10 +29,10 @@ sub user_dir {
         message => 'Could not determine home directory',
         logmsg  => "System error.\n",
     ) if not $hd;
-    return path $hd, '.plannedcopy';;
+    return path $hd, '.plannedcopy';
 }
 
-sub system_dir { path 'etc'; }
+sub system_dir { path '/etc'; }
 
 sub system_file {
     my $self = shift;
