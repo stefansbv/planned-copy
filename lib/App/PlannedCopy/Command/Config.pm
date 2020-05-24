@@ -98,7 +98,6 @@ sub config_dump {
     while ( my ( $key, $value ) = each %conf ) {
         print " $key = $value\n";
     }
-    return if !$self->verbose;
     print "Config files:\n";
     print " system file = ", $cfg->system_file, "\n";
     print "   user file = ", $cfg->user_file, "\n";
