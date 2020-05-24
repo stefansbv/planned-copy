@@ -22,7 +22,7 @@ local $ENV{PLCP_REPO_PATH}  = path(qw(t test-repo));
 local $ENV{PLCP_SYS_CONFIG} = path(qw(t system.conf));
 local $ENV{PLCP_USR_CONFIG} = path(qw(t user.conf));
 
-my @attributes = (qw( term_size _issue_category_color_map ));
+my @attributes = (qw( term_size ));
 my @methods    = (
     qw(
         points

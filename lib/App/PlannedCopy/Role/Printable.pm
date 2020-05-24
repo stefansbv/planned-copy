@@ -23,27 +23,6 @@ has 'term_size' => (
     },
 );
 
-has '_issue_category_color_map' => (
-    traits  => ['Hash'],
-    is      => 'ro',
-    isa     => 'HashRef[Str]',
-    default => sub {
-        my $self  = shift;
-        my $default = {
-            info     => 'yellow2',
-            warn     => 'blue2',
-            error    => 'red2',
-            done     => 'green2',
-            none     => 'clear',
-            disabled => 'grey50',
-        };
-        my $color = $self->config->get_section( section => 'color' );
-        my $merged = merge $color, $default;
-        return $merged;
-    },
-    handles => { get_color => 'get', },
-);
-
 sub points {
     my ($self, $msg_l, $msg_r) = @_;
     my $gap    = 2 + 2;
@@ -80,14 +59,14 @@ sub item_printer {
     my ( $self, $res ) = @_;
     die "Wrong parameter for 'item_printer', a resource object is expected!"
         unless $res->isa('App::PlannedCopy::Resource::Element');
-    my $color = $self->get_color( $res->issues_category );
+    my $color = $self->config->get_color( $res->issues_category );
     unless ( $res->is_printed ) {
         $self->printer( $color, $res->src->_name, $res->dst->short_path );
         $res->inc_printed;
     }
     return unless $self->verbose;
     foreach my $issue ( $res->all_issues ) {
-        my $issue_color = $self->get_color( $issue->category );
+        my $issue_color = $self->config->get_color( $issue->category );
         $self->issue_printer( $issue, $issue_color );
     }
     $res->remove_all_issues unless $self->command eq 'diff';
@@ -109,7 +88,7 @@ sub print_exeception_message {
     die "Wrong parameter for 'print_exeception_message', an Issue
         object is expected!"  unless
         $e->isa('App::PlannedCopy::Issue');
-    my $color = $self->get_color( $e->category );
+    my $color = $self->config->get_color( $e->category );
     my $categ = $self->get_issue_header( $e->category );
     print fg($color, "  $categ ");
     print $e->message, ' ', $e->details ? $e->details : '';
@@ -120,8 +99,8 @@ sub print_exeception_message {
 sub project_changes_list_printer {
     my ( $self, $errorlevel, @array ) = @_;
     my $color
-        = $errorlevel eq 'removed' ? $self->get_color('info')
-        : $errorlevel eq 'added'   ? $self->get_color('done')
+        = $errorlevel eq 'removed' ? $self->config->get_color('info')
+        : $errorlevel eq 'added'   ? $self->config->get_color('done')
         : $errorlevel eq 'kept'    ? 'reset'
         :                            'reset';
     foreach my $item (@array) {
@@ -140,18 +119,18 @@ sub project_list_printer {
         my ( $color, $mesg );
         if ( $resu ) {
             if ($disab) {
-                $color = $self->get_color('disabled') if $disab;
+                $color = $self->config->get_color('disabled') if $disab;
                 $mesg = "disabled";
             }
             else {
                 $color = $scope eq 'system'
-                    ? $self->get_color('warn')
-                    : $self->get_color('done');
+                    ? $self->config->get_color('warn')
+                    : $self->config->get_color('done');
                 $mesg = "has $scope resource";
             }
         }
         else {
-            $color = $self->get_color('info');
+            $color = $self->config->get_color('info');
             $mesg  = 'no resource';
         }
         $self->printer($color, $path, $mesg);
@@ -161,7 +140,7 @@ sub project_list_printer {
 
 sub difference_printer {
     my ( $self, @items ) = @_;
-    my $color = $self->get_color('info');
+    my $color = $self->config->get_color('info');
     foreach my $item (@items) {
         my $proj = $item->[0];
         my $resu = $item->[1];

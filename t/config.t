@@ -141,14 +141,22 @@ subtest 'Test with config files - renamed resource file' => sub {
         'disabled resource file name';
 
     my $scheme_default = {
-        info  => 'yellow2',
-        warn  => 'blue2',
-        error => 'red2',
-        done  => 'green2',
+        info  => 'lightsalmon1',
+        warn  => 'mediumpurple1',
+        error => 'orchid2',
+        done  => 'springgreen2',
     };
 
     is_deeply $conf->get_section( section => 'color' ), $scheme_default,
         'color scheme is from config';
+
+    is $conf->get_color('info'), 'lightsalmon1', 'get color for info';
+    is $conf->get_color('warn'), 'mediumpurple1', 'get color for info';
+    is $conf->get_color('error'), 'orchid2', 'get color for error';
+    is $conf->get_color('done'), 'springgreen2', 'get color for done';
+
+    is $conf->get_color('none'), 'clear', 'get color for clear';
+    is $conf->get_color('disabled'), 'grey50', 'get color for disabled';
 };
 
 done_testing;

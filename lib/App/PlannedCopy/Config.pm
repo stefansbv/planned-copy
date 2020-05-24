@@ -9,6 +9,7 @@ use Moose;
 use Path::Tiny;
 use Config::GitLike 1.11;
 use URI;
+use Hash::Merge::Simple qw/merge/;
 use namespace::autoclean;
 
 use constant ISMSW => $^O eq 'MSWin32';
@@ -161,6 +162,31 @@ sub resource_file {
     return unless $self->repo_path and $project;
     return path( $self->repo_path, $project, $self->resource_file_name )->stringify;
 }
+
+has '_issue_category_color_map' => (
+    traits  => ['Hash'],
+    is      => 'ro',
+    isa     => 'HashRef[Str]',
+    lazy    => 1, 
+    default => sub {
+        my $self  = shift;
+        my $default = {
+            info     => 'yellow2',
+            warn     => 'blue2',
+            error    => 'red2',
+            done     => 'green2',
+            none     => 'clear',
+            disabled => 'grey50',
+        };
+        my $color = $self->get_section( section => 'color' );
+        my $merged = merge $default, $color;
+        return $merged;
+    },
+    handles => {
+        get_color   => 'get',
+        color_pairs => 'kv',
+    },
+);
 
 __PACKAGE__->meta->make_immutable;
 
