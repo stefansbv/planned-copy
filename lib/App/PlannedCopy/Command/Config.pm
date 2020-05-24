@@ -101,6 +101,11 @@ sub config_dump {
     print "Config files:\n";
     print " system file = ", $cfg->system_file, "\n";
     print "   user file = ", $cfg->user_file, "\n";
+    return if !$self->verbose;
+    print "Colors:\n";
+    foreach my $rec ( $cfg->color_pairs ) {
+        say ' ', sprintf( "%10s", $rec->[0] ), ' = ', $rec->[1];
+    }
     return;
 }
 
