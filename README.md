@@ -1,9 +1,9 @@
 Planned Copy
 ============
 Ștefan Suciu
-2019-10-25
+2020-05-27
 
-Version: 0.920
+Version: 0.925
 
 Planned Copy - an automated install/sync application for files on your
 Linux/Windows box.  See the manual for details.
@@ -48,7 +48,7 @@ printing format.
 License And Copyright
 ---------------------
 
-Copyright (C) 2019 Ștefan Suciu
+Copyright (C) 2020 Ștefan Suciu
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
