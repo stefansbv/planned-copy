@@ -19,3 +19,4 @@ t/output
 .al
 t/test-dst/install
 doc/*.html
+App-PlannedCopy-*
