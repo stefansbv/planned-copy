@@ -107,3 +107,19 @@ resources:
       name: naughty.tar.gz
       path: check
       type: archive
+  -
+    destination:
+      name: conky.desktop
+      path: t/test-dst/check
+      perm: '0644'
+    source:
+      name: conky.desktop
+      path: check
+  -
+    destination:
+      name: filename.org
+      path: t/test-dst/check
+      perm: '0644'
+    source:
+      name: filename.org
+      path: check

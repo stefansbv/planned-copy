@@ -412,20 +412,80 @@ subtest 'With a resource file - all' => sub {
         'command constructor';
 
     like uncolor( capture_stdout { $diff->run } ),
-        qr/Job: 12 files to diff:/,
+        qr/Job: 14 files to diff:/,
         'run should work';
 
     my $sk = $diff->is_msw ? 6 : 7;
     my $sa = $diff->is_msw ? 3 : 2;
-    my $di = $diff->is_msw ? 3 : 3;
+    my $di = $diff->is_msw ? 3 : 5;
     is capture_stdout { $diff->print_summary }, "
 Summary:
- - processed: 12 records
+ - processed: 14 records
  - skipped  : $sk
  - same     : $sa
  - different: $di
 
 ", 'print_summary should work';
+};
+
+###
+
+# Bug: "binary" desktop file
+subtest 'With a resource file - conky.desktop' => sub {
+    is $conf->resource_file('check'),
+        path( $repo2_path, 'resource.yml' ),
+        'resource file path';
+
+    ok my $diff = App::PlannedCopy::Command::Diff->new(
+        project  => 'check',
+        config   => $conf,
+        verbose  => 1,
+        diff_cmd => 'diff',
+        dst_name => 'conky.desktop',
+        ),
+        'command constructor';
+
+    like capture_stdout { $diff->run },
+        qr/Job: 1 file to diff/,
+        'run should work';
+
+    is capture_stdout { $diff->print_summary }, '
+Summary:
+ - processed: 1 records
+ - skipped  : 0
+ - same     : 0
+ - different: 1
+
+', 'print_summary should work';
+};
+
+# Bug: "binary" .org file
+subtest 'With a resource file - filename.org' => sub {
+    is $conf->resource_file('check'),
+        path( $repo2_path, 'resource.yml' ),
+        'resource file path';
+
+    ok my $diff = App::PlannedCopy::Command::Diff->new(
+        project  => 'check',
+        config   => $conf,
+        verbose  => 1,
+        diff_cmd => 'diff',
+        dst_name => 'filename.org',
+        ),
+        'command constructor';
+
+    like capture_stdout { $diff->run },
+        qr/Job: 1 file to diff/,
+        'run should work';
+
+    is capture_stdout { $diff->print_summary }, '
+Summary:
+ - processed: 1 records
+ - skipped  : 0
+ - same     : 0
+ - different: 1
+
+', 'print_summary should work';
 };
 
 done_testing;

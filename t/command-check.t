@@ -385,14 +385,14 @@ subtest 'With a resource file - all' => sub {
     ), 'command constructor';
 
     like uncolor ( capture_stdout { $check->run } ),
-        qr/Job: 12 files to check/,
+        qr/Job: 14 files to check/,
         'run should work';
 
     my $s = $check->is_msw ? 3 : 2;
-    my $d = $check->is_msw ? 7 : 8;
+    my $d = $check->is_msw ? 7 : 10;
     is capture_stdout { $check->print_summary }, "
 Summary:
- - processed: 12 records
+ - processed: 14 records
  - skipped  : 2
  - same     : $s
  - different: $d
@@ -413,14 +413,14 @@ subtest 'With a resource file - all verbose' => sub {
     ), 'command constructor';
 
     like uncolor ( capture_stdout { $check->run } ),
-        qr/Job: 12 files to check/,
+        qr/Job: 14 files to check/,
         'run should work';
 
     my $s = $check->is_msw ? 3 : 2;
-    my $d = $check->is_msw ? 7 : 8;
+    my $d = $check->is_msw ? 7 : 10;
     is capture_stdout { $check->print_summary }, "
 Summary:
- - processed: 12 records
+ - processed: 14 records
  - skipped  : 2
  - same     : $s
  - different: $d

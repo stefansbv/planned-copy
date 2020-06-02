@@ -364,9 +364,9 @@ sub compare {
     push @args, '-l' if $binary;
     push @args, quote_string($src_path);
     push @args, quote_string($dst_path);
-    say "# $cmd @args" if $self->verbose;
+    warn "# $cmd @args\n" if $self->verbose; # should be debug XXX
     my ( $stdout, $stderr, $exit ) = capture { system( $cmd, @args ) };
-    if ($stderr) {
+    if ( $stderr and !$binary ) {
         Exception::IO::SystemCmd->throw(
             message => 'The diff command failed.',
             logmsg  => $stderr,
