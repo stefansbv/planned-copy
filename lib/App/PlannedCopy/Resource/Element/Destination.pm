@@ -56,7 +56,7 @@ has '_parent_dir' => (
 
 has '_user_isnot_default' => (
     is       => 'rw',
-    isa      => 'Str',
+    isa      => 'Bool',
     required => 0,
     init_arg => undef,
     default => sub {
