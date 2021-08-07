@@ -113,7 +113,7 @@ sub check_project {
     my $iter = $resu->resource_iter;
     my $cnt  = $resu->count;
 
-	# Disable remote check until it works.
+    # Disable remote check until it works.
     if ( $resu->resource_host ne 'localhost' ) {
         print '[', fg('yellow1', $self->project), "], Job: ", $cnt, ' file',
             ( $cnt != 1 ? 's' : '' ),
