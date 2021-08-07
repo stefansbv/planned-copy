@@ -11,7 +11,7 @@ use App::PlannedCopy::Command::Check;
 my $repo_path  = path( qw(t test-repo) );
 my $repo1_path = path( qw(t test-repo check-no-resu) );
 my $repo2_path = path( qw(t test-repo check) );
-my $dest_path  = path( qw(t test-dst check) );
+my $dest_path  = path( qw(t test-dst check) ); # set in the resource
 
 if ( $^O eq 'MSWin32' ) {
     $ENV{COLUMNS} = 80;
@@ -25,6 +25,7 @@ ok my $conf = App::PlannedCopy::Config->new, 'config constructor';
 ok $conf->load, 'load test config files';
 
 is $conf->repo_path, $repo_path, 'test repo path from t/user.conf';
+ok $dest_path->is_dir, 'test destination path';
 
 subtest 'No resource file' => sub {
 
@@ -62,6 +63,8 @@ subtest 'With a resource file - filename1' => sub {
     like uncolor ( capture_stdout { $check->run } ),
         qr/Job: 1 file to check/,
         'run should work';
+
+    $check->print_summary;
 
     is capture_stdout { $check->print_summary }, '
 Summary:
