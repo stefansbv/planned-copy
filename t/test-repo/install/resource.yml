@@ -4,7 +4,7 @@ resources:
     destination:
       name: filename1
       path: t/test-dst/install
-      perm: '0644'
+      perm: '0600'
     source:
       name: filename1
       path: install
