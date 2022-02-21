@@ -417,7 +417,7 @@ subtest 'With a resource file - all' => sub {
 
     my $sk = $diff->is_msw ? 6 : 7;
     my $sa = $diff->is_msw ? 3 : 2;
-    my $di = $diff->is_msw ? 3 : 5;
+    my $di = $diff->is_msw ? 5 : 5;
     is capture_stdout { $diff->print_summary }, "
 Summary:
  - processed: 14 records

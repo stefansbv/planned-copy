@@ -392,7 +392,7 @@ subtest 'With a resource file - all' => sub {
         'run should work';
 
     my $s = $check->is_msw ? 3 : 2;
-    my $d = $check->is_msw ? 7 : 10;
+    my $d = $check->is_msw ? 9 : 10;
     is capture_stdout { $check->print_summary }, "
 Summary:
  - processed: 14 records
@@ -420,7 +420,7 @@ subtest 'With a resource file - all verbose' => sub {
         'run should work';
 
     my $s = $check->is_msw ? 3 : 2;
-    my $d = $check->is_msw ? 7 : 10;
+    my $d = $check->is_msw ? 9 : 10;
     is capture_stdout { $check->print_summary }, "
 Summary:
  - processed: 14 records
