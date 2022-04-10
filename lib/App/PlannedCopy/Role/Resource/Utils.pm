@@ -317,7 +317,7 @@ __END__
 
 =head1 Description
 
-Helper role the C<resu> command.  TODO: change the name.
+Helper role the C<resource> command.
 
 =head1 Interface
 

@@ -92,7 +92,7 @@ __END__
 
 =head1 Description
 
-The implementation of the C<resu> command.  TODO: change the name.
+The implementation of the C<resource> command.
 
 =head1 Interface
 
