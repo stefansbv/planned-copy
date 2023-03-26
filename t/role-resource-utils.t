@@ -50,7 +50,7 @@ ok my @k = $cmd->old_res_keys, 'get resource keys';
 foreach my $x (@k) {
     like $x, qr/^check/, "$x starts with project name";
 }
-is $cmd->resource_scope, 'system', 'scope is system';
+is $cmd->resource_scope, 'user', 'scope is user';
 is $cmd->resource_host, 'localhost', 'host is hostname';
 
 done_testing();
