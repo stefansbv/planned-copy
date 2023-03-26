@@ -62,7 +62,7 @@ subtest 'With a resource file - filename1' => sub {
     ok my $diff = App::PlannedCopy::Command::Diff->new(
         project  => 'check',
         config   => $conf,
-        verbose  => 1,
+        verbose  => 0,
         diff_cmd => 'diff',
         dst_name => 'filename1',
         ),
@@ -91,7 +91,7 @@ subtest 'With a resource file - filename2' => sub {
     ok my $diff = App::PlannedCopy::Command::Diff->new(
         project  => 'check',
         config   => $conf,
-        verbose  => 1,
+        verbose  => 0,
         diff_cmd => 'diff',
         dst_name => 'filename2',
         ),
@@ -120,7 +120,7 @@ subtest 'With a resource file - filename3' => sub {
     ok my $diff = App::PlannedCopy::Command::Diff->new(
         project  => 'check',
         config   => $conf,
-        verbose  => 1,
+        verbose  => 0,
         diff_cmd => 'diff',
         dst_name => 'filename2',
         ),
@@ -149,7 +149,7 @@ subtest 'With a resource file - filename4' => sub {
     ok my $diff = App::PlannedCopy::Command::Diff->new(
         project  => 'check',
         config   => $conf,
-        verbose  => 1,
+        verbose  => 0,
         diff_cmd => 'diff',
         dst_name => 'filename4',
         ), 'command constructor';
@@ -180,7 +180,7 @@ subtest 'With a resource file - filename5' => sub {
     ok my $diff = App::PlannedCopy::Command::Diff->new(
         project  => 'check',
         config   => $conf,
-        verbose  => 1,
+        verbose  => 0,
         diff_cmd => 'diff',
         dst_name => 'filename5',
         ),
@@ -209,7 +209,7 @@ subtest 'With a resource file - filename6' => sub {
     ok my $check = App::PlannedCopy::Command::Diff->new(
         project  => 'check',
         config   => $conf,
-        verbose  => 1,
+        verbose  => 0,
         dst_name => 'filename6',
     ), 'command constructor';
 
@@ -236,7 +236,7 @@ subtest 'With a resource file - filename7' => sub {
     ok my $check = App::PlannedCopy::Command::Diff->new(
         project  => 'check',
         config   => $conf,
-        verbose  => 1,
+        verbose  => 0,
         dst_name => 'filename7',
     ), 'command constructor';
 
@@ -263,7 +263,7 @@ subtest 'With a resource file - filename8' => sub {
     ok my $check = App::PlannedCopy::Command::Diff->new(
         project  => 'check',
         config   => $conf,
-        verbose  => 1,
+        verbose  => 0,
         dst_name => 'filename8 with spaces',
     ), 'command constructor';
 
@@ -290,7 +290,7 @@ subtest 'With a resource file - archive1.tar.gz' => sub {
     ok my $check = App::PlannedCopy::Command::Diff->new(
         project  => 'check',
         config   => $conf,
-        verbose  => 1,
+        verbose  => 0,
         diff_cmd => 'diff',
         dst_name => 'archive1.tar.gz',
         ),
@@ -319,7 +319,7 @@ subtest 'With a resource file - archive2.tar.gz' => sub {
     ok my $check = App::PlannedCopy::Command::Diff->new(
         project  => 'check',
         config   => $conf,
-        verbose  => 1,
+        verbose  => 0,
         diff_cmd => 'diff',
         dst_name => 'archive2.tar.gz',
         ),
@@ -348,7 +348,7 @@ subtest 'With a resource file - impolite.tar.gz' => sub {
     ok my $check = App::PlannedCopy::Command::Diff->new(
         project  => 'check',
         config   => $conf,
-        verbose  => 1,
+        verbose  => 0,
         diff_cmd => 'diff',
         dst_name => 'impolite.tar.gz',
         ),
@@ -377,7 +377,7 @@ subtest 'With a resource file - naughty.tar.gz' => sub {
     ok my $check = App::PlannedCopy::Command::Diff->new(
         project  => 'check',
         config   => $conf,
-        verbose  => 1,
+        verbose  => 0,
         diff_cmd => 'diff',
         dst_name => 'naughty.tar.gz',
         ),
@@ -439,7 +439,7 @@ subtest 'With a resource file - conky.desktop' => sub {
     ok my $diff = App::PlannedCopy::Command::Diff->new(
         project  => 'check',
         config   => $conf,
-        verbose  => 1,
+        verbose  => 0,
         diff_cmd => 'diff',
         dst_name => 'conky.desktop',
         ),
@@ -468,7 +468,7 @@ subtest 'With a resource file - filename.org' => sub {
     ok my $diff = App::PlannedCopy::Command::Diff->new(
         project  => 'check',
         config   => $conf,
-        verbose  => 1,
+        verbose  => 0,
         diff_cmd => 'diff',
         dst_name => 'filename.org',
         ),
