@@ -1,12 +1,12 @@
 ---
-scope: system
+scope: user
 host: localhost
 resources:
   -
     destination:
       name: filename1
       path: t/test-dst/check
-      perm: '0600'
+      perm: '0644'
     source:
       name: filename1
       path: check
