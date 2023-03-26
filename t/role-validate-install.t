@@ -57,7 +57,7 @@ subtest 'source and destination ok - instaled' => sub {
         destination => {
             name => 'filename1',
             path => 't/test-dst/role/install',
-            perm => '0600',
+            perm => '0644',
         },
         source => {
             name => 'filename1',
