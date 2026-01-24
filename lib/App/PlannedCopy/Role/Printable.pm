@@ -24,11 +24,16 @@ has 'term_size' => (
 );
 
 sub points {
-    my ($self, $msg_l, $msg_r) = @_;
+    my ( $self, $msg_l, $msg_r ) = @_;
     my $gap    = 2 + 2;
-    my $points = '.' x (
-        $self->term_size - length($msg_l) - length($msg_r) - $gap
-    );
+    my $size   = $self->term_size - length($msg_l) - length($msg_r) - $gap;
+    my $points = '';
+    if ( $size > 0 ) {
+        $points =  '.' x $size;
+    }
+    else {
+        $points = '.';
+    }
     return $points;
 }
 
