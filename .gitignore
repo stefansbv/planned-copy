@@ -21,3 +21,4 @@ t/test-dst/install
 doc/*.html
 App-PlannedCopy-*
 /bin/plcp
+plcp
