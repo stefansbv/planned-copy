@@ -1,10 +1,11 @@
 ---
 host: localhost
+scope: user
 resources:
   -
     destination:
       name: filename1
-      path: D:/dev/project/planned-copy/dev/project/planned-copy/t/test-dst/add
+      path: '~/project/public/planned-copy/t/test-dst/add'
       perm: '0644'
     source:
       name: filename1
@@ -12,7 +13,7 @@ resources:
   -
     destination:
       name: filename2
-      path: D:/dev/project/planned-copy/dev/project/planned-copy/t/test-dst/add
+      path: '~/project/public/planned-copy/t/test-dst/add'
       perm: '0644'
     source:
       name: filename2
@@ -20,7 +21,7 @@ resources:
   -
     destination:
       name: file1.conf
-      path: D:/dev/project/planned-copy/dev/project/planned-copy/t/test-dst/add
+      path: '~/project/public/planned-copy/t/test-dst/add'
       perm: '0644'
     source:
       name: file1.conf
@@ -28,7 +29,7 @@ resources:
   -
     destination:
       name: file2.conf
-      path: D:/dev/project/planned-copy/dev/project/planned-copy/t/test-dst/add
+      path: '~/project/public/planned-copy/t/test-dst/add'
       perm: '0644'
     source:
       name: file2.conf
@@ -36,7 +37,7 @@ resources:
   -
     destination:
       name: filename6
-      path: D:/dev/project/planned-copy/dev/project/planned-copy/t/test-dst/add/topdir1
+      path: '~/project/public/planned-copy/t/test-dst/add/topdir1'
       perm: '0644'
     source:
       name: filename6
@@ -44,7 +45,7 @@ resources:
   -
     destination:
       name: filename7
-      path: D:/dev/project/planned-copy/dev/project/planned-copy/t/test-dst/add/topdir1
+      path: '~/project/public/planned-copy/t/test-dst/add/topdir1'
       perm: '0644'
     source:
       name: filename7
@@ -52,9 +53,8 @@ resources:
   -
     destination:
       name: filename8
-      path: D:/dev/project/planned-copy/dev/project/planned-copy/t/test-dst/add/topdir1
+      path: '~/project/public/planned-copy/t/test-dst/add/topdir1'
       perm: '0644'
     source:
       name: filename8
       path: add/topdir1
-scope: user
