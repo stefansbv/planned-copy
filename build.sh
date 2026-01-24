@@ -1,5 +1,9 @@
 #!/bin/bash
 
+dzil build
+
+cd App-PlannedCopy-0.926/
+
 pp -I lib \
    --output=bin/plcp \
    --compress 6 \
@@ -10,3 +14,11 @@ pp -I lib \
    -M 'MooseX::Iterator::' \
    -M='App::PlannedCopy::' \
    --bundle bin/plcp.pl
+
+cp bin/plcp ..
+
+cd ..
+
+dzil clean
+
+echo done.
