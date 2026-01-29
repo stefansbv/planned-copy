@@ -2,7 +2,14 @@
 
 dzil build
 
-cd App-PlannedCopy-0.926/
+# Get the name of the dist
+for dir in $( find $directory -type d -name 'App-PlannedCopy-*' | sort )
+do
+    dir_name=$(basename $dir)
+    echo "# $dir_name"
+done
+
+cd $dir_name
 
 pp -I lib \
    --output=bin/plcp \
