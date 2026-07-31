@@ -293,7 +293,7 @@ sub is_mode_different {
         if ( $self->command eq 'install' ) {
             $res->add_issue(
                 App::PlannedCopy::Issue->new(
-                    message  => 'Wrong permissions:',
+                    message  => 'Wrong permissions, expecting:',
                     details  => $perms,
                     category => 'info',
                     action   => 'chmod',
@@ -302,7 +302,7 @@ sub is_mode_different {
         }
         else {
             Exception::IO::WrongPerms->throw(
-                message  => 'Wrong permissions:',
+                message  => 'Wrong permissions:, expecting:',
                 perm     => $perms,
             );
         }
