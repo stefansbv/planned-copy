@@ -117,7 +117,7 @@ sub copy_file_single {
     unless ($repo->is_dir) {
         $self->make_path($repo);
     }
-    $self->_dst_path( path( @base, $project ) ); # set the destination path!
+    $self->_dst_path( path(@base) );    # set the destination path!
     $self->copy_file_local( $abs_path, $repo );
     return;
 }
