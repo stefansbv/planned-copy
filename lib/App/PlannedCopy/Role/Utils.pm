@@ -70,12 +70,10 @@ has 'repo_owner' => (
 sub file_stat {
     my ( $self, $res_sord ) = @_;
     if ( $res_sord->is_local ) {
-        say "# file_stat: local path";
         return $res_sord->_abs_path->stat;
     }
     my $path = $res_sord->_abs_path;
     die "No such file or directory: $path" unless $self->sftp->stat($path);
-    # use Data::Printer; p $self->sftp->stat($path);
     return $self->sftp->stat($path);
 }
 
@@ -98,21 +96,27 @@ sub is_selfsame {
             pathname => '',
         );
     }
-    #return 0 if !$dst_path->is_file;
 
-    say "src size = ", $self->file_stat($src_sord)->size;
-    say "dst size = ", $self->file_stat($dst_sord)->size;
+    my $host = $self->remote_host;
+    if ( !$host or $host eq 'localhost' ) {
+        return 0 if !$dst_path->is_file;
+    }
+
+    # say "src size = ", $self->file_stat($src_sord)->size;
+    # say "dst size = ", $self->file_stat($dst_sord)->size;
 
     # Compare sizes
     return 0
         if $self->file_stat($src_sord)->size
         != $self->file_stat($dst_sord)->size;
 
-    # Check contents
-    my $digest_src = $self->digest_local($src_path);
-    my $digest_dst = $self->digest_local($dst_path);
-
-    return ( $digest_src eq $digest_dst ) ? 1 : 0;
+    # Check contents; digest check available only for local files!
+    if ( !$host or $host eq 'localhost' ) {
+        my $digest_src = $self->digest_local($src_path);
+        my $digest_dst = $self->digest_local($dst_path);
+        return ( $digest_src eq $digest_dst ) ? 1 : 0;
+    }
+    return 1;
 }
 
 sub digest_local {
@@ -626,8 +630,6 @@ Throws exceptions in exceptional cases ;)
 =head3 digest_local
 
 Calculates and returns the MD5 digest of a file.
-
-=head3 digest_local
 
 =head3 copy_file
 
