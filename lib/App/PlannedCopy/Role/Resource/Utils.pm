@@ -201,7 +201,7 @@ has '_added' => (
 sub compact_path {
     my ($self, $subd) = @_;
     my $dest = path($self->destination_path, $subd)->stringify;
-    my $home = $self->config->user_dir;
+    my $home = $ENV{HOME};
     $dest =~ s{\\}{/};                       # replace '\' with '/'
     $dest =~ s{^$home}{~};                   # replace $HOME with '~/'
     return $dest;
