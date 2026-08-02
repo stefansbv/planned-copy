@@ -68,16 +68,14 @@ has 'repo_owner' => (
     },
 );
 
-# Net::SFTP::Foreign::Attributes
 sub file_stat {
     my ( $self, $res_sord ) = @_;
-    if ($res_sord->is_local) {
+    if ( $res_sord->is_local ) {
         say "# file_stat: local path";
         return $res_sord->_abs_path->stat;
     }
     my $path = $res_sord->_abs_path;
     die "No such file or directory: $path" unless $self->sftp->stat($path);
-    say "# file_stat: remote $path";
     return $self->sftp->stat($path);
 }
 
@@ -85,8 +83,7 @@ sub file_perms {
     my ( $self, $res_sord ) = @_;
     my $stat = $self->file_stat($res_sord);
     return $stat->mode if $stat->can('mode');    # localhost
-    my $mode = sprintf "%o\n", $stat->perm;      # for remote hosts:
-    return $mode;
+    return $stat->perm;
 }
 
 sub is_selfsame {
