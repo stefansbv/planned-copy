@@ -5,7 +5,6 @@ package App::PlannedCopy::Role::Utils;
 use 5.0100;
 use utf8;
 use Carp;
-use Fcntl qw(:mode);
 use Moose::Role;
 use Path::Tiny;                         # File::stat
 use Path::Iterator::Rule;
@@ -76,6 +75,7 @@ sub file_stat {
     }
     my $path = $res_sord->_abs_path;
     die "No such file or directory: $path" unless $self->sftp->stat($path);
+    # use Data::Printer; p $self->sftp->stat($path);
     return $self->sftp->stat($path);
 }
 
@@ -98,7 +98,10 @@ sub is_selfsame {
             pathname => '',
         );
     }
-    return 0 if !$dst_path->is_file;
+    #return 0 if !$dst_path->is_file;
+
+    say "src size = ", $self->file_stat($src_sord)->size;
+    say "dst size = ", $self->file_stat($dst_sord)->size;
 
     # Compare sizes
     return 0
