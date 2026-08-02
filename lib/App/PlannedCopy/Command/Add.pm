@@ -49,6 +49,12 @@ has '_dst_path' => (
     },
 );
 
+has 'include_project_name' => (
+    is      => 'rw',
+    isa     => 'Bool',
+    default => sub {0},
+);
+
 sub run {
     my ( $self ) = @_;
 
@@ -60,7 +66,7 @@ sub run {
     # The parameter has wildcards?
     my ( $file_path, $file_name );
     if ( $path_param =~ m{[?*]} ) {
-        say "param has wildcards!";
+        say "param has wildcards!" if $self->verbose;
 
         if ( $path_param =~ m{^(.*)/([^/]*)$} ) {
             $file_path = $1;
@@ -109,6 +115,15 @@ sub copy_file_single {
     if ( path($path)->is_relative ) {
         $abs_path = path($path)->absolute;
     }
+    if ( $abs_path =~ m/$project/ ) {
+        say "path '$abs_path' includes the project name" if $self->verbose;
+        $self->include_project_name(1);
+    }
+    else {
+        say "path '$abs_path' does not include the project name"
+            if $self->verbose;
+        $self->include_project_name(0);
+    }
     my @chunks = split "/", $abs_path->parent->stringify;
     $chunks[0] = q{/} if $chunks[0] eq q{};  # add the root
     my @base = List::MoreUtils::before { $_ eq $project } @chunks;
@@ -117,7 +132,15 @@ sub copy_file_single {
     unless ($repo->is_dir) {
         $self->make_path($repo);
     }
-    $self->_dst_path( path(@base) );    # set the destination path!
+
+    # set the destination path!
+    if ( $self->include_project_name ) {
+        $self->_dst_path( path( @base, $project ) );
+    }
+    else {
+        $self->_dst_path( path( @base ) );
+    }
+
     $self->copy_file_local( $abs_path, $repo );
     return;
 }
@@ -204,7 +227,7 @@ The method to be called when the C<add> command is run.
 
 =head3 copy_file_batch
 
-Execute 'copy_file_single' for a list of file.
+Execute 'copy_file_single' for a list of files.
 
 =head3 copy_file_single
 
