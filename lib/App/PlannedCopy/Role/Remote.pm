@@ -35,7 +35,7 @@ has 'sftp' => (
             # username => $user,
             # password => $pass,
         );
-        say "[sftp] Connecting as ", $user ? "'$user'" : "'default'" if $self->verbose;
+        say "[sftp] Connecting as ", $user ? "'$user'" : $ENV{USER} if $self->verbose;
         $sftp->error
             and die "Unable to establish SFTP connection: " . $sftp->error . "\n";
 
