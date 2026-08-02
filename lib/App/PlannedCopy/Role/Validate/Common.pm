@@ -85,8 +85,15 @@ sub is_dst_file_defined {
 
 sub is_dst_file_readable {
     my ( $self, $res ) = @_;
-    #my $readable = try { $res->dst->_abs_path->stat->cando( S_IRUSR, 1 ) }
-    my $readable = try { $self->sftp->stat($res->dst->_abs_path) }
+    my $host = $self->remote_host;
+    my $readable = try {
+        if ( !$host or $host eq 'localhost' ) {
+            $res->dst->_abs_path->stat->cando( S_IRUSR, 1 );
+        }
+        else {
+            $self->sftp->stat( $res->dst->_abs_path );
+        }
+    }
     catch {
         my $err = $_;
         if ( $err =~ m/Permission denied/i ) {
