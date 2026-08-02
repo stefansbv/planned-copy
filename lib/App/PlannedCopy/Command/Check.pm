@@ -119,8 +119,8 @@ sub check_project {
             ( $cnt != 1 ? 's' : '' ),
             ' to check',
             ( $batch ? '...' : ':' ) if $self->verbose;
-        print " skipped\n" if $self->verbose;
-        return;
+        #print " skipped\n" if $self->verbose;
+        #return;
     }
 
     my $name = $self->dst_name;

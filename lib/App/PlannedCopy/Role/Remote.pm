@@ -31,13 +31,15 @@ has 'sftp' => (
         my $pass = $self->pass;
         my $sftp = Net::SFTP::Foreign->new(
             $host,
-            backend  => 'Net_SSH2',
-            username => $user,
-            password => $pass,
+            # backend  => 'Net_SSH2',
+            # username => $user,
+            # password => $pass,
         );
         say "[sftp] Connecting as ", $user ? "'$user'" : "'default'" if $self->verbose;
         $sftp->error
             and die "Unable to establish SFTP connection: " . $sftp->error . "\n";
+
+        say "[sftp] status: ", $sftp->status;
 
         $sftp->setcwd('/') or die "Unable to change cwd: " . $sftp->error . "\n";
         say "[sftp] CWD is ", $sftp->cwd if $self->verbose;

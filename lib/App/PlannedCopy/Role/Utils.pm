@@ -5,8 +5,9 @@ package App::PlannedCopy::Role::Utils;
 use 5.0100;
 use utf8;
 use Carp;
+use Fcntl qw(:mode);
 use Moose::Role;
-use Path::Tiny;
+use Path::Tiny;                         # File::stat
 use Path::Iterator::Rule;
 use Try::Tiny;
 use Capture::Tiny ':all';
@@ -67,18 +68,25 @@ has 'repo_owner' => (
     },
 );
 
+# Net::SFTP::Foreign::Attributes
 sub file_stat {
     my ( $self, $res_sord ) = @_;
-    return $res_sord->_abs_path->stat if $res_sord->is_local;
+    if ($res_sord->is_local) {
+        say "# file_stat: local path";
+        return $res_sord->_abs_path->stat;
+    }
     my $path = $res_sord->_abs_path;
     die "No such file or directory: $path" unless $self->sftp->stat($path);
+    say "# file_stat: remote $path";
     return $self->sftp->stat($path);
 }
 
 sub file_perms {
     my ( $self, $res_sord ) = @_;
     my $stat = $self->file_stat($res_sord);
-    return $stat->mode;
+    return $stat->mode if $stat->can('mode');    # localhost
+    my $mode = sprintf "%o\n", $stat->perm;      # for remote hosts:
+    return $mode;
 }
 
 sub is_selfsame {
@@ -93,12 +101,12 @@ sub is_selfsame {
             pathname => '',
         );
     }
-    if ( !$dst_path->is_file ) {
-        return 0;
-    }
+    return 0 if !$dst_path->is_file;
 
     # Compare sizes
-    return 0 if $self->file_stat($src_sord)->size != $self->file_stat($dst_sord)->size;
+    return 0
+        if $self->file_stat($src_sord)->size
+        != $self->file_stat($dst_sord)->size;
 
     # Check contents
     my $digest_src = $self->digest_local($src_path);

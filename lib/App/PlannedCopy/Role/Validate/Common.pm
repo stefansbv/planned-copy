@@ -4,7 +4,7 @@ package App::PlannedCopy::Role::Validate::Common;
 
 use 5.0100;
 use utf8;
-use Fcntl qw(S_IRUSR S_IWUSR);
+use Fcntl qw(S_IRUSR S_IWUSR :mode);
 use Path::Tiny;
 use Archive::Any::Lite;
 use Try::Tiny;
@@ -85,7 +85,8 @@ sub is_dst_file_defined {
 
 sub is_dst_file_readable {
     my ( $self, $res ) = @_;
-    my $readable = try { $res->dst->_abs_path->stat->cando( S_IRUSR, 1 ) }
+    #my $readable = try { $res->dst->_abs_path->stat->cando( S_IRUSR, 1 ) }
+    my $readable = try { $self->sftp->stat($res->dst->_abs_path) }
     catch {
         my $err = $_;
         if ( $err =~ m/Permission denied/i ) {
