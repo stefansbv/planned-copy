@@ -1,3 +1,4 @@
+#!/usr/bin/env perl
 package App::PlannedCopy::Role::Validate::Common;
 
 # ABSTRACT: Role for resource element validation - common for all commands
@@ -9,6 +10,8 @@ use Path::Tiny;
 use Archive::Any::Lite;
 use Try::Tiny;
 use Moose::Role;
+
+use Data::Dump;
 
 use App::PlannedCopy::Exceptions;
 
@@ -86,14 +89,15 @@ sub is_dst_file_defined {
 sub is_dst_file_readable {
     my ( $self, $res ) = @_;
     my $host = $self->remote_host;
-    my $readable = try {
-        if ( !$host or $host eq 'localhost' ) {
-            $res->dst->_abs_path->stat->cando( S_IRUSR, 1 );
-        }
-        else {
-            $self->sftp->stat( $res->dst->_abs_path );
-        }
-    }
+    ( !$host or $host eq 'localhost' )
+        ? $self->is_dst_local_file_readable($res)
+        : $self->is_dst_remote_file_readable($res);
+    return;
+}
+
+sub is_dst_local_file_readable {
+    my ( $self, $res ) = @_;
+    my $readable = try { $res->dst->_abs_path->stat->cando( S_IRUSR, 1 ) }
     catch {
         my $err = $_;
         if ( $err =~ m/Permission denied/i ) {
@@ -139,6 +143,66 @@ sub is_dst_file_readable {
             message  => 'Read permission denied:',
             pathname => $res->dst->short_path,
         );
+    }
+    return;
+}
+
+sub get_remote_file_mode {
+    my ($self, $mode) = @_;
+    my $user_rwx      = ( $mode & S_IRWXU ) >> 6;
+    my $group_read    = ( $mode & S_IRGRP ) >> 3;
+    my $other_execute = $mode & S_IXOTH;
+    my $is_directory  = S_ISDIR($mode);
+    printf "Permissions are %04o\n", S_IMODE($mode);
+    say " user_rwx = ",     $user_rwx;
+    say " group_read = ",   $group_read;
+    say " is_directory = ", $is_directory;
+    return;
+}
+
+sub is_dst_remote_file_readable {
+    my ( $self, $res ) = @_;
+
+    say " check remote: ", $res->dst->_abs_path;
+    my $r_stat = $self->sftp->stat( $res->dst->_abs_path );
+    if ($r_stat) {
+        $self->get_remote_file_mode( $r_stat->perm );
+        my $mode = $r_stat->perm;
+        my $perm = sprintf "%04o\n", S_IMODE($mode);
+        say "# perm $perm";
+        return 1 if $perm eq '0644';
+        return 1 if $perm eq '0640';
+        return 1 if $perm eq '0600';
+        return;
+    }
+    else {
+        if (   ( $self->command eq 'install' )
+            || ( $self->command eq 'check' )
+            || ( $self->command eq 'diff' ) )
+        {
+            $res->add_issue(
+                App::PlannedCopy::Issue->new(
+                    message  => 'Not installed',
+                    category => 'info',
+                    action   => 'install',
+                ),
+            );
+        }
+        elsif ( $self->command eq 'sync' ) {
+            $res->add_issue(
+                App::PlannedCopy::Issue->new(
+                    message  => 'Not installed',
+                    category => 'info',
+                    action   => 'skip',
+                ),
+            );
+        }
+        else {
+            Exception::IO::FileNotFound->throw(
+                message  => 'Not installed:',
+                pathname => $res->dst->short_path,
+            );
+        }
     }
     return;
 }
