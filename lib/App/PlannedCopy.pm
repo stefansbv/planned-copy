@@ -32,6 +32,13 @@ option 'verbose' => (
     documentation => q[Verbose output.],
 );
 
+option 'debug' => (
+    is            => 'rw',
+    isa           => 'Bool',
+    cmd_aliases   => [qw(d)],
+    documentation => q[Debug output.],
+);
+
 has config => (
     is      => 'ro',
     isa     => 'App::PlannedCopy::Config',
@@ -163,6 +170,10 @@ An attribute that holds the C<dryrun> comman line option.
 =head3 verbose
 
 An attribute that holds the C<verbose> comman line option.
+
+=head3 debug
+
+An attribute that holds the C<debug> comman line option.
 
 =head3 config
 
