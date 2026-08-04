@@ -114,14 +114,14 @@ sub check_project {
     my $cnt  = $resu->count;
 
     # Disable remote check until it works.
-    if ( $resu->resource_host ne 'localhost' ) {
-        print '[', fg('yellow1', $self->project), "], Job: ", $cnt, ' file',
-            ( $cnt != 1 ? 's' : '' ),
-            ' to check',
-            ( $batch ? '...' : ':' ) if $self->verbose;
-        #print " skipped\n" if $self->verbose;
-        #return;
-    }
+    # if ( $resu->resource_host ne 'localhost' ) {
+    #     print '[', fg('yellow1', $self->project), "], Job: ", $cnt, ' file',
+    #         ( $cnt != 1 ? 's' : '' ),
+    #         ' to check',
+    #         ( $batch ? '...' : ':' ) if $self->verbose;
+    #     print " skipped\n" if $self->verbose;
+    #     return;
+    # }
 
     my $name = $self->dst_name;
     if ($name) {
