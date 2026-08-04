@@ -27,9 +27,11 @@ has 'sftp' => (
         my $self = shift;
         my $host = $self->remote_host // 'localhost';
         return if $host eq 'localhost';
+        my $para = [];
+        push @{$para}, '-v' if $self->verbose;
         my $sftp = Net::SFTP::Foreign->new(
             $host,
-            more => ['-v'],
+            more => $para,
         );
         say "[sftp] Connecting as ", $ENV{USER} if $self->verbose;
         $sftp->error
