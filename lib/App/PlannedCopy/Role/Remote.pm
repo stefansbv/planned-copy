@@ -27,15 +27,11 @@ has 'sftp' => (
         my $self = shift;
         my $host = $self->remote_host // 'localhost';
         return if $host eq 'localhost';
-        my $user = $self->user;
-        my $pass = $self->pass;
         my $sftp = Net::SFTP::Foreign->new(
             $host,
-            # backend  => 'Net_SSH2',
-            # username => $user,
-            # password => $pass,
+            more => ['-v'],
         );
-        say "[sftp] Connecting as ", $user ? "'$user'" : $ENV{USER} if $self->verbose;
+        say "[sftp] Connecting as ", $ENV{USER} if $self->verbose;
         $sftp->error
             and die "Unable to establish SFTP connection: " . $sftp->error . "\n";
 
