@@ -147,33 +147,33 @@ sub is_dst_local_file_readable {
     return;
 }
 
-sub get_remote_file_mode {
-    my ($self, $mode) = @_;
-    my $user_rwx      = ( $mode & S_IRWXU ) >> 6;
-    my $group_read    = ( $mode & S_IRGRP ) >> 3;
-    my $other_execute = $mode & S_IXOTH;
-    my $is_directory  = S_ISDIR($mode);
-    printf "Permissions are %04o\n", S_IMODE($mode);
-    say " user_rwx = ",     $user_rwx;
-    say " group_read = ",   $group_read;
-    say " is_directory = ", $is_directory;
-    return;
-}
+# sub get_remote_file_mode {
+#     my ($self, $mode) = @_;
+#     my $user_rwx      = ( $mode & S_IRWXU ) >> 6;
+#     my $group_read    = ( $mode & S_IRGRP ) >> 3;
+#     my $other_execute = $mode & S_IXOTH;
+#     my $is_directory  = S_ISDIR($mode);
+#     printf "Permissions are %04o\n", S_IMODE($mode);
+#     say " user_rwx = ",     $user_rwx;
+#     say " group_read = ",   $group_read;
+#     say " is_directory = ", $is_directory;
+#     return;
+# }
 
 sub is_dst_remote_file_readable {
     my ( $self, $res ) = @_;
-
-    say " check remote: ", $res->dst->_abs_path;
     my $r_stat = $self->sftp->stat( $res->dst->_abs_path );
     if ($r_stat) {
-        $self->get_remote_file_mode( $r_stat->perm );
         my $mode = $r_stat->perm;
-        my $perm = sprintf "%04o\n", S_IMODE($mode);
-        say "# perm $perm";
-        return 1 if $perm eq '0644';
-        return 1 if $perm eq '0640';
-        return 1 if $perm eq '0600';
-        return;
+        if ($mode & S_IRUSR) {
+            return 1; # file is readable by the owner
+        } else {
+            return 0; # file is not readable by the owner
+        }
+        if ( $self->debug ) {
+            my $perm = sprintf "%04o\n", S_IMODE($mode);
+            say "# perm $perm";
+        }
     }
     else {
         if (   ( $self->command eq 'install' )
