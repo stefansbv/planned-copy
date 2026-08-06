@@ -277,7 +277,6 @@ sub set_perm_local {
 
 sub set_perm_remote {
     my ( $self, $file, $perm ) = @_;
-    say " set_perm: $file  ($perm)";
     my $sftp = try { $self->sftp }
     catch {
         my $err = $_;
@@ -289,22 +288,6 @@ sub set_perm_remote {
     $perm =~ s/^0//;
     $sftp->chmod( $file, oct($perm) )
         or die "chmod failed: " . $sftp->error . "\n";
-
-    # try { $file->chmod($perm) }
-    # catch {
-    #     my $err    = $_;
-    #     my $logmsg = '';
-    #     if ( $err =~ m{Operation not permitted}i ) {
-    #         $logmsg = 'Permission denied';
-    #     }
-    #     else {
-    #         $logmsg = $err;
-    #     }
-    #     Exception::IO::SystemCmd->throw(
-    #         message => 'The perm command failed.',
-    #         logmsg  => $logmsg,
-    #     );
-    # };
     return;
 }
 
