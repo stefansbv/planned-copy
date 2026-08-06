@@ -1,4 +1,3 @@
-#!/usr/bin/env perl
 package App::PlannedCopy::Role::Validate::Common;
 
 # ABSTRACT: Role for resource element validation - common for all commands
