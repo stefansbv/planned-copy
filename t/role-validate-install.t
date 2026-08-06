@@ -40,7 +40,6 @@ my @methods = (
         is_src_and_dst_different
         is_owner_default
         is_mode_different
-        remote_host
     )
 );
 
