@@ -36,9 +36,7 @@ has 'sftp' => (
         say "[sftp] Connecting as ", $ENV{USER} if $self->verbose;
         $sftp->error
             and die "Unable to establish SFTP connection: " . $sftp->error . "\n";
-
-        say "[sftp] status: ", $sftp->status;
-
+        # say "[sftp] status: ", $sftp->status;
         $sftp->setcwd('/') or die "Unable to change cwd: " . $sftp->error . "\n";
         say "[sftp] CWD is ", $sftp->cwd if $self->verbose;
 
