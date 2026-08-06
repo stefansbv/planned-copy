@@ -144,14 +144,17 @@ sub copy_file {
     if ($verb eq 'install') {
         $src_path = $res->src->_abs_path;
         $dst_path = $res->dst->_abs_path;
+        # say "# install: $src_path \n# to: $dst_path" if $self->verbose;
     }
     elsif ($verb eq 'backup') {
         $src_path = $res->dst->_abs_path;
         $dst_path = $res->dst->_abs_path_bak;
+        # say "# backup: $src_path \n# to: $dst_path" if $self->verbose;
     }
     elsif ($verb eq 'sync') {
         $src_path = $res->dst->_abs_path;
         $dst_path = $res->src->_abs_path;
+        # say "# sync: $src_path \n# to: $dst_path" if $self->verbose;
     }
     else {
         die "unknown verb: $verb";
@@ -161,7 +164,7 @@ sub copy_file {
         $self->copy_file_local( $src_path, $dst_path );
     }
     else {
-        $self->copy_file_remote( $src_path, $dst_path );
+        $self->copy_file_remote( $verb, $src_path, $dst_path );
     }
     return;
 }
@@ -207,7 +210,7 @@ sub copy_file_local {
 }
 
 sub copy_file_remote {
-    my ( $self, $src, $dst ) = @_;
+    my ( $self, $verb, $src, $dst ) = @_;
     my $sftp = try { $self->sftp }
     catch {
         my $err = $_;
@@ -217,10 +220,14 @@ sub copy_file_remote {
         );
     };
     try {
-        # $sftp->setcwd( $dst->parent )
-        #     or die "Unable to change cwd " . $sftp->error . "\n";
-        $sftp->put( $src, $dst, late_set_perm => 1 )
-            or die "put failed: " . $sftp->error . "\n";
+        if ( $verb eq 'sync' ) {
+            $sftp->get( $src, $dst, copy_perm => 0 )
+                or die "put failed: " . $sftp->error . "\n";
+        }
+        else {
+            $sftp->put( $src, $dst, late_set_perm => 1 )
+                or die "put failed: " . $sftp->error . "\n";
+        }
     }
     catch {
         my $err = $_;
@@ -233,11 +240,26 @@ sub copy_file_remote {
 }
 
 sub set_perm {
-    my ($self, $file, $perm) = @_;
-    die "The 'set_perm' method works only with files." unless $file->is_file;
-    try   { $file->chmod($perm) }
+    my ( $self, $file, $perm ) = @_;
+    say " set_perm: $file  ($perm)";
+    my $host = $self->remote_host;
+    if ( !$host or $host eq 'localhost' ) {
+        $self->set_perm_local($file, $perm);
+    }
+    else {
+        $self->set_perm_remote($file, $perm);
+    }
+    return;
+}
+
+sub set_perm_local {
+    my ( $self, $file, $perm ) = @_;
+    say " set_perm: $file  ($perm)";
+    die "The 'set_perm' method works only with files."
+        unless $file->is_file;
+    try { $file->chmod($perm) }
     catch {
-        my $err = $_;
+        my $err    = $_;
         my $logmsg = '';
         if ( $err =~ m{Operation not permitted}i ) {
             $logmsg = 'Permission denied';
@@ -250,6 +272,39 @@ sub set_perm {
             logmsg  => $logmsg,
         );
     };
+    return;
+}
+
+sub set_perm_remote {
+    my ( $self, $file, $perm ) = @_;
+    say " set_perm: $file  ($perm)";
+    my $sftp = try { $self->sftp }
+    catch {
+        my $err = $_;
+        Exception::IO::SystemCmd->throw(
+            message => 'The sftp command failed.',
+            logmsg  => $err,
+        );
+    };
+    $perm =~ s/^0//;
+    $sftp->chmod( $file, oct($perm) )
+        or die "chmod failed: " . $sftp->error . "\n";
+
+    # try { $file->chmod($perm) }
+    # catch {
+    #     my $err    = $_;
+    #     my $logmsg = '';
+    #     if ( $err =~ m{Operation not permitted}i ) {
+    #         $logmsg = 'Permission denied';
+    #     }
+    #     else {
+    #         $logmsg = $err;
+    #     }
+    #     Exception::IO::SystemCmd->throw(
+    #         message => 'The perm command failed.',
+    #         logmsg  => $logmsg,
+    #     );
+    # };
     return;
 }
 
