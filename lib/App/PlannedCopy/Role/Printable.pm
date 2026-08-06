@@ -69,7 +69,7 @@ sub item_printer {
         $self->printer( $color, $res->src->_name, $res->dst->short_path );
         $res->inc_printed;
     }
-    return unless $self->verbose;
+    # return unless $self->verbose;
     foreach my $issue ( $res->all_issues ) {
         my $issue_color = $self->config->get_color( $issue->category );
         $self->issue_printer( $issue, $issue_color );
