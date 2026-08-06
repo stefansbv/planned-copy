@@ -20,6 +20,7 @@ pp -I lib \
    -M='MooseX::Enumeration::' \
    -M 'MooseX::Iterator::' \
    -M='App::PlannedCopy::' \
+   -M='Net::SFTP::Foreign::Backend::Unix' \
    --bundle bin/plcp.pl
 
 cp bin/plcp ..
