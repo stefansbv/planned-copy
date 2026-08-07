@@ -17,7 +17,7 @@ with qw(App::PlannedCopy::Role::Printable
         App::PlannedCopy::Role::Remote
        );
 
-#use App::PlannedCopy::Resource;
+use App::PlannedCopy::Resource;
 
 command_long_description q[Compare the repository files with the installed versions for the selected <project>.];
 
@@ -36,12 +36,12 @@ parameter 'dst_name' => (
     documentation => q[Optional destination file name.],
 );
 
-option 'host' => (
-    is            => 'rw',
-    isa           => 'Str',
-    cmd_aliases   => [qw(H)],
-    documentation => q[Remote host name.],
-);
+# option 'host' => (
+#     is            => 'rw',
+#     isa           => 'Str',
+#     cmd_aliases   => [qw(H)],
+#     documentation => q[Remote host name.],
+# );
 
 option 'user' => (
     is            => 'rw',
@@ -90,13 +90,19 @@ sub run {
                     if $self->verbose;
                 next;
             }
-            if ( ( $user eq 'root' ) && ( $scope eq 'user' ) ) {
-                say '[', fg( 'yellow1', $path ), "] Skipping user project"
+            if ( $item->{host} ne 'localhost' ) {
+                say '[', fg( 'yellow1', $path ), "] Skipping remote project"
                     if $self->verbose;
                 next;
             }
             $self->project($path);    # set project
             $self->check_project('batch');
+            if ( ( $user eq 'root' ) && ( $scope eq 'user' ) ) {
+                say '[', fg( 'yellow1', $path ), "] Skipping user project"
+                    if $self->verbose;
+                next;
+            }
+
             print "." unless $self->verbose;
         }
         print " done\n" unless $self->verbose;
@@ -108,11 +114,10 @@ sub run {
 sub check_project {
     my ( $self, $batch ) = @_;
 
-    # my $file = $self->config->resource_file( $self->project );
-    # my $resu = App::PlannedCopy::Resource->new( resource_file => $file );
-    my $res  = $self->resource;
-    my $iter = $res->resource_iter;
-    my $cnt  = $res->count;
+    my $file = $self->config->resource_file( $self->project );
+    my $resu = App::PlannedCopy::Resource->new( resource_file => $file );
+    my $iter = $resu->resource_iter;
+    my $cnt  = $resu->count;
 
     # Disable remote check until it works.
     # if ( $resu->resource_host ne 'localhost' ) {

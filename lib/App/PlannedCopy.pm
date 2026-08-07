@@ -112,12 +112,17 @@ sub _build_projects {
                 = ( $has_resu and !$is_disabled )
                 ? $self->get_project_scope($res_file)
                 : undef;
+            my $host
+                = ( $has_resu and !$is_disabled )
+                ? $self->get_project_host($res_file)
+                : undef
             $self->inc_count_proj if $has_resu;
             $self->inc_count_dirs;
             push @dirs, {
                 path     => $path->basename,
                 resource => $has_resu,
                 scope    => $scope,
+                host     => $host,
                 disabled => $is_disabled,
             };
         }
@@ -151,6 +156,14 @@ sub get_project_scope {
         unless $file->is_file;
     my $res = App::PlannedCopy::Resource->new( resource_file => $file );
     return $res->resource_scope;
+}
+
+sub get_project_host {
+    my ( $self, $file ) = @_;
+    croak "The 'get_project_host' method requires a resource file parameter."
+        unless $file->is_file;
+    my $res = App::PlannedCopy::Resource->new( resource_file => $file );
+    return $res->resource_host;
 }
 
 __PACKAGE__->meta->make_immutable;
