@@ -234,6 +234,10 @@ the entire command and its arguments.
 
 Returns the scope attribute of the resource file if is defined.
 
+=head3 get_project_host
+
+Returns the host attribute of the resource file if is defined.
+
 =head1 Known Problems
 
 If the C<diff-tool> configuration is set to a tool with a GUI, and the

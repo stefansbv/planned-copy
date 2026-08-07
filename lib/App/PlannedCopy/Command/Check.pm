@@ -17,7 +17,7 @@ with qw(App::PlannedCopy::Role::Printable
         App::PlannedCopy::Role::Remote
        );
 
-use App::PlannedCopy::Resource;
+use App::PlannedCopy::Resource;              # don't remove this and the instance
 
 command_long_description q[Compare the repository files with the installed versions for the selected <project>.];
 
@@ -35,13 +35,6 @@ parameter 'dst_name' => (
     cmd_flag      => 'file',
     documentation => q[Optional destination file name.],
 );
-
-# option 'host' => (
-#     is            => 'rw',
-#     isa           => 'Str',
-#     cmd_aliases   => [qw(H)],
-#     documentation => q[Remote host name.],
-# );
 
 option 'user' => (
     is            => 'rw',
@@ -118,16 +111,6 @@ sub check_project {
     my $resu = App::PlannedCopy::Resource->new( resource_file => $file );
     my $iter = $resu->resource_iter;
     my $cnt  = $resu->count;
-
-    # Disable remote check until it works.
-    # if ( $resu->resource_host ne 'localhost' ) {
-    #     print '[', fg('yellow1', $self->project), "], Job: ", $cnt, ' file',
-    #         ( $cnt != 1 ? 's' : '' ),
-    #         ' to check',
-    #         ( $batch ? '...' : ':' ) if $self->verbose;
-    #     print " skipped\n" if $self->verbose;
-    #     return;
-    # }
 
     my $name = $self->dst_name;
     if ($name) {
