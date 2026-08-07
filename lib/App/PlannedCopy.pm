@@ -39,6 +39,13 @@ option 'debug' => (
     documentation => q[Debug output.],
 );
 
+option 'host' => (
+    is            => 'rw',
+    isa           => 'Str',
+    cmd_aliases   => [qw(H)],
+    documentation => q[Remote host name.],
+);
+
 has config => (
     is      => 'ro',
     isa     => 'App::PlannedCopy::Config',
