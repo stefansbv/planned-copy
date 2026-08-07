@@ -115,7 +115,7 @@ sub _build_projects {
             my $host
                 = ( $has_resu and !$is_disabled )
                 ? $self->get_project_host($res_file)
-                : undef
+                : undef;
             $self->inc_count_proj if $has_resu;
             $self->inc_count_dirs;
             push @dirs, {
