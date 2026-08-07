@@ -17,7 +17,7 @@ with qw(App::PlannedCopy::Role::Printable
         App::PlannedCopy::Role::Remote
        );
 
-use App::PlannedCopy::Resource;
+#use App::PlannedCopy::Resource;
 
 command_long_description q[Synchronize the configuration files.  Switch destination with source and copy the files back to the repository.];
 
@@ -62,8 +62,9 @@ sub run {
 
     $self->check_project_name;
 
-    my $file = $self->config->resource_file( $self->project );
-    my $res  = App::PlannedCopy::Resource->new( resource_file => $file);
+    # my $file = $self->config->resource_file( $self->project );
+    # my $res  = App::PlannedCopy::Resource->new( resource_file => $file);
+    my $res  = $self->resource;
     my $iter = $res->resource_iter;
 
     my $name = $self->dst_name;

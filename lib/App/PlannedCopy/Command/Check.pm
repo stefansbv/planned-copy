@@ -17,7 +17,7 @@ with qw(App::PlannedCopy::Role::Printable
         App::PlannedCopy::Role::Remote
        );
 
-use App::PlannedCopy::Resource;
+#use App::PlannedCopy::Resource;
 
 command_long_description q[Compare the repository files with the installed versions for the selected <project>.];
 
@@ -108,10 +108,11 @@ sub run {
 sub check_project {
     my ( $self, $batch ) = @_;
 
-    my $file = $self->config->resource_file( $self->project );
-    my $resu = App::PlannedCopy::Resource->new( resource_file => $file );
-    my $iter = $resu->resource_iter;
-    my $cnt  = $resu->count;
+    # my $file = $self->config->resource_file( $self->project );
+    # my $resu = App::PlannedCopy::Resource->new( resource_file => $file );
+    my $res  = $self->resource;
+    my $iter = $res->resource_iter;
+    my $cnt  = $res->count;
 
     # Disable remote check until it works.
     # if ( $resu->resource_host ne 'localhost' ) {

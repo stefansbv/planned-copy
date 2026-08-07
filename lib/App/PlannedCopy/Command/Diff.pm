@@ -19,7 +19,7 @@ with qw(App::PlannedCopy::Role::Printable
         App::PlannedCopy::Role::Remote
        );
 
-use App::PlannedCopy::Resource;
+#use App::PlannedCopy::Resource;
 
 command_long_description q[Run a diff utility.  Defaults to kompare];
 
@@ -84,8 +84,9 @@ sub run {
 
     $self->check_project_name;
 
-    my $file = $self->config->resource_file( $self->project );
-    my $res  = App::PlannedCopy::Resource->new( resource_file => $file );
+    # my $file = $self->config->resource_file( $self->project );
+    # my $res  = App::PlannedCopy::Resource->new( resource_file => $file );
+    my $res  = $self->resource;
     my $iter = $res->resource_iter;
     my $name = $self->dst_name;
     if ($name) {

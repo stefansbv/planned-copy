@@ -17,7 +17,7 @@ with qw(App::PlannedCopy::Role::Printable
         App::PlannedCopy::Role::Utils
        );
 
-use App::PlannedCopy::Resource;
+#use App::PlannedCopy::Resource;
 
 command_long_description q[Search the repository.];
 
@@ -75,10 +75,11 @@ sub run {
 sub search_in_projects {
     my ( $self, $batch ) = @_;
 
-    my $file = $self->config->resource_file( $self->project );
-    my $resu = App::PlannedCopy::Resource->new( resource_file => $file );
-    my $iter = $resu->resource_iter;
-    my $cnt  = $resu->count;
+    # my $file = $self->config->resource_file( $self->project );
+    # my $resu = App::PlannedCopy::Resource->new( resource_file => $file );
+    my $res  = $self->resource;
+    my $iter = $res->resource_iter;
+    my $cnt  = $res->count;
 
     my $name = $self->dst_name;
 

@@ -18,7 +18,7 @@ with qw(App::PlannedCopy::Role::Printable
         App::PlannedCopy::Role::Remote
        );
 
-use App::PlannedCopy::Resource;
+#use App::PlannedCopy::Resource;
 
 command_long_description q[Install the configuration files of the selected <project>.];
 
@@ -37,12 +37,12 @@ parameter 'dst_name' => (
     documentation => q[Optional destination file name.],
 );
 
-option 'host' => (
-    is            => 'rw',
-    isa           => 'Str',
-    cmd_aliases   => [qw(H)],
-    documentation => q[Remote host name.],
-);
+# option 'host' => (
+#     is            => 'rw',
+#     isa           => 'Str',
+#     cmd_aliases   => [qw(H)],
+#     documentation => q[Remote host name.],
+# );
 
 option 'user' => (
     is            => 'rw',
