@@ -33,7 +33,7 @@ my @methods    = (
         is_selfsame
         no_resource_message
         prevalidate_element
-        remote_host
+        _host
         quote_string
         set_owner
         set_perm
@@ -59,7 +59,7 @@ subtest 'Utils Role - local' => sub {
     map has_attribute_ok( $cmd, $_ ), @attributes;
     map can_ok( $cmd, $_ ), @methods;
 
-    is $cmd->remote_host, undef, 'local host';
+    is $cmd->_host, undef, 'local host';
 
     # Not installed, source does not exists
 
@@ -150,13 +150,13 @@ dircopy($dest_path_orig, $dest_path);
 subtest 'Utils Role - remote' => sub {
     my $cmd = TestCmd->new(
         project     => $project,
-        remote_host => 'localhost',
+        _host => 'localhost',
     );
     my $args = {};
     map has_attribute_ok( $cmd, $_ ), @attributes;
     map can_ok( $cmd, $_ ), @methods;
 
-    ok $cmd->remote_host, 'remote host';
+    ok $cmd->_host, 'remote host';
 
     # Not installed, source does not exists
     $args = {

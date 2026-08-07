@@ -131,7 +131,7 @@ sub synchronize {
     my ( $self, $res ) = @_;
     return if $self->dryrun;
     my $src_path = $res->src->_abs_path;
-    $self->copy_file( 'sync', $res, $self->remote_host );
+    $self->copy_file( 'sync', $res, $self->_host );
     $self->set_perm( $src_path, oct(644) );
     $res->remove_issue_by_action( $res, 'sync' );
     $self->set_owner( $res->src->_abs_path, $self->repo_owner )

@@ -38,6 +38,18 @@ has 'resource' => (
     },
 );
 
+# has '_host' => (
+#     is      => 'ro',
+#     isa     => 'Str',
+#     lazy    => 1,
+#     default => sub {
+#         my $self = shift;
+#         $self->config->host($self->host) if $self->host;
+#         $self->config->host($self->resource->resource_host // 'loclahost');
+#         return $self->config->host;
+#     },
+# );
+
 has 'repo_owner' => (
     is       => 'ro',
     isa      => 'Maybe[Str]',
@@ -97,7 +109,7 @@ sub is_selfsame {
         );
     }
 
-    my $host = $self->remote_host;
+    my $host = $self->_host;
     if ( !$host or $host eq 'localhost' ) {
         return 0 if !$dst_path->is_file;
     }
@@ -159,7 +171,7 @@ sub copy_file {
     else {
         die "unknown verb: $verb";
     }
-    my $host = $self->remote_host;
+    my $host = $self->_host;
     if (!$host or $host eq 'localhost') {
         $self->copy_file_local( $src_path, $dst_path );
     }
@@ -242,7 +254,7 @@ sub copy_file_remote {
 sub set_perm {
     my ( $self, $file, $perm ) = @_;
     say " set_perm: $file  ($perm)";
-    my $host = $self->remote_host;
+    my $host = $self->_host;
     if ( !$host or $host eq 'localhost' ) {
         $self->set_perm_local($file, $perm);
     }
@@ -319,7 +331,7 @@ sub handle_exception {
             $self->exception_to_issue($e, $res);
         }
         else {
-            die "[EE] Unhandled exception:", $exc;
+            die "[EE] Unhandled exception: ", $exc, "\n";
         }
     }
     else {
@@ -696,6 +708,10 @@ to C<localhost>.
 
 Tries to set the perms for the file.  Throws a
 C<Exception::IO::SystemCmd> if the operation fails.
+
+=head3 set_perm_local
+
+=head3 set_perm_remote
 
 =head3 set_owner
 

@@ -201,9 +201,9 @@ sub install_file {
     my ( $self, $res ) = @_;
     return if $self->dryrun;
     $self->make_dst_path($res);
-    $self->copy_file( 'backup', $res, $self->remote_host )
+    $self->copy_file( 'backup', $res, $self->_host )
         if $res->has_action('update');
-    $self->copy_file( 'install', $res, $self->remote_host );
+    $self->copy_file( 'install', $res, $self->_host );
     $res->remove_issue_by_action( $res, 'install' );
     $res->remove_issue_by_action( $res, 'update' );
     $res->issues_category('done');

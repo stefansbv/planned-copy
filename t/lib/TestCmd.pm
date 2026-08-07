@@ -10,7 +10,7 @@ with qw( App::PlannedCopy::Role::Printable
          App::PlannedCopy::Role::Resource::Utils
          App::PlannedCopy::Role::Remote );
 
-has [qw{remote_host user pass}] => (
+has [qw{_host user pass}] => (
     is  => 'ro',
     isa => 'Str',
 );

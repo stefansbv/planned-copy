@@ -87,7 +87,7 @@ sub is_dst_file_defined {
 
 sub is_dst_file_readable {
     my ( $self, $res ) = @_;
-    my $host = $self->remote_host;
+    my $host = $self->_host;
     ( !$host or $host eq 'localhost' )
         ? $self->is_dst_local_file_readable($res)
         : $self->is_dst_remote_file_readable($res);
@@ -460,11 +460,17 @@ in the resource file, for example:
 
 =head3 is_dst_file_readable
 
-Checks the source parent dir of a resource element to see if it's
-readable, using the L<File::stat> function, and throws an
+Dispatch method for the two methods bellow.
+
+=head3 is_dst_local_file_readable
+
+Checks the destination of a resource element to see if it's readable,
+using the L<File::stat> function, and throws an
 L<Exception::IO::PermissionDenied> exception if is not readable or the
 error message contains the "Permission denied" string or else dies
 with an "Unknown stat ERROR: $err" error message.
+
+=head3 is_dst_remote_file_readable
 
 =head3 dst_path_exists
 
