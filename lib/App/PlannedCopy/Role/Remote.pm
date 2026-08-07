@@ -29,16 +29,18 @@ has 'sftp' => (
         my $host = $self->_host;
         return if $host eq 'localhost';
         my $para = [];
-        push @{$para}, '-v' if $self->debug;
         my $sftp;
+        if ( $self->debug ) {
+            push @{$para}, '-v';
+            $sftp = Net::SFTP::Foreign->new( $host, more => $para, );
+        }
+        else {
 
-        # silence sftp
-        my ( undef, undef, undef ) = capture {
-            $sftp = Net::SFTP::Foreign->new(
-                $host,
-                more => $para,
-            );
-        };
+            # silence sftp
+            my ( undef, undef, undef ) = capture {
+                $sftp = Net::SFTP::Foreign->new( $host, more => $para, );
+            };
+        }
         say "[sftp] Connecting as ", $ENV{USER} if $self->verbose;
         $sftp->error
             and die "Unable to establish SFTP connection!\n     "
