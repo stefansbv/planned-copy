@@ -4,9 +4,9 @@
 use Test::Most;
 use Test::Moose;
 use Path::Tiny;
-use MooseX::ClassCompositor;
+use lib 't/lib';
+use TestCmdSync;
 
-use App::PlannedCopy::Role::Validate::Sync;
 use App::PlannedCopy::Resource::Element;
 
 # Test with the test config files
@@ -44,12 +44,20 @@ my @methods = (
 );
 
 my $instance;
-my $class = MooseX::ClassCompositor->new( { class_basename => 'Test', } )
-    ->class_for( 'App::PlannedCopy::Role::Validate::Sync', );
+my $class = 'TestCmdSync';
+
 map has_attribute_ok( $class, $_ ), @attributes;
 map can_ok( $class, $_ ), @methods;
+
 lives_ok{ $instance = $class->new(
-    project => 'test',
+    project => 'install',
+)} 'Test creation of an instance';           # t/test-repo/install
+
+map has_attribute_ok( $class, $_ ), @attributes;
+map can_ok( $class, $_ ), @methods;
+
+lives_ok{ $instance = $class->new(
+    project => 'sync',
 )} 'Test creation of an instance';
 
 subtest 'source and destination ok - instaled' => sub {
