@@ -8,6 +8,7 @@ use Moose::Role;
 use Try::Tiny;
 
 with qw(App::PlannedCopy::Role::Utils
+        App::PlannedCopy::Role::Remote
         App::PlannedCopy::Role::Validate::Common);
 
 use App::PlannedCopy::Exceptions;

@@ -7,6 +7,7 @@ use utf8;
 use Moose::Role;
 
 with qw(App::PlannedCopy::Role::Utils
+        App::PlannedCopy::Role::Remote
         App::PlannedCopy::Role::Validate::Common);
 
 use App::PlannedCopy::Exceptions;
