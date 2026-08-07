@@ -42,7 +42,6 @@ option 'debug' => (
 option 'host' => (
     is            => 'rw',
     isa           => 'Str',
-    cmd_aliases   => [qw(H)],
     documentation => q[Remote host name.],
 );
 
