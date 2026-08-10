@@ -253,7 +253,6 @@ sub copy_file_remote {
 
 sub set_perm {
     my ( $self, $file, $perm ) = @_;
-    say " set_perm: $file  ($perm)";
     my $host = $self->_host;
     if ( !$host or $host eq 'localhost' ) {
         $self->set_perm_local($file, $perm);
@@ -266,7 +265,6 @@ sub set_perm {
 
 sub set_perm_local {
     my ( $self, $file, $perm ) = @_;
-    say " set_perm: $file  ($perm)";
     die "The 'set_perm' method works only with files."
         unless $file->is_file;
     try { $file->chmod($perm) }
