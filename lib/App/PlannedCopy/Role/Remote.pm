@@ -27,21 +27,26 @@ has 'sftp' => (
     default => sub {
         my $self = shift;
         my $host = $self->_host;
+        my $user = $self->user;
         return if $host eq 'localhost';
-        my $para = [];
+        my %params;
+        if ($user) {
+            $params{user} = $user;
+            say "# user set to $user" if $self->verbose;
+        }
         my $sftp;
         if ( $self->debug ) {
-            push @{$para}, '-v';
-            $sftp = Net::SFTP::Foreign->new( $host, more => $para, );
+            $params{more} = '-v';
+            $sftp = Net::SFTP::Foreign->new( $host, %params );
         }
         else {
 
             # silence sftp
             my ( undef, undef, undef ) = capture {
-                $sftp = Net::SFTP::Foreign->new( $host, more => $para, );
+                $sftp = Net::SFTP::Foreign->new( $host, %params );
             };
         }
-        say "[sftp] Connecting as ", $ENV{USER} if $self->verbose;
+        say "[sftp] Connecting ..." if $self->verbose;
         $sftp->error
             and die "Unable to establish SFTP connection!\n     "
             . $sftp->error . "\n";
