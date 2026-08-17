@@ -182,7 +182,7 @@ sub print_summary {
         say '';
         $self->difference_printer( $self->get_differences );
     }
-    say '';
+    say '' if $count_diff;
     say 'Summary:';
     say ' - processed: ', $cnt_proc, ' records';
     say ' - skipped  : ', $self->count_skip;
