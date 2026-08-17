@@ -50,13 +50,6 @@ option 'user' => (
     documentation => q[User name.  Defaults to ENV{USER}],
 );
 
-option 'pass' => (
-    is            => 'rw',
-    isa           => 'Str',
-    cmd_aliases   => [qw(p)],
-    documentation => q[Password.],
-);
-
 sub run {
     my ( $self ) = @_;
 

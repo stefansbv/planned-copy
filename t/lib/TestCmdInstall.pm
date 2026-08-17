@@ -10,7 +10,7 @@ with qw( App::PlannedCopy::Role::Printable
          App::PlannedCopy::Role::Validate::Install
    );
 
-has [qw{host user pass}] => (
+has [qw{host user}] => (
     is  => 'ro',
     isa => 'Str',
 );
