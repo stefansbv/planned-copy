@@ -184,15 +184,15 @@ Planned Copy - a smarter copy application for your Linux box.
 
 =head3 dryrun
 
-An attribute that holds the C<dryrun> comman line option.
+An attribute that holds the C<dryrun> command line option.
 
 =head3 verbose
 
-An attribute that holds the C<verbose> comman line option.
+An attribute that holds the C<verbose> command line option.
 
 =head3 debug
 
-An attribute that holds the C<debug> comman line option.
+An attribute that holds the C<debug> command line option.
 
 =head3 config
 
