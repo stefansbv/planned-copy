@@ -310,9 +310,18 @@ sub is_src_and_dst_different {
         if $res->src->type_is('archive');
     if ( !$self->is_selfsame( $res->src, $res->dst ) ) {
         my $action = 'update';
+        my $ctm_src = $self->file_ctime( $res->src );
+        my $ctm_dst = $self->file_ctime( $res->dst );
+        my $msg = '';
+        if ($ctm_src > $ctm_dst) {
+            $msg = "Source newer than destination";
+        }
+        elsif ($ctm_src < $ctm_dst) {
+            $msg = "Destination newer than source";
+        }
         $res->add_issue(
             App::PlannedCopy::Issue->new(
-                message  => 'Different source and destination',
+                message  => $msg,
                 category => 'info',
                 action   => $action,
             ),

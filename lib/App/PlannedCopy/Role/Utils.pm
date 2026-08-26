@@ -10,7 +10,7 @@ use Path::Tiny;                         # File::stat
 use Path::Iterator::Rule;
 use Try::Tiny;
 use Capture::Tiny ':all';
-
+use Time::Moment;
 use App::PlannedCopy::Exceptions;
 
 sub is_msw {
@@ -93,7 +93,19 @@ sub file_perms {
     my ( $self, $res_sord ) = @_;
     my $stat = $self->file_stat($res_sord);
     return $stat->mode if $stat->can('mode');    # localhost
-    return $stat->perm;
+    return $stat->perm;                          # remote
+}
+
+sub file_date_iso {
+    my ( $self, $res_sord ) = @_;
+    return Time::Moment->from_epoch( $self->file_ctime($res_sord) );
+}
+
+sub file_ctime {
+    my ( $self, $res_sord ) = @_;
+    my $stat = $self->file_stat($res_sord);
+    return $stat->ctime if $stat->can('ctime');  # localhost
+    return $stat->ctime;                         # remote
 }
 
 sub is_selfsame {
@@ -660,9 +672,13 @@ by the command modules.
 
 =head3 file_stat
 
+Dispatch method for local or remote files.  Returns the file stat
+array ref.
+
 =head3 file_perms
 
-The argument must be a resource source or destination object.
+Return the mode (permisions w) of the file.  The argument must be a
+resource source or destination object.
 
     my $mode = $self->file_perms($res_sord);
 

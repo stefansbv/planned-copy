@@ -24,6 +24,8 @@ my @methods    = (
         exception_to_issue
         exceptions
         file_stat
+        file_perms
+        file_ctime
         get_owner
         get_perms
         get_project_files
@@ -139,6 +141,10 @@ subtest 'Utils Role - local' => sub {
     throws_ok { $cmd->get_owner($dst1) } qr/No such file or directory/,
         'no such file or directory caught okay';
     ok $cmd->get_owner($dst2), 'the owner of the file';
+
+    # Time
+    like $cmd->file_ctime($res2->dst), qr{\d+}, 'file ctime';
+    like $cmd->file_date_iso($res2->dst), qr/\d{4}[-]\d{2}[-]\d{2}/, 'file ctime';
 
     # TODO: test set_owner (how?)
 };

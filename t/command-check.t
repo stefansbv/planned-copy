@@ -66,8 +66,7 @@ subtest 'With a resource file - filename1' => sub {
 
     $check->print_summary;
 
-    is capture_stdout { $check->print_summary }, '
-Summary:
+    is capture_stdout { $check->print_summary }, 'Summary:
  - processed: 1 records
  - skipped  : 0
  - same     : 1
@@ -176,8 +175,7 @@ subtest 'With a resource file - filename5' => sub {
         qr/Job: 1 file to check/,
         'run should work';
 
-    is capture_stdout { $check->print_summary }, '
-Summary:
+    is capture_stdout { $check->print_summary }, 'Summary:
  - processed: 1 records
  - skipped  : 1
  - same     : 0
@@ -230,8 +228,7 @@ subtest 'With a resource file - filename7' => sub {
         qr/Job: 1 file to check/,
         'run should work';
 
-    is capture_stdout { $check->print_summary }, '
-Summary:
+    is capture_stdout { $check->print_summary }, 'Summary:
  - processed: 1 records
  - skipped  : 1
  - same     : 0
@@ -284,8 +281,7 @@ subtest 'With a resource file - archive1.tar.gz' => sub {
         qr/Job: 1 file to check/,
         'run should work';
 
-    is capture_stdout { $check->print_summary }, '
-Summary:
+    is capture_stdout { $check->print_summary }, 'Summary:
  - processed: 1 records
  - skipped  : 0
  - same     : 1

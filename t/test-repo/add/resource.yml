@@ -1,6 +1,5 @@
 ---
 host: localhost
-scope: user
 resources:
   -
     destination:
@@ -58,3 +57,4 @@ resources:
     source:
       name: filename8
       path: add/topdir1
+scope: user
