@@ -319,6 +319,9 @@ sub is_src_and_dst_different {
         elsif ($ctm_src < $ctm_dst) {
             $msg = "Destination newer than source";
         }
+        else {
+           $msg = "EE - source and destination stat 'ctime' error?";
+        }
         $res->add_issue(
             App::PlannedCopy::Issue->new(
                 message  => $msg,
