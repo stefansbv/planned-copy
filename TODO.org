@@ -4,3 +4,5 @@
 [EE] Unhandled exception: chmod failed: Couldn't setstat remote file (chmod): No such file
 
 - Add feature to check for duplicate records in the resource file
+
+- Fix check from the root user - has to skip user repos
