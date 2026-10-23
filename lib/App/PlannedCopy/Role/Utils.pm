@@ -98,14 +98,14 @@ sub file_perms {
 
 sub file_date_iso {
     my ( $self, $res_sord ) = @_;
-    return Time::Moment->from_epoch( $self->file_ctime($res_sord) );
+    return Time::Moment->from_epoch( $self->file_mtime($res_sord) );
 }
 
-sub file_ctime {
+sub file_mtime {
     my ( $self, $res_sord ) = @_;
     my $stat = $self->file_stat($res_sord);
-    return $stat->ctime if $stat->can('ctime');  # localhost
-    return $stat->ctime;                         # remote
+    return $stat->mtime if $stat->can('mtime');  # localhost
+    return $stat->mtime;                         # remote
 }
 
 sub is_selfsame {

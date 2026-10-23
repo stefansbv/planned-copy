@@ -309,24 +309,23 @@ sub is_src_and_dst_different {
     die "The 'is_src_and_dst_different' method, does not work on archives"
         if $res->src->type_is('archive');
     if ( !$self->is_selfsame( $res->src, $res->dst ) ) {
-        my $action = 'update';
-        my $ctm_src = $self->file_ctime( $res->src );
-        my $ctm_dst = $self->file_ctime( $res->dst );
-        my $msg = '';
-        if ($ctm_src > $ctm_dst) {
+        my $ctm_src = $self->file_mtime( $res->src );
+        my $ctm_dst = $self->file_mtime( $res->dst );
+        my $msg     = '';
+        if ( $ctm_src > $ctm_dst ) {
             $msg = "Source newer than destination";
         }
-        elsif ($ctm_src < $ctm_dst) {
+        elsif ( $ctm_src < $ctm_dst ) {
             $msg = "Destination newer than source";
         }
         else {
-           $msg = "EE - source and destination stat 'ctime' error?";
+            $msg = "EE - source and destination stat 'mtime' error?";
         }
         $res->add_issue(
             App::PlannedCopy::Issue->new(
                 message  => $msg,
                 category => 'info',
-                action   => $action,
+                action   => 'update',
             ),
         );
     }
