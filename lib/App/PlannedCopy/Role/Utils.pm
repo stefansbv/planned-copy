@@ -682,6 +682,14 @@ resource source or destination object.
 
     my $mode = $self->file_perms($res_sord);
 
+=head3 file_date_iso
+
+Return file C<ctime> in ISO datetime format.
+
+=head3 file_ctime
+
+Return file C<ctime> from C<stat>.
+
 =head3 is_selfsame
 
 Returns true if the source and the destination files are the same.
