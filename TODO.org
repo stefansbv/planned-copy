@@ -1,0 +1,6 @@
+
+- Fix error at remote sync command
+
+[EE] Unhandled exception: chmod failed: Couldn't setstat remote file (chmod): No such file
+
+- Add feature to check for duplicate records in the resource file
