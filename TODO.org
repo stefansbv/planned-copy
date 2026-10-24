@@ -1,8 +1,5 @@
 
-- Fix error at remote sync command
-
-[EE] Unhandled exception: chmod failed: Couldn't setstat remote file (chmod): No such file
-
-- Add feature to check for duplicate records in the resource file
-
-- Fix check from the root user - has to skip user repos
+* TODO application changes [33%]
+  - [ ] Fix error at remote sync command: [EE] Unhandled exception: chmod failed: Couldn't setstat remote file (chmod): No such file
+  - [ ] Add feature to check for duplicate records in the resource file
+  - [X] Fix check from the root user - has to skip user repos
