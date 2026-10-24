@@ -76,6 +76,11 @@ sub run {
                     if $self->verbose;
                 next;
             }
+            if ( ( $user eq 'root' ) && ( $scope ne 'system' ) ) {
+                say '[', fg( 'yellow1', $path ), "] Skipping user project"
+                    if $self->verbose;
+                next;
+            }
             if ( $item->{host} ne 'localhost' ) {
                 say '[', fg( 'yellow1', $path ), "] Skipping remote project"
                     if $self->verbose;
